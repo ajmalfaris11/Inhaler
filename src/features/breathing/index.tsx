@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Play, Info, Moon, Zap, Activity, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Play, Info, Moon, Zap, Activity, CheckCircle2 } from 'lucide-react';
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
 import { BreathingControls } from './components/BreathingControls';
@@ -33,7 +33,7 @@ export function BreathingExercise() {
   };
 
   return (
-    <div className="glass-card" style={view === 'details' ? { maxWidth: '600px', padding: '0', overflow: 'hidden' } : {}}>
+    <div className="glass-card" style={view === 'details' ? { maxWidth: '500px', padding: '0', overflow: 'hidden' } : {}}>
       <AnimatePresence mode="wait">
         {view === 'home' && (
           <HomeView onStart={handleStart} onDetails={handleDetails} />
@@ -107,86 +107,63 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
   return (
     <motion.div
       key="details"
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.05 }}
-      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+      exit={{ opacity: 0, scale: 1.02 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       style={{ width: '100%' }}
     >
       {/* Hero Section */}
-      <div style={{ 
-        height: '250px', 
-        background: 'linear-gradient(135deg, #001a33 0%, #000 100%)',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '2rem',
-        borderBottom: '1px solid var(--glass-border)'
-      }}>
-        <button className="back-btn" onClick={onBack} style={{ position: 'absolute', top: '20px', left: '20px', margin: 0, background: 'rgba(0,0,0,0.3)' }}>
+      <div className="details-hero">
+        <button className="back-btn" onClick={onBack} style={{ position: 'absolute', top: '24px', left: '24px', margin: 0, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
           <ArrowLeft size={18} />
         </button>
         
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          style={{ 
-            width: '80px', 
-            height: '80px', 
-            borderRadius: '24px', 
-            background: 'linear-gradient(135deg, var(--accent-start), var(--accent-end))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '1rem',
-            boxShadow: '0 0 40px rgba(0, 130, 255, 0.4)'
-          }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="card-icon"
+          style={{ width: '72px', height: '72px', borderRadius: '24px', marginBottom: '1.25rem' }}
         >
-          <Icon size={40} color="black" />
+          <Icon size={32} color="black" />
         </motion.div>
         
         <motion.h1 
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          style={{ textAlign: 'center', fontSize: '2.5rem', marginBottom: 0 }}
+          transition={{ delay: 0.2 }}
+          style={{ textAlign: 'center', fontSize: '2.5rem', marginBottom: 0, letterSpacing: '-0.05em' }}
         >
           {exercise.name}
         </motion.h1>
       </div>
 
       {/* Content Section */}
-      <div style={{ padding: '2.5rem' }}>
-        <div className="details-section">
-          <h3>Description</h3>
-          <p style={{ fontSize: '1.1rem', color: '#fff' }}>{exercise.description}</p>
-          
-          <div style={{ height: '1px', background: 'var(--glass-border)', margin: '2rem 0' }} />
-
-          <h3>How to perform</h3>
-          <p>{exercise.howTo}</p>
-          
-          <h3>Why it matters</h3>
-          <p>{exercise.why}</p>
-          
-          <h3>Benefits</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-            {exercise.benefits.map((b, i) => (
-              <span key={i} className="benefit-tag" style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}>
-                <CheckCircle2 size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-                {b}
-              </span>
-            ))}
-          </div>
-
-          <button className="primary" onClick={onStart} style={{ width: '100%', height: '60px', fontSize: '1.1rem' }}>
-            <Play size={20} fill="black" />
-            Start Session Now
-          </button>
+      <div className="details-content-wrapper">
+        <span className="section-title">What is it?</span>
+        <p className="section-text">{exercise.description}</p>
+        
+        <span className="section-title">Instructions</span>
+        <p className="section-subtext">{exercise.howTo}</p>
+        
+        <span className="section-title">Science</span>
+        <p className="section-subtext">{exercise.why}</p>
+        
+        <span className="section-title">Benefits</span>
+        <div className="benefit-list">
+          {exercise.benefits.map((b, i) => (
+            <span key={i} className="benefit-tag">
+              <CheckCircle2 size={14} color="var(--accent-end)" />
+              {b}
+            </span>
+          ))}
         </div>
+
+        <button className="start-action-btn" onClick={onStart}>
+          <Play size={20} fill="black" />
+          Start Session
+        </button>
       </div>
     </motion.div>
   );
