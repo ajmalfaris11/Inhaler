@@ -33,7 +33,7 @@ export function BreathingExercise() {
   };
 
   return (
-    <div className="glass-card" style={view === 'details' ? { maxWidth: '500px', padding: '0', overflow: 'hidden' } : {}}>
+    <div className="glass-card" style={view === 'details' ? { maxWidth: '500px', padding: '0', overflowY: 'auto', maxHeight: '85vh' } : {}}>
       <AnimatePresence mode="wait">
         {view === 'home' && (
           <HomeView onStart={handleStart} onDetails={handleDetails} />
