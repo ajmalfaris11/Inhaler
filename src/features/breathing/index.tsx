@@ -33,19 +33,24 @@ export function BreathingExercise() {
   };
 
   return (
-    <div className="glass-card" style={view === 'details' ? { maxWidth: '500px', padding: '0', overflowY: 'auto', maxHeight: '85vh' } : {}}>
-      <AnimatePresence mode="wait">
-        {view === 'home' && (
-          <HomeView onStart={handleStart} onDetails={handleDetails} />
-        )}
-        {view === 'details' && (
-          <DetailsView exercise={selectedExercise!} onBack={handleBack} onStart={() => setView('exercise')} />
-        )}
-        {view === 'exercise' && (
-          <ExerciseView exercise={selectedExercise!} onBack={handleBack} />
+    <>
+      <div className="glass-card">
+        <AnimatePresence mode="wait">
+          {view === 'home' && (
+            <HomeView onStart={handleStart} onDetails={handleDetails} />
+          )}
+          {view === 'exercise' && (
+            <ExerciseView exercise={selectedExercise!} onBack={handleBack} />
+          )}
+        </AnimatePresence>
+      </div>
+
+      <AnimatePresence>
+        {view === 'details' && selectedExercise && (
+          <DetailsView exercise={selectedExercise} onBack={handleBack} onStart={() => setView('exercise')} />
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
 
@@ -107,11 +112,11 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
   return (
     <motion.div
       key="details"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.02 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      style={{ width: '100%' }}
+      initial={{ y: '100%' }}
+      animate={{ y: 0 }}
+      exit={{ y: '100%' }}
+      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      className="details-view-container"
     >
       {/* Hero Section */}
       <div className="details-hero">
@@ -119,28 +124,17 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
           <ArrowLeft size={18} />
         </button>
         
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="card-icon"
-          style={{ width: '72px', height: '72px', borderRadius: '24px', marginBottom: '1.25rem' }}
-        >
+        <div className="card-icon" style={{ width: '72px', height: '72px', borderRadius: '24px', marginBottom: '1.25rem' }}>
           <Icon size={32} color="black" />
-        </motion.div>
+        </div>
         
-        <motion.h1 
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          style={{ textAlign: 'center', fontSize: '2.5rem', marginBottom: 0, letterSpacing: '-0.05em' }}
-        >
+        <h1 style={{ textAlign: 'center', fontSize: '2.5rem', marginBottom: 0, letterSpacing: '-0.05em' }}>
           {exercise.name}
-        </motion.h1>
+        </h1>
       </div>
 
       {/* Content Section */}
-      <div className="details-content-wrapper">
+      <div className="details-content-wrapper" style={{ flex: 1 }}>
         <span className="section-title">What is it?</span>
         <p className="section-text">{exercise.description}</p>
         
@@ -159,9 +153,15 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
             </span>
           ))}
         </div>
+        
+        {/* Spacer for sticky bottom bar */}
+        <div style={{ height: '40px' }} />
+      </div>
 
+      {/* Sticky Bottom Bar */}
+      <div className="sticky-bottom-bar">
         <button className="start-action-btn" onClick={onStart}>
-          <Play size={20} fill="black" />
+          <Play size={22} fill="black" />
           Start Session
         </button>
       </div>
