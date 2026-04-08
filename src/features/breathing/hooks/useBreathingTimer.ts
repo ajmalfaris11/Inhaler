@@ -2,10 +2,17 @@ import { useState, useEffect } from 'react';
 
 export type BreathingPhase = 'Inhale' | 'Hold' | 'Exhale' | 'Rest';
 
-export function useBreathingTimer() {
+interface Pattern {
+  inhale: number;
+  hold1: number;
+  exhale: number;
+  hold2: number;
+}
+
+export function useBreathingTimer(pattern: Pattern) {
   const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<BreathingPhase>('Rest');
-  const [timer, setTimer] = useState(4);
+  const [timer, setTimer] = useState(pattern.inhale);
   const [cycleCount, setCycleCount] = useState(0);
 
   useEffect(() => {
@@ -15,20 +22,28 @@ export function useBreathingTimer() {
       interval = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 1) {
-            // Switch phases
             if (phase === 'Inhale') {
-              setPhase('Hold');
-              return 4;
+              if (pattern.hold1 > 0) {
+                setPhase('Hold');
+                return pattern.hold1;
+              }
+              setPhase('Exhale');
+              return pattern.exhale;
             } else if (phase === 'Hold') {
               setPhase('Exhale');
-              return 4;
+              return pattern.exhale;
             } else if (phase === 'Exhale') {
-              setPhase('Rest');
-              return 4;
+              if (pattern.hold2 > 0) {
+                setPhase('Rest');
+                return pattern.hold2;
+              }
+              setPhase('Inhale');
+              setCycleCount((c) => c + 1);
+              return pattern.inhale;
             } else {
               setPhase('Inhale');
               setCycleCount((c) => c + 1);
-              return 4;
+              return pattern.inhale;
             }
           }
           return prev - 1;
@@ -36,17 +51,17 @@ export function useBreathingTimer() {
       }, 1000);
     } else {
       setPhase('Rest');
-      setTimer(4);
+      setTimer(pattern.inhale);
     }
 
     return () => clearInterval(interval);
-  }, [isActive, phase]);
+  }, [isActive, phase, pattern]);
 
   const toggle = () => setIsActive(!isActive);
   const reset = () => {
     setIsActive(false);
     setPhase('Rest');
-    setTimer(4);
+    setTimer(pattern.inhale);
     setCycleCount(0);
   };
 
