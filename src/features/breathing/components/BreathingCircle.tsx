@@ -6,7 +6,7 @@ import { BreathingPhase } from '../hooks/useBreathingTimer';
 interface BreathingCircleProps {
   phase: BreathingPhase;
   timer: number;
-  gradient: {
+  gradient?: {
     start: string;
     end: string;
   };
@@ -20,13 +20,20 @@ const circleVariants = {
 };
 
 export function BreathingCircle({ phase, timer, gradient }: BreathingCircleProps) {
+  // Safety fallback for gradient
+  const bgGradient = gradient 
+    ? `linear-gradient(135deg, ${gradient.start} 0%, ${gradient.end} 100%)`
+    : 'linear-gradient(135deg, #0082ff 0%, #00ffd5 100%)';
+  
+  const shadowColor = gradient ? gradient.start : '#0082ff';
+
   return (
     <div className="relative my-8 flex items-center justify-center">
       <motion.div
-        className="w-[220px] h-[220px] sm:w-[260px] sm:h-[260px] rounded-full flex items-center justify-center relative shadow-2xl"
+        className="w-[220px] h-[220px] sm:w-[260px] sm:h-[260px] rounded-full flex items-center justify-center relative shadow-2xl transition-colors duration-500"
         style={{
-          background: `linear-gradient(135deg, ${gradient.start} 0%, ${gradient.end} 100%)`,
-          boxShadow: `0 0 80px ${gradient.start}33`
+          background: bgGradient,
+          boxShadow: `0 0 80px ${shadowColor}33`
         }}
         animate={phase}
         variants={circleVariants}

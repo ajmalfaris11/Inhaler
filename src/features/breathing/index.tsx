@@ -29,22 +29,23 @@ export function BreathingExercise() {
 
   const handleBack = () => {
     setView('home');
+    // We don't reset selectedExercise so the Exit animations can still use it
   };
 
   return (
     <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto py-12">
       <AnimatePresence mode="wait">
         {view === 'home' && (
-          <HomeView onStart={handleStart} onDetails={handleDetails} />
+          <HomeView key="home" onStart={handleStart} onDetails={handleDetails} />
         )}
-        {view === 'exercise' && (
-          <ExerciseView exercise={selectedExercise!} onBack={handleBack} />
+        {view === 'exercise' && selectedExercise && (
+          <ExerciseView key="exercise" exercise={selectedExercise} onBack={handleBack} />
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {view === 'details' && selectedExercise && (
-          <DetailsView exercise={selectedExercise} onBack={handleBack} onStart={() => setView('exercise')} />
+          <DetailsView key="details" exercise={selectedExercise} onBack={handleBack} onStart={() => setView('exercise')} />
         )}
       </AnimatePresence>
     </div>
@@ -54,14 +55,13 @@ export function BreathingExercise() {
 function HomeView({ onStart, onDetails }: { onStart: (ex: Exercise) => void; onDetails: (ex: Exercise) => void }) {
   return (
     <motion.div
-      key="home"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
       className="w-full"
     >
-      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left">Inhale</h1>
+      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left font-sans">Inhale</h1>
       <p className="text-gray-400 text-sm font-light mb-10 text-center sm:text-left tracking-wide">Premium breathing journeys for inner peace.</p>
       
       {exercises.map((ex) => (
@@ -99,11 +99,18 @@ function ExerciseCard({ exercise, onStart, onDetails }: { exercise: Exercise; on
       </p>
 
       <div className="flex gap-4 w-full">
-        <button className="flex-1 bg-white text-black hover:bg-gray-200 rounded-full h-12 font-medium text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.98]" onClick={onStart}>
+        <button 
+          className="flex-1 text-black hover:opacity-90 rounded-full h-12 font-medium text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.98]" 
+          onClick={onStart}
+          style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
+        >
           <Play size={16} fill="black" />
           Start
         </button>
-        <button className="flex-1 bg-white/[0.03] border border-white/10 text-white hover:bg-white/10 rounded-full h-12 font-medium text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.98]" onClick={onDetails}>
+        <button 
+          className="flex-1 bg-white/[0.03] border border-white/10 text-white hover:bg-white/10 rounded-full h-12 font-medium text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.98]" 
+          onClick={onDetails}
+        >
           <div style={{ color: exercise.gradient.end }}>
             <Info size={16} strokeWidth={1.5} />
           </div>
@@ -119,7 +126,6 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
 
   return (
     <motion.div
-      key="details"
       initial={{ y: '100%' }}
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
@@ -128,7 +134,7 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
     >
       {/* Hero Section */}
       <div className="sticky top-0 z-20 h-[220px] sm:h-[280px] bg-surface flex flex-col items-center justify-center p-8 border-b border-white/5">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#001a33] to-black opacity-40 z-[-1]" />
+        <div className="absolute inset-0 opacity-40 z-[-1]" style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}22 0%, #000 100%)` }} />
         
         <button onClick={onBack} className="absolute top-6 left-6 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
           <ArrowLeft size={22} strokeWidth={1.5} />
@@ -198,7 +204,6 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
 
   return (
     <motion.div
-      key="exercise"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -250,13 +255,14 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
         <div className="max-w-xl mx-auto flex gap-4 w-full">
           <button 
             onClick={toggle}
-            className={`flex-1 h-16 rounded-full font-medium text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] ${
-              !isActive 
-                ? 'bg-white text-black hover:bg-gray-200' 
-                : 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
-            }`}
+            className="flex-1 h-16 rounded-full font-medium text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-black"
+            style={{ 
+              background: isActive 
+                ? 'white' 
+                : `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` 
+            }}
           >
-            {isActive ? <Pause size={24} /> : <Play size={24} fill={!isActive ? 'black' : 'none'} />}
+            {isActive ? <Pause size={24} /> : <Play size={24} fill="black" />}
             {isActive ? 'Pause' : 'Start'}
           </button>
           
