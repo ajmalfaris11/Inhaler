@@ -2,10 +2,9 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Play, Info, Moon, Zap, Activity, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Info, Moon, Zap, Activity, CheckCircle2 } from 'lucide-react';
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
-import { BreathingControls } from './components/BreathingControls';
 import { exercises, Exercise } from './data';
 
 const IconMap = {
@@ -62,7 +61,7 @@ function HomeView({ onStart, onDetails }: { onStart: (ex: Exercise) => void; onD
       transition={{ duration: 0.4 }}
       className="w-full"
     >
-      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left">Inhale</h1>
+      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left font-sans">Inhale</h1>
       <p className="text-gray-400 text-sm font-light mb-10 text-center sm:text-left tracking-wide">Premium breathing journeys for inner peace.</p>
       
       {exercises.map((ex) => (
@@ -186,43 +185,75 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
   return (
     <motion.div
       key="exercise"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.4 }}
-      className="flex flex-col items-center w-full"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className="fixed inset-0 bg-background z-[50] flex flex-col items-center justify-center overflow-hidden"
     >
-      <div className="w-full flex justify-start mb-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-300 transition-colors">
-          <ArrowLeft size={18} strokeWidth={1.5} />
-          Return
-        </button>
+      {/* Top Left Return Button */}
+      <button 
+        onClick={onBack} 
+        className="absolute top-8 left-8 p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all z-[60]"
+      >
+        <ArrowLeft size={24} strokeWidth={1.5} />
+      </button>
+
+      <div className="flex-1 flex flex-col items-center justify-center w-full px-8 pb-32">
+        <motion.h1 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="text-5xl font-light tracking-tighter text-center leading-tight mb-2"
+        >
+          {exercise.name}
+        </motion.h1>
+        <p className="text-accent-end text-[11px] uppercase tracking-[0.4em] font-medium mb-12 opacity-80">{exercise.subtitle}</p>
+
+        <BreathingCircle phase={phase} timer={timer} />
+
+        <div className="h-10 text-2xl font-light text-center mt-12">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={phase}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="font-light tracking-[0.2em] text-gray-200"
+            >
+              {isActive ? phase : 'Ready to Begin'}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        
+        <div className="mt-8 text-[11px] uppercase tracking-[0.5em] font-medium text-gray-700">
+          {cycleCount} Cycles Completed
+        </div>
       </div>
 
-      <h1 className="text-5xl font-light tracking-tighter text-center leading-tight mb-2">{exercise.name}</h1>
-      <p className="text-accent-end text-[11px] uppercase tracking-[0.3em] font-medium mb-12 opacity-80">{exercise.subtitle}</p>
-
-      <BreathingCircle phase={phase} timer={timer} />
-
-      <div className="h-10 text-2xl font-light text-center mt-12">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={phase}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="font-light tracking-widest text-gray-200"
+      {/* Sticky Bottom Row for Start and Reset */}
+      <div className="absolute bottom-0 w-full p-6 sm:p-10 bg-gradient-to-t from-background via-background/95 to-transparent z-[60]">
+        <div className="max-w-xl mx-auto flex gap-4 w-full">
+          <button 
+            onClick={toggle}
+            className={`flex-1 h-16 rounded-full font-medium text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] ${
+              !isActive 
+                ? 'bg-white text-black hover:bg-gray-200' 
+                : 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
+            }`}
           >
-            {isActive ? phase : 'Tap Start to Begin'}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      <BreathingControls isActive={isActive} toggle={toggle} reset={reset} />
-      
-      <div className="mt-12 text-[11px] uppercase tracking-[0.4em] font-medium text-gray-800">
-        {cycleCount} Cycles Completed
+            {isActive ? <Pause size={24} /> : <Play size={24} fill={!isActive ? 'black' : 'none'} />}
+            {isActive ? 'Pause' : 'Start'}
+          </button>
+          
+          <button 
+            onClick={reset}
+            className="flex-1 h-16 rounded-full font-medium text-lg flex items-center justify-center gap-3 bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all active:scale-[0.98]"
+          >
+            <RotateCcw size={24} />
+            Restart
+          </button>
+        </div>
       </div>
     </motion.div>
   );
