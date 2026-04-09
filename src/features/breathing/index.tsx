@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Play, Pause, RotateCcw, Info, Moon, Zap, Activity, CheckCircle2 } from 'lucide-react';
 import { useBreathingTimer } from './hooks/useBreathingTimer';
@@ -11,6 +11,35 @@ const IconMap = {
   Moon,
   Zap,
   Activity,
+};
+
+// Speech Utility
+const speakPhase = (text: string) => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  
+  // Try to find a high-quality natural female voice
+  const voices = window.speechSynthesis.getVoices();
+  const femaleVoice = voices.find(v => 
+    (v.name.includes('Google') && v.name.includes('US English')) || 
+    (v.name.includes('Natural') && v.name.includes('Female')) ||
+    (v.name.includes('Aria') || v.name.includes('Samantha') || v.name.includes('Zira'))
+  );
+
+  if (femaleVoice) {
+    utterance.voice = femaleVoice;
+  }
+
+  // Adjust pitch and rate for a calming "natural" feel
+  utterance.pitch = 1.05; // Slightly higher for clarity
+  utterance.rate = 0.85;  // Slightly slower for calming effect
+  utterance.volume = 0.8;
+
+  window.speechSynthesis.speak(utterance);
 };
 
 export function BreathingExercise() {
@@ -29,7 +58,7 @@ export function BreathingExercise() {
 
   const handleBack = () => {
     setView('home');
-    // We don't reset selectedExercise so the Exit animations can still use it
+    if (typeof window !== 'undefined') window.speechSynthesis.cancel();
   };
 
   return (
@@ -201,6 +230,28 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
 
 function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
   const { isActive, phase, timer, cycleCount, toggle, reset } = useBreathingTimer(exercise.pattern);
+  const lastPhase = useRef(phase);
+
+  // Handle Speech Synthesis
+  useEffect(() => {
+    if (isActive && phase !== lastPhase.current) {
+      speakPhase(phase);
+      lastPhase.current = phase;
+    }
+    // Also speak when starting
+    if (isActive && cycleCount === 0 && timer === exercise.pattern.inhale && phase === 'Inhale') {
+      speakPhase('Begin Inhale');
+    }
+  }, [phase, isActive, cycleCount, timer, exercise.pattern.inhale]);
+
+  // Stop speech when leaving or pausing
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   return (
     <motion.div
