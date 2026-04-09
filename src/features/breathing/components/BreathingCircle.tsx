@@ -17,25 +17,16 @@ const circleVariants = {
 
 export function BreathingCircle({ phase, timer }: BreathingCircleProps) {
   return (
-    <div style={{ position: 'relative', margin: '2rem 0' }}>
+    <div className="relative my-8 flex items-center justify-center">
       <motion.div
-        className="breathing-circle"
+        className="breathing-circle w-[220px] h-[220px] sm:w-[260px] sm:h-[260px]"
         animate={phase}
         variants={circleVariants}
       >
-        <Wind size={48} color="white" style={{ opacity: 0.5 }} />
+        <Wind size={48} color="white" className="opacity-50" />
       </motion.div>
       
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        fontSize: '3rem',
-        fontWeight: 700,
-        color: 'white',
-        textShadow: '0 0 20px rgba(0,0,0,0.5)'
-      }}>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-bold text-white drop-shadow-2xl">
         {timer}
       </div>
     </div>
