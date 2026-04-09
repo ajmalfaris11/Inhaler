@@ -61,7 +61,7 @@ function HomeView({ onStart, onDetails }: { onStart: (ex: Exercise) => void; onD
       transition={{ duration: 0.4 }}
       className="w-full"
     >
-      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left font-sans">Inhale</h1>
+      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left">Inhale</h1>
       <p className="text-gray-400 text-sm font-light mb-10 text-center sm:text-left tracking-wide">Premium breathing journeys for inner peace.</p>
       
       {exercises.map((ex) => (
@@ -75,14 +75,22 @@ function ExerciseCard({ exercise, onStart, onDetails }: { exercise: Exercise; on
   const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
 
   return (
-    <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-accent-start/30 flex flex-col gap-6">
+    <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-white/10 flex flex-col gap-6">
       <div className="flex items-center gap-5">
-        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent-start to-accent-end flex items-center justify-center shrink-0 opacity-90 shadow-lg">
+        <div 
+          className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 opacity-90 shadow-lg"
+          style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
+        >
           <Icon size={26} color="black" strokeWidth={1.5} />
         </div>
         <div className="flex-1">
           <div className="font-normal text-xl leading-tight tracking-tight">{exercise.name}</div>
-          <div className="text-[11px] text-accent-end mt-1 uppercase tracking-[0.2em] font-medium">{exercise.subtitle}</div>
+          <div 
+            className="text-[11px] mt-1 uppercase tracking-[0.2em] font-medium"
+            style={{ color: exercise.gradient.end }}
+          >
+            {exercise.subtitle}
+          </div>
         </div>
       </div>
 
@@ -96,7 +104,9 @@ function ExerciseCard({ exercise, onStart, onDetails }: { exercise: Exercise; on
           Start
         </button>
         <button className="flex-1 bg-white/[0.03] border border-white/10 text-white hover:bg-white/10 rounded-full h-12 font-medium text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.98]" onClick={onDetails}>
-          <Info size={16} strokeWidth={1.5} />
+          <div style={{ color: exercise.gradient.end }}>
+            <Info size={16} strokeWidth={1.5} />
+          </div>
           Details
         </button>
       </div>
@@ -124,7 +134,10 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
           <ArrowLeft size={22} strokeWidth={1.5} />
         </button>
         
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent-start to-accent-end flex items-center justify-center mb-6 shadow-xl">
+        <div 
+          className="w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-xl"
+          style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
+        >
           <Icon size={40} color="black" strokeWidth={1.5} />
         </div>
         
@@ -136,26 +149,26 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
       {/* Content Section */}
       <div className="flex-1 p-8 sm:p-12 max-w-2xl mx-auto w-full font-light">
         <div className="mb-12">
-          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium text-accent-end mb-4 opacity-80">The Essence</span>
+          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>The Essence</span>
           <p className="text-xl text-white leading-relaxed font-light">{exercise.description}</p>
         </div>
         
         <div className="mb-12">
-          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium text-accent-end mb-4 opacity-80">Methodology</span>
+          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>Methodology</span>
           <p className="text-base text-gray-400 leading-relaxed">{exercise.howTo}</p>
         </div>
         
         <div className="mb-12">
-          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium text-accent-end mb-4 opacity-80">The Science</span>
+          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>The Science</span>
           <p className="text-base text-gray-400 leading-relaxed">{exercise.why}</p>
         </div>
         
         <div className="mb-16">
-          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium text-accent-end mb-4 opacity-80">Core Benefits</span>
+          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>Core Benefits</span>
           <div className="flex flex-wrap gap-3">
             {exercise.benefits.map((b, i) => (
               <span key={i} className="flex items-center gap-2.5 px-5 py-2.5 bg-white/[0.02] border border-white/5 rounded-full text-xs font-light text-gray-300">
-                <CheckCircle2 size={14} className="text-accent-end opacity-60" strokeWidth={1.5} />
+                <CheckCircle2 size={14} className="opacity-60" strokeWidth={1.5} style={{ color: exercise.gradient.end }} />
                 {b}
               </span>
             ))}
@@ -169,7 +182,8 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
       <div className="sticky bottom-0 w-full p-6 sm:p-10 bg-gradient-to-t from-background via-background/95 to-transparent z-30 flex justify-center">
         <button 
           onClick={onStart}
-          className="w-full max-w-md h-16 rounded-full bg-gradient-to-br from-accent-start to-accent-end text-black font-medium text-lg flex items-center justify-center gap-3 shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all"
+          className="w-full max-w-md h-16 rounded-full text-black font-medium text-lg flex items-center justify-center gap-3 shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all"
+          style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
         >
           <Play size={20} fill="black" />
           Begin Practice
@@ -203,13 +217,13 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
         <motion.h1 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="text-5xl font-light tracking-tighter text-center leading-tight mb-2"
+          className="text-5xl font-light tracking-tighter text-center leading-tight mb-2 font-sans"
         >
           {exercise.name}
         </motion.h1>
-        <p className="text-accent-end text-[11px] uppercase tracking-[0.4em] font-medium mb-12 opacity-80">{exercise.subtitle}</p>
+        <p className="text-[11px] uppercase tracking-[0.4em] font-medium mb-12 opacity-80" style={{ color: exercise.gradient.end }}>{exercise.subtitle}</p>
 
-        <BreathingCircle phase={phase} timer={timer} />
+        <BreathingCircle phase={phase} timer={timer} gradient={exercise.gradient} />
 
         <div className="h-10 text-2xl font-light text-center mt-12">
           <AnimatePresence mode="wait">
