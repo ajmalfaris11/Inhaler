@@ -13,51 +13,35 @@ const IconMap = {
   Activity,
 };
 
-// Improved Speech Utility
-const getBestVoice = () => {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+// Precise Speech Utility
+const speakPhase = (text: string) => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+  // Immediate cancellation and speech
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  
   const voices = window.speechSynthesis.getVoices();
-  
-  // Priority List for "Natural" or High Quality Female Voices
-  // 1. Google US English (Chrome's high quality)
-  // 2. Microsoft Aria (Edge's high quality)
-  // 3. Apple Samantha / Victoria
-  // 4. Any "Natural" labeled voice
-  
   const priorityVoices = [
     'Google US English',
     'Microsoft Aria Online',
     'Natural',
     'Samantha',
-    'Victoria',
-    'Aria',
-    'English (United States)'
+    'Aria'
   ];
 
+  let selectedVoice = null;
   for (const name of priorityVoices) {
-    const found = voices.find(v => v.name.includes(name) && (v.name.includes('Female') || !v.name.includes('Male')));
-    if (found) return found;
+    selectedVoice = voices.find(v => v.name.includes(name) && !v.name.includes('Male'));
+    if (selectedVoice) break;
   }
 
-  return voices.find(v => v.lang.startsWith('en') && !v.name.includes('Male')) || voices[0];
-};
+  if (selectedVoice) utterance.voice = selectedVoice;
 
-const speakPhase = (text: string) => {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return;
-
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  const voice = getBestVoice();
-  
-  if (voice) {
-    utterance.voice = voice;
-  }
-
-  // Refined parameters for "Human" feel
-  utterance.pitch = 0.95; // Slightly lower pitch feels more grounded/human
-  utterance.rate = 0.9;   // Closer to natural speaking pace
-  utterance.volume = 0.9;
+  utterance.pitch = 0.95;
+  utterance.rate = 0.9;
+  utterance.volume = 1.0;
 
   window.speechSynthesis.speak(utterance);
 };
@@ -66,13 +50,10 @@ export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [view, setView] = useState<'home' | 'exercise' | 'details'>('home');
 
-  // Pre-load voices
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-      };
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
   }, []);
 
@@ -134,7 +115,7 @@ function ExerciseCard({ exercise, onStart, onDetails }: { exercise: Exercise; on
   const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
 
   return (
-    <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-white/10 flex flex-col gap-6">
+    <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-white/10 flex flex-col gap-6 shadow-2xl">
       <div className="flex items-center gap-5">
         <div 
           className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 opacity-90 shadow-lg"
@@ -260,18 +241,24 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
 
 function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
   const { isActive, phase, timer, cycleCount, toggle, reset } = useBreathingTimer(exercise.pattern);
-  const lastPhase = useRef(phase);
+  const lastPhaseRef = useRef(phase);
 
-  // Handle Speech Synthesis
+  // Trigger speech on phase change
   useEffect(() => {
-    if (isActive && phase !== lastPhase.current) {
+    if (isActive && phase !== lastPhaseRef.current) {
       speakPhase(phase);
-      lastPhase.current = phase;
+      lastPhaseRef.current = phase;
     }
-    if (isActive && cycleCount === 0 && timer === exercise.pattern.inhale && phase === 'Inhale') {
-      speakPhase('Begin session. Inhale.');
+  }, [phase, isActive]);
+
+  // Special handling for the very first start
+  const handleToggle = () => {
+    if (!isActive) {
+      speakPhase('Inhale');
+      lastPhaseRef.current = 'Inhale';
     }
-  }, [phase, isActive, cycleCount, timer, exercise.pattern.inhale]);
+    toggle();
+  };
 
   useEffect(() => {
     return () => {
@@ -333,8 +320,8 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
       <div className="absolute bottom-0 w-full p-6 sm:p-10 bg-gradient-to-t from-background via-background/95 to-transparent z-[60]">
         <div className="max-w-xl mx-auto flex gap-4 w-full">
           <button 
-            onClick={toggle}
-            className="flex-1 h-16 rounded-full font-medium text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-black"
+            onClick={handleToggle}
+            className="flex-1 h-16 rounded-full font-medium text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-black shadow-xl"
             style={{ 
               background: isActive 
                 ? 'white' 
