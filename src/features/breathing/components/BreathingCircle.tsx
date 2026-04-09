@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Wind } from 'lucide-react';
 import { BreathingPhase } from '../hooks/useBreathingTimer';
 
 interface BreathingCircleProps {
@@ -37,9 +36,7 @@ export function BreathingCircle({ phase, timer, gradient }: BreathingCircleProps
         }}
         animate={phase}
         variants={circleVariants}
-      >
-        <Wind size={48} color="white" className="opacity-50" strokeWidth={1} />
-      </motion.div>
+      />
       
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-extralight text-white drop-shadow-2xl font-sans">
         {timer}
