@@ -13,7 +13,7 @@ module.exports = {
         "surface-hover": "#121212",
         accent: {
           start: "#0082ff",
-          end: "#00ffd5",
+          end: "#00f2ffff",
         }
       },
       borderRadius: {
