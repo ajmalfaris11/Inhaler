@@ -13,31 +13,51 @@ const IconMap = {
   Activity,
 };
 
-// Speech Utility
+// Improved Speech Utility
+const getBestVoice = () => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+  const voices = window.speechSynthesis.getVoices();
+  
+  // Priority List for "Natural" or High Quality Female Voices
+  // 1. Google US English (Chrome's high quality)
+  // 2. Microsoft Aria (Edge's high quality)
+  // 3. Apple Samantha / Victoria
+  // 4. Any "Natural" labeled voice
+  
+  const priorityVoices = [
+    'Google US English',
+    'Microsoft Aria Online',
+    'Natural',
+    'Samantha',
+    'Victoria',
+    'Aria',
+    'English (United States)'
+  ];
+
+  for (const name of priorityVoices) {
+    const found = voices.find(v => v.name.includes(name) && (v.name.includes('Female') || !v.name.includes('Male')));
+    if (found) return found;
+  }
+
+  return voices.find(v => v.lang.startsWith('en') && !v.name.includes('Male')) || voices[0];
+};
+
 const speakPhase = (text: string) => {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
 
-  // Cancel any ongoing speech
   window.speechSynthesis.cancel();
 
   const utterance = new SpeechSynthesisUtterance(text);
+  const voice = getBestVoice();
   
-  // Try to find a high-quality natural female voice
-  const voices = window.speechSynthesis.getVoices();
-  const femaleVoice = voices.find(v => 
-    (v.name.includes('Google') && v.name.includes('US English')) || 
-    (v.name.includes('Natural') && v.name.includes('Female')) ||
-    (v.name.includes('Aria') || v.name.includes('Samantha') || v.name.includes('Zira'))
-  );
-
-  if (femaleVoice) {
-    utterance.voice = femaleVoice;
+  if (voice) {
+    utterance.voice = voice;
   }
 
-  // Adjust pitch and rate for a calming "natural" feel
-  utterance.pitch = 1.05; // Slightly higher for clarity
-  utterance.rate = 0.85;  // Slightly slower for calming effect
-  utterance.volume = 0.8;
+  // Refined parameters for "Human" feel
+  utterance.pitch = 0.95; // Slightly lower pitch feels more grounded/human
+  utterance.rate = 0.9;   // Closer to natural speaking pace
+  utterance.volume = 0.9;
 
   window.speechSynthesis.speak(utterance);
 };
@@ -45,6 +65,16 @@ const speakPhase = (text: string) => {
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [view, setView] = useState<'home' | 'exercise' | 'details'>('home');
+
+  // Pre-load voices
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  }, []);
 
   const handleStart = (ex: Exercise) => {
     setSelectedExercise(ex);
@@ -238,13 +268,11 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
       speakPhase(phase);
       lastPhase.current = phase;
     }
-    // Also speak when starting
     if (isActive && cycleCount === 0 && timer === exercise.pattern.inhale && phase === 'Inhale') {
-      speakPhase('Begin Inhale');
+      speakPhase('Begin session. Inhale.');
     }
   }, [phase, isActive, cycleCount, timer, exercise.pattern.inhale]);
 
-  // Stop speech when leaving or pausing
   useEffect(() => {
     return () => {
       if (typeof window !== 'undefined' && window.speechSynthesis) {
