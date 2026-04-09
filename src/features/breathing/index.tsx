@@ -78,7 +78,7 @@ function ExerciseCard({ exercise, onStart, onDetails }: { exercise: Exercise; on
   return (
     <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-accent-start/30 flex flex-col gap-6">
       <div className="flex items-center gap-5">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-start to-accent-end flex items-center justify-center shrink-0 opacity-90 shadow-lg">
+        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent-start to-accent-end flex items-center justify-center shrink-0 opacity-90 shadow-lg">
           <Icon size={26} color="black" strokeWidth={1.5} />
         </div>
         <div className="flex-1">
@@ -125,7 +125,7 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
           <ArrowLeft size={22} strokeWidth={1.5} />
         </button>
         
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-accent-start to-accent-end flex items-center justify-center mb-6 shadow-xl">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent-start to-accent-end flex items-center justify-center mb-6 shadow-xl">
           <Icon size={40} color="black" strokeWidth={1.5} />
         </div>
         
