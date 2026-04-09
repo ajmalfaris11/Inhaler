@@ -7,21 +7,21 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Outfit', 'sans-serif'],
+      },
       colors: {
         background: "#000000",
         surface: "#0a0a0a",
         "surface-hover": "#121212",
         accent: {
           start: "#0082ff",
-          end: "#00f2ffff",
+          end: "#00ffd5",
         }
       },
       borderRadius: {
         '4xl': '2rem',
         '5xl': '2.5rem',
-      },
-      backgroundImage: {
-        'gradient-accent': 'linear-gradient(135deg, var(--tw-gradient-from), var(--tw-gradient-to))',
       }
     },
   },
