@@ -29,16 +29,16 @@ export function BreathingCircle({ phase, timer, gradient }: BreathingCircleProps
   return (
     <div className="relative my-8 flex items-center justify-center">
       <motion.div
-        className="w-[220px] h-[220px] sm:w-[260px] sm:h-[260px] rounded-full flex items-center justify-center relative shadow-2xl transition-colors duration-500"
+        className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] rounded-full flex items-center justify-center relative shadow-2xl transition-colors duration-500"
         style={{
           background: bgGradient,
-          boxShadow: `0 0 80px ${shadowColor}33`
+          boxShadow: `0 0 100px ${shadowColor}44`
         }}
         animate={phase}
         variants={circleVariants}
       />
       
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-extralight text-white drop-shadow-2xl font-sans">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl sm:text-9xl font-extralight text-white drop-shadow-2xl font-sans pointer-events-none">
         {timer}
       </div>
     </div>
