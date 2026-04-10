@@ -1,4 +1,4 @@
-import { Moon, Zap, Activity } from 'lucide-react';
+import { Moon, Zap, Activity, ShieldAlert, Wind, Heart } from 'lucide-react';
 
 export interface Exercise {
   id: string;
@@ -7,8 +7,10 @@ export interface Exercise {
   description: string;
   howTo: string;
   why: string;
+  warning?: string;
   benefits: string[];
   icon: string;
+  isAdvanced?: boolean;
   gradient: {
     start: string;
     end: string;
@@ -53,6 +55,23 @@ export const exercises: Exercise[] = [
     pattern: { inhale: 4, hold1: 7, exhale: 8, hold2: 0 }
   },
   {
+    id: 'deep-hold',
+    name: 'Deep Breath Hold',
+    subtitle: 'Endurance & Vitality',
+    description: 'An advanced technique to increase CO2 tolerance and boost cellular oxygenation.',
+    howTo: 'Take 30 deep breaths, then on the last one, exhale halfway and hold for as long as possible. Reach milestones of 60s, 90s, and 120s.',
+    why: 'Intermittent hypoxia triggers a survival response that strengthens the immune system and increases red blood cell count.',
+    warning: 'NEVER perform this in water, while driving, or standing up. You may experience lightheadedness or temporary fainting.',
+    benefits: ['Immune boost', 'Increased energy', 'pH balancing'],
+    icon: 'ShieldAlert',
+    isAdvanced: true,
+    gradient: {
+      start: '#ef4444',
+      end: '#f59e0b'
+    },
+    pattern: { inhale: 2, hold1: 60, exhale: 5, hold2: 0 }
+  },
+  {
     id: 'calm',
     name: 'Deep Calm',
     subtitle: 'Quick Reset',
@@ -66,5 +85,20 @@ export const exercises: Exercise[] = [
       end: '#10b981'
     },
     pattern: { inhale: 5, hold1: 2, exhale: 5, hold2: 2 }
+  },
+  {
+    id: 'energy',
+    name: "Lion's Breath",
+    subtitle: 'Tension Release',
+    description: 'A vigorous breathing technique that helps release tension in the face and chest.',
+    howTo: 'Inhale deeply through the nose. Exhale forcefully through the mouth while sticking out your tongue and making a "ha" sound.',
+    why: 'Stimulates the facial muscles and the thyroid gland while providing a cathartic emotional release.',
+    benefits: ['Relieves jaw tension', 'Boosts confidence', 'Clears airways'],
+    icon: 'Wind',
+    gradient: {
+      start: '#f97316',
+      end: '#fbbf24'
+    },
+    pattern: { inhale: 4, hold1: 1, exhale: 6, hold2: 1 }
   }
 ];

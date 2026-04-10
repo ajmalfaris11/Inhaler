@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Play, Pause, RotateCcw, Info, Moon, Zap, Activity, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Info, Moon, Zap, Activity, CheckCircle2, ShieldAlert, Wind, AlertTriangle, Trophy } from 'lucide-react';
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
 import { exercises, Exercise } from './data';
@@ -11,25 +11,18 @@ const IconMap = {
   Moon,
   Zap,
   Activity,
+  ShieldAlert,
+  Wind,
 };
 
 // Precise Speech Utility
 const speakPhase = (text: string) => {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
 
-  // Immediate cancellation and speech
   window.speechSynthesis.cancel();
-
   const utterance = new SpeechSynthesisUtterance(text);
-  
   const voices = window.speechSynthesis.getVoices();
-  const priorityVoices = [
-    'Google US English',
-    'Microsoft Aria Online',
-    'Natural',
-    'Samantha',
-    'Aria'
-  ];
+  const priorityVoices = ['Google US English', 'Microsoft Aria Online', 'Natural', 'Samantha', 'Aria'];
 
   let selectedVoice = null;
   for (const name of priorityVoices) {
@@ -38,11 +31,9 @@ const speakPhase = (text: string) => {
   }
 
   if (selectedVoice) utterance.voice = selectedVoice;
-
   utterance.pitch = 0.95;
   utterance.rate = 0.9;
   utterance.volume = 1.0;
-
   window.speechSynthesis.speak(utterance);
 };
 
@@ -73,7 +64,7 @@ export function BreathingExercise() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto py-12">
+    <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto py-12 font-sans">
       <AnimatePresence mode="wait">
         {view === 'home' && (
           <HomeView key="home" onStart={handleStart} onDetails={handleDetails} />
@@ -101,7 +92,7 @@ function HomeView({ onStart, onDetails }: { onStart: (ex: Exercise) => void; onD
       transition={{ duration: 0.4 }}
       className="w-full"
     >
-      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left font-sans">Inhale</h1>
+      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left">Inhale</h1>
       <p className="text-gray-400 text-sm font-light mb-10 text-center sm:text-left tracking-wide">Premium breathing journeys for inner peace.</p>
       
       {exercises.map((ex) => (
@@ -115,7 +106,12 @@ function ExerciseCard({ exercise, onStart, onDetails }: { exercise: Exercise; on
   const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
 
   return (
-    <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-white/10 flex flex-col gap-6 shadow-2xl">
+    <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-white/10 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
+      {exercise.isAdvanced && (
+        <div className="absolute top-4 right-4 bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[10px] uppercase tracking-widest font-medium px-2 py-0.5 rounded-full">
+          Advanced
+        </div>
+      )}
       <div className="flex items-center gap-5">
         <div 
           className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 opacity-90 shadow-lg"
@@ -170,7 +166,7 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="fixed inset-0 bg-background z-[100] overflow-y-auto flex flex-col"
+      className="fixed inset-0 bg-background z-[100] overflow-y-auto flex flex-col font-sans"
     >
       {/* Hero Section */}
       <div className="sticky top-0 z-20 h-[220px] sm:h-[280px] bg-surface flex flex-col items-center justify-center p-8 border-b border-white/5">
@@ -194,6 +190,16 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
 
       {/* Content Section */}
       <div className="flex-1 p-8 sm:p-12 max-w-2xl mx-auto w-full font-light">
+        {exercise.warning && (
+          <div className="mb-10 p-5 bg-orange-500/5 border border-orange-500/20 rounded-[24px] flex gap-4 items-start">
+            <AlertTriangle className="text-orange-500 shrink-0 mt-1" size={20} />
+            <div>
+              <span className="block text-[10px] uppercase tracking-[0.1em] font-medium text-orange-500 mb-1">Safety Warning</span>
+              <p className="text-sm text-gray-300 leading-relaxed font-light">{exercise.warning}</p>
+            </div>
+          </div>
+        )}
+
         <div className="mb-12">
           <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>The Essence</span>
           <p className="text-xl text-white leading-relaxed font-light">{exercise.description}</p>
@@ -251,7 +257,6 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
     }
   }, [phase, isActive]);
 
-  // Special handling for the very first start
   const handleToggle = () => {
     if (!isActive) {
       speakPhase('Inhale');
@@ -268,13 +273,17 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
     };
   }, []);
 
+  // Milestones for Breath Hold
+  const milestones = [60, 45, 30, 15, 5];
+  const currentMilestone = milestones.find(m => timer >= m) || 0;
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 bg-background z-[50] flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 bg-background z-[50] flex flex-col items-center justify-center overflow-hidden font-sans"
     >
       {/* Top Left Return Button */}
       <button 
@@ -296,7 +305,7 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
 
         <BreathingCircle phase={phase} timer={timer} gradient={exercise.gradient} />
 
-        <div className="h-10 text-2xl font-light text-center mt-12">
+        <div className="h-10 text-2xl font-light text-center mt-12 flex flex-col items-center gap-2">
           <AnimatePresence mode="wait">
             <motion.div
               key={phase}
@@ -309,9 +318,21 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
               {isActive ? phase : 'Ready to Begin'}
             </motion.div>
           </AnimatePresence>
+          
+          {/* Milestone UI for Hold phase */}
+          {isActive && phase === 'Hold' && exercise.id === 'deep-hold' && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-medium mt-2"
+            >
+              <Trophy size={12} className="text-yellow-500" />
+              Target: {timer > 60 ? 'Mastery' : timer > 30 ? 'Advanced' : 'Beginner'}
+            </motion.div>
+          )}
         </div>
         
-        <div className="mt-8 text-[11px] uppercase tracking-[0.5em] font-medium text-gray-700">
+        <div className="mt-12 text-[11px] uppercase tracking-[0.5em] font-medium text-gray-700">
           {cycleCount} Cycles Completed
         </div>
       </div>
