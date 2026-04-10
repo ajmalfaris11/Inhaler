@@ -1,4 +1,4 @@
-import { Moon, Zap, Activity, ShieldAlert, Wind, Heart } from 'lucide-react';
+import { Moon, Zap, Activity, ShieldAlert, Wind, Heart, Flame, Compass } from 'lucide-react';
 
 export interface Exercise {
   id: string;
@@ -55,6 +55,55 @@ export const exercises: Exercise[] = [
     pattern: { inhale: 4, hold1: 7, exhale: 8, hold2: 0 }
   },
   {
+    id: 'nadi',
+    name: 'Nadi Shodhana',
+    subtitle: 'Balance & Channel Clearing',
+    description: 'A fundamental Yogic Pranayama that balances the left and right hemispheres of the brain.',
+    howTo: 'Close your right nostril, inhale through the left. Close the left, exhale through the right. Inhale right, exhale left. Keep a 1:1 ratio.',
+    why: 'Clears the "Nadis" (energy channels) and balances the "Ida" (lunar) and "Pingala" (solar) energies.',
+    benefits: ['Hemispheric balance', 'Lowers heart rate', 'Reduces stress'],
+    icon: 'Compass',
+    gradient: {
+      start: '#ec4899',
+      end: '#8b5cf6'
+    },
+    pattern: { inhale: 4, hold1: 4, exhale: 4, hold2: 4 }
+  },
+  {
+    id: 'kapalbhati',
+    name: 'Kapalbhati',
+    subtitle: 'Detox & Vitality',
+    description: 'The "Skull Shining" breath is a powerful purification technique to energize the system.',
+    howTo: 'Focus on short, forceful exhales by snapping the belly in. The inhale is passive and automatic. 1 second per cycle.',
+    why: 'Massages internal organs, oxygenates the blood, and helps clear the mind (hence "shining skull").',
+    warning: 'Avoid if you have high blood pressure, heart conditions, or are pregnant.',
+    benefits: ['Metabolic boost', 'Clarifies mind', 'Respiratory strength'],
+    icon: 'Flame',
+    isAdvanced: true,
+    gradient: {
+      start: '#f43f5e',
+      end: '#fb923c'
+    },
+    pattern: { inhale: 1, hold1: 0, exhale: 1, hold2: 0 }
+  },
+  {
+    id: 'ibuki',
+    name: 'Ibuki Breathing',
+    subtitle: 'Martial Power & Stability',
+    description: 'A traditional Karate breathing method used to strengthen the core and settle the mind after combat.',
+    howTo: 'Inhale deeply. Exhale with maximum tension in the core, making a distinct, sharp sound through the back of the throat.',
+    why: 'Forces the diaphragm to contract fully, building immense internal pressure and "Grit".',
+    warning: 'Perform with caution; the extreme internal pressure can cause dizziness in beginners.',
+    benefits: ['Core stability', 'Internal power', 'Focus under fire'],
+    icon: 'ShieldAlert',
+    isAdvanced: true,
+    gradient: {
+      start: '#4b5563',
+      end: '#1f2937'
+    },
+    pattern: { inhale: 3, hold1: 1, exhale: 8, hold2: 1 }
+  },
+  {
     id: 'deep-hold',
     name: 'Deep Breath Hold',
     subtitle: 'Endurance & Vitality',
@@ -85,20 +134,5 @@ export const exercises: Exercise[] = [
       end: '#10b981'
     },
     pattern: { inhale: 5, hold1: 2, exhale: 5, hold2: 2 }
-  },
-  {
-    id: 'energy',
-    name: "Lion's Breath",
-    subtitle: 'Tension Release',
-    description: 'A vigorous breathing technique that helps release tension in the face and chest.',
-    howTo: 'Inhale deeply through the nose. Exhale forcefully through the mouth while sticking out your tongue and making a "ha" sound.',
-    why: 'Stimulates the facial muscles and the thyroid gland while providing a cathartic emotional release.',
-    benefits: ['Relieves jaw tension', 'Boosts confidence', 'Clears airways'],
-    icon: 'Wind',
-    gradient: {
-      start: '#f97316',
-      end: '#fbbf24'
-    },
-    pattern: { inhale: 4, hold1: 1, exhale: 6, hold2: 1 }
   }
 ];

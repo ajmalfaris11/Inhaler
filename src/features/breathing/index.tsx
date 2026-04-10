@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Play, Pause, RotateCcw, Info, Moon, Zap, Activity, CheckCircle2, ShieldAlert, Wind, AlertTriangle, Trophy } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Info, Moon, Zap, Activity, CheckCircle2, ShieldAlert, Wind, AlertTriangle, Trophy, Flame, Compass } from 'lucide-react';
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
 import { exercises, Exercise } from './data';
@@ -13,6 +13,8 @@ const IconMap = {
   Activity,
   ShieldAlert,
   Wind,
+  Flame,
+  Compass,
 };
 
 // Precise Speech Utility
@@ -275,8 +277,7 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
 
   // Milestones for Breath Hold
   const milestones = [60, 45, 30, 15, 5];
-  const currentMilestone = milestones.find(m => timer >= m) || 0;
-
+  
   return (
     <motion.div
       initial={{ opacity: 0 }}
