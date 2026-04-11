@@ -6,6 +6,9 @@ import { ArrowLeft, Play, Pause, RotateCcw, Info, Moon, Zap, Activity, CheckCirc
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
 import { exercises, Exercise } from './data';
+import { useSoundscape } from './hooks/useSoundscape';
+import { SoundscapeSelector } from './components/SoundscapeSelector';
+import { Music } from 'lucide-react';
 
 const IconMap = {
   Moon,
@@ -51,11 +54,17 @@ export function BreathingExercise() {
 
     // Register Service Worker for PWA
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      const register = () => {
         navigator.serviceWorker.register('/sw.js').catch((err) => {
           console.error('Service Worker registration failed:', err);
         });
-      });
+      };
+
+      if (document.readyState === 'complete') {
+        register();
+      } else {
+        window.addEventListener('load', register);
+      }
     }
   }, []);
 
@@ -258,6 +267,8 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
 
 function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
   const { isActive, phase, timer, cycleCount, toggle, reset } = useBreathingTimer(exercise.pattern);
+  const { activeSoundscape, toggleSoundscape, soundscapes } = useSoundscape();
+  const [isSoundscapeOpen, setIsSoundscapeOpen] = useState(false);
   const lastPhaseRef = useRef(phase);
 
   // Trigger speech on phase change
@@ -301,6 +312,23 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
         className="absolute top-8 left-8 p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all z-[60]"
       >
         <ArrowLeft size={24} strokeWidth={1.5} />
+      </button>
+
+      {/* Top Right Soundscape Button */}
+      <button 
+        onClick={() => setIsSoundscapeOpen(true)} 
+        className={`absolute top-8 right-8 p-3 rounded-full border transition-all z-[60] flex items-center gap-2 ${
+          activeSoundscape !== 'none' 
+            ? 'bg-white border-white text-black' 
+            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+        }`}
+      >
+        <Music size={20} strokeWidth={1.5} />
+        {activeSoundscape !== 'none' && (
+          <span className="text-[10px] font-bold uppercase tracking-wider pr-1">
+            {soundscapes.find(s => s.id === activeSoundscape)?.name}
+          </span>
+        )}
       </button>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full px-8 pb-32">
@@ -372,6 +400,13 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
           </button>
         </div>
       </div>
+
+      <SoundscapeSelector 
+        isOpen={isSoundscapeOpen} 
+        onClose={() => setIsSoundscapeOpen(false)} 
+        activeSoundscape={activeSoundscape}
+        onSelect={toggleSoundscape}
+      />
     </motion.div>
   );
 }
