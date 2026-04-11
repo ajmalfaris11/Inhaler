@@ -119,72 +119,83 @@ export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
               </button>
             </div>
 
-            <div className="space-y-10">
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium px-1">Journey Name</span>
+            <div className="space-y-12 pb-8">
+              {/* Name Input Section */}
+              <div className="flex flex-col gap-4">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-medium px-1">Journey Name</span>
                 <input 
                   type="text" 
                   placeholder="e.g. Morning Focus"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-white/20 transition-all"
+                  className="w-full h-16 bg-white/[0.03] border border-white/10 rounded-[24px] px-6 text-white placeholder:text-gray-600 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all"
                 />
               </div>
 
-              <div className="flex flex-col gap-8">
+              {/* Durations Section */}
+              <div className="flex flex-col gap-8 bg-white/[0.02] border border-white/5 rounded-[32px] p-6">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-medium px-1 -mb-2">Breath Ratios</span>
                 <DurationSelector label="Inhale Duration" value={inhale} setter={setInhale} />
-                <DurationSelector label="Hold Duration (Full)" value={hold1} setter={setHold1} />
+                <DurationSelector label="Hold (Full)" value={hold1} setter={setHold1} />
                 <DurationSelector label="Exhale Duration" value={exhale} setter={setExhale} />
-                <DurationSelector label="Hold Duration (Empty)" value={hold2} setter={setHold2} />
+                <DurationSelector label="Hold (Empty)" value={hold2} setter={setHold2} />
               </div>
 
+              {/* Visual Identity Section */}
               <div className="space-y-4">
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium px-1">Visual Identity</span>
-                <div className="flex flex-col gap-6 p-6 bg-white/[0.03] border border-white/5 rounded-3xl">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-medium px-1">Visual Identity</span>
+                <div className="flex flex-col gap-8 p-8 bg-white/[0.03] border border-white/5 rounded-[32px]">
                   {/* Icon Selector */}
-                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
-                    {ICONS.map((iconName) => {
-                      const Icon = IconMap[iconName as keyof typeof IconMap];
-                      const isActive = selectedIcon === iconName;
-                      return (
-                        <button
-                          key={iconName}
-                          onClick={() => setSelectedIcon(iconName)}
-                          className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all ${
-                            isActive ? 'bg-white text-black border-white' : 'bg-white/5 text-gray-500 border-white/10 hover:bg-white/10'
-                          }`}
-                        >
-                          <Icon size={18} />
-                        </button>
-                      );
-                    })}
+                  <div className="space-y-3">
+                    <span className="text-[10px] text-gray-600 uppercase tracking-widest px-1">Select Icon</span>
+                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
+                      {ICONS.map((iconName) => {
+                        const Icon = IconMap[iconName as keyof typeof IconMap];
+                        const isActive = selectedIcon === iconName;
+                        return (
+                          <button
+                            key={iconName}
+                            onClick={() => setSelectedIcon(iconName)}
+                            className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all ${
+                              isActive ? 'bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'bg-white/5 text-gray-500 border-white/10 hover:bg-white/10'
+                            }`}
+                          >
+                            <Icon size={18} />
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Gradient Selector */}
-                  <div className="grid grid-cols-3 gap-3">
-                    {GRADIENTS.map((g) => {
-                      const isActive = selectedGradient.start === g.start;
-                      return (
-                        <button
-                          key={g.name}
-                          onClick={() => setSelectedGradient(g)}
-                          className={`h-10 rounded-xl border flex items-center justify-center gap-2 px-3 transition-all ${
-                            isActive ? 'border-white bg-white/10' : 'border-white/10 bg-white/5 hover:border-white/20'
-                          }`}
-                        >
-                          <div 
-                            className="w-4 h-4 rounded-full" 
-                            style={{ background: `linear-gradient(135deg, ${g.start}, ${g.end})` }}
-                          />
-                          <span className={`text-[10px] font-medium ${isActive ? 'text-white' : 'text-gray-500'}`}>{g.name}</span>
-                        </button>
-                      );
-                    })}
+                  <div className="space-y-3">
+                    <span className="text-[10px] text-gray-600 uppercase tracking-widest px-1">Select Theme</span>
+                    <div className="grid grid-cols-3 gap-3">
+                      {GRADIENTS.map((g) => {
+                        const isActive = selectedGradient.start === g.start;
+                        return (
+                          <button
+                            key={g.name}
+                            onClick={() => setSelectedGradient(g)}
+                            className={`h-12 rounded-xl border flex items-center justify-center gap-2.5 px-3 transition-all ${
+                              isActive ? 'border-white bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'border-white/10 bg-white/5 hover:border-white/20'
+                            }`}
+                          >
+                            <div 
+                              className="w-4 h-4 rounded-full shadow-sm" 
+                              style={{ background: `linear-gradient(135deg, ${g.start}, ${g.end})` }}
+                            />
+                            <span className={`text-[10px] font-medium tracking-wide ${isActive ? 'text-white' : 'text-gray-500'}`}>{g.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-5 bg-white/[0.02] border border-white/5 rounded-3xl flex gap-4">
+              {/* Info Box */}
+              <div className="p-6 bg-white/[0.02] border border-white/5 rounded-[24px] flex gap-4">
                 <Info size={20} className="text-gray-500 shrink-0 mt-0.5" />
                 <p className="text-xs text-gray-500 leading-relaxed font-light">
                   Customizing your visuals helps you mentally associate specific themes with your breathing states.
