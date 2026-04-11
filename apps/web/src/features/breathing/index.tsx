@@ -130,24 +130,28 @@ function HomeView({ onStart, onDetails, customExercises, onOpenBuilder, onDelete
         </div>
       )}
 
-      {customExercises.map((ex) => (
-        <ExerciseCard 
-          key={ex.id} 
-          exercise={ex} 
-          onStart={() => onStart(ex)} 
-          onDetails={() => onDetails(ex)} 
-          onDelete={() => onDeleteCustom(ex.id)}
-          isCustom
-        />
-      ))}
+      <div className="flex flex-col gap-4 mb-10">
+        {customExercises.map((ex) => (
+          <ExerciseCard 
+            key={ex.id} 
+            exercise={ex} 
+            onStart={() => onStart(ex)} 
+            onDetails={() => onDetails(ex)} 
+            onDelete={() => onDeleteCustom(ex.id)}
+            isCustom
+          />
+        ))}
+      </div>
 
-      <div className="mt-10 mb-6">
+      <div className="mb-6">
         <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">Global Practices</span>
       </div>
       
-      {exercises.map((ex) => (
-        <ExerciseCard key={ex.id} exercise={ex} onStart={() => onStart(ex)} onDetails={() => onDetails(ex)} />
-      ))}
+      <div className="flex flex-col gap-4">
+        {exercises.map((ex) => (
+          <ExerciseCard key={ex.id} exercise={ex} onStart={() => onStart(ex)} onDetails={() => onDetails(ex)} />
+        ))}
+      </div>
     </motion.div>
   );
 }
