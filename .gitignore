@@ -1,10 +1,10 @@
 # dependencies
-/node_modules
-/.pnpm-store
+node_modules/
+.pnpm-store/
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
 /build
@@ -27,3 +27,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# turbo
+.turbo
