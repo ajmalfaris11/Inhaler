@@ -9,13 +9,18 @@ import { exercises, Exercise, IconMap } from './data';
 import { useSoundscape } from './hooks/useSoundscape';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { useBinauralBeats } from './hooks/useBinauralBeats';
+import { useCustomExercises } from './hooks/useCustomExercises';
 import { SessionSettings } from './components/SessionSettings';
+import { CustomBuilder } from './components/CustomBuilder';
+import { Plus, Trash2 } from 'lucide-react';
 
 
 
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [view, setView] = useState<'home' | 'exercise' | 'details'>('home');
+  const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const { customExercises, addExercise, deleteExercise } = useCustomExercises();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -58,12 +63,25 @@ export function BreathingExercise() {
     <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto py-12 font-sans">
       <AnimatePresence mode="wait">
         {view === 'home' && (
-          <HomeView key="home" onStart={handleStart} onDetails={handleDetails} />
+          <HomeView 
+            key="home" 
+            onStart={handleStart} 
+            onDetails={handleDetails} 
+            customExercises={customExercises}
+            onOpenBuilder={() => setIsBuilderOpen(true)}
+            onDeleteCustom={deleteExercise}
+          />
         )}
         {view === 'exercise' && selectedExercise && (
           <ExerciseView key="exercise" exercise={selectedExercise} onBack={handleBack} />
         )}
       </AnimatePresence>
+
+      <CustomBuilder 
+        isOpen={isBuilderOpen} 
+        onClose={() => setIsBuilderOpen(false)} 
+        onSave={addExercise} 
+      />
 
       <AnimatePresence>
         {view === 'details' && selectedExercise && (
@@ -74,7 +92,13 @@ export function BreathingExercise() {
   );
 }
 
-function HomeView({ onStart, onDetails }: { onStart: (ex: Exercise) => void; onDetails: (ex: Exercise) => void }) {
+function HomeView({ onStart, onDetails, customExercises, onOpenBuilder, onDeleteCustom }: { 
+  onStart: (ex: Exercise) => void; 
+  onDetails: (ex: Exercise) => void;
+  customExercises: Exercise[];
+  onOpenBuilder: () => void;
+  onDeleteCustom: (id: string) => void;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -86,6 +110,41 @@ function HomeView({ onStart, onDetails }: { onStart: (ex: Exercise) => void; onD
       <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left">Inhaler</h1>
       <p className="text-gray-400 text-sm font-light mb-10 text-center sm:text-left tracking-wide">Premium breathing journeys for inner peace.</p>
       
+      {/* Create New Journey Card */}
+      <div 
+        onClick={onOpenBuilder}
+        className="group bg-white/[0.03] border border-dashed border-white/10 rounded-[32px] p-8 mb-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-white/5 hover:border-white/20 transition-all duration-500"
+      >
+        <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-500">
+          <Plus size={24} strokeWidth={1.5} />
+        </div>
+        <div className="text-center">
+          <div className="text-white font-medium">Create New Journey</div>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-1">Design your custom rhythm</p>
+        </div>
+      </div>
+
+      {customExercises.length > 0 && (
+        <div className="mb-6">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">My Journeys</span>
+        </div>
+      )}
+
+      {customExercises.map((ex) => (
+        <ExerciseCard 
+          key={ex.id} 
+          exercise={ex} 
+          onStart={() => onStart(ex)} 
+          onDetails={() => onDetails(ex)} 
+          onDelete={() => onDeleteCustom(ex.id)}
+          isCustom
+        />
+      ))}
+
+      <div className="mt-10 mb-6">
+        <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">Global Practices</span>
+      </div>
+      
       {exercises.map((ex) => (
         <ExerciseCard key={ex.id} exercise={ex} onStart={() => onStart(ex)} onDetails={() => onDetails(ex)} />
       ))}
@@ -93,15 +152,29 @@ function HomeView({ onStart, onDetails }: { onStart: (ex: Exercise) => void; onD
   );
 }
 
-function ExerciseCard({ exercise, onStart, onDetails }: { exercise: Exercise; onStart: () => void; onDetails: () => void }) {
+function ExerciseCard({ exercise, onStart, onDetails, onDelete, isCustom }: { 
+  exercise: Exercise; 
+  onStart: () => void; 
+  onDetails: () => void; 
+  onDelete?: () => void;
+  isCustom?: boolean;
+}) {
   const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
 
   return (
     <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-white/10 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
-      {exercise.isAdvanced && (
+      {exercise.isAdvanced && !isCustom && (
         <div className="absolute top-4 right-4 bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[10px] uppercase tracking-widest font-medium px-2 py-0.5 rounded-full">
           Advanced
         </div>
+      )}
+      {isCustom && (
+        <button 
+          onClick={(e) => { e.stopPropagation(); onDelete?.(); }}
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-all z-10"
+        >
+          <Trash2 size={16} strokeWidth={1.5} />
+        </button>
       )}
       <div className="flex items-center gap-5">
         <div 
