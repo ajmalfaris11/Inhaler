@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CloudRain, Trees, Sparkles, Waves, Volume2, X, Play, Check } from 'lucide-react';
+import { CloudRain, Trees, Sparkles, Waves, Volume2, X, Play, Check, Wind } from 'lucide-react';
 import { SoundscapeType, soundscapes } from '../hooks/useSoundscape';
 import { voiceProfiles } from '../hooks/useVoiceAssistant';
 
