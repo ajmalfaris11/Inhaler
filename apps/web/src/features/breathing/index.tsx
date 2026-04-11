@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Play, Pause, RotateCcw, Info, CheckCircle2, AlertTriangle, Trophy, Music, Settings, Activity } from 'lucide-react';
+import { 
+  ArrowLeft, Play, Pause, RotateCcw, Info, CheckCircle2, AlertTriangle, Trophy, 
+  Music, Settings, Activity, Plus, Trash2, Home, Compass, User, Library, 
+  Bookmark, Settings as SettingsIcon, LogOut, Target, Zap as ZapIcon, ChevronRight 
+} from 'lucide-react';
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
 import { exercises, Exercise, IconMap } from './data';
@@ -12,7 +16,6 @@ import { useBinauralBeats } from './hooks/useBinauralBeats';
 import { useLibrary } from './hooks/useCustomExercises';
 import { SessionSettings } from './components/SessionSettings';
 import { CustomBuilder } from './components/CustomBuilder';
-import { Plus, Trash2, Home, Compass, User, Library, Heart as HeartIcon, Settings as SettingsIcon, LogOut, Target, Zap as ZapIcon } from 'lucide-react';
 
 type TabType = 'explore' | 'library' | 'create' | 'profile';
 
