@@ -17,10 +17,12 @@ interface SessionSettingsProps {
 }
 
 const IconMap = {
-  rain: CloudRain,
-  forest: Trees,
-  'deep-space': Sparkles,
-  'zen-bowls': Waves,
+  'zen-river': Waves,
+  'zen-fountain': Wind,
+  'winter-rain': CloudRain,
+  'light-rain': CloudRain,
+  'nature-birds': Trees,
+  'hz-transformation': Sparkles,
   none: X,
 };
 
@@ -83,7 +85,7 @@ export function SessionSettings({
                 </button>
               </div>
 
-              <div className="min-h-[340px]">
+              <div className="max-h-[60vh] overflow-y-auto pr-1 scrollbar-hide">
                 {activeTab === 'sound' ? (
                   <div className="grid grid-cols-2 gap-4">
                     <button

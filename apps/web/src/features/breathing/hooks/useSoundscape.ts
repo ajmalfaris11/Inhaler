@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-export type SoundscapeType = 'none' | 'rain' | 'forest' | 'deep-space' | 'zen-bowls';
+export type SoundscapeType = 'none' | 'zen-river' | 'zen-fountain' | 'winter-rain' | 'light-rain' | 'nature-birds' | 'hz-transformation';
 
 interface Soundscape {
   id: SoundscapeType;
@@ -11,10 +11,12 @@ interface Soundscape {
 }
 
 export const soundscapes: Soundscape[] = [
-  { id: 'rain', name: 'Rain', url: '/music/liecio-light-rain-109591.mp3' },
-  { id: 'forest', name: 'Forest', url: '/music/mdjahidhossain-birds-nature-relax-sounds-110839.mp3' },
-  { id: 'deep-space', name: 'Deep Space', url: '/music/soul_frequencies-528-hz-transformation-music-500282.mp3' },
-  { id: 'zen-bowls', name: 'Zen Bowls', url: '/music/alex_jauk-zen-fountain-ambience-210613.mp3' },
+  { id: 'zen-river', name: 'Zen River', url: '/music/alex_jauk-calm-zen-river-flowing-228223.mp3' },
+  { id: 'zen-fountain', name: 'Zen Fountain', url: '/music/alex_jauk-zen-fountain-ambience-210613.mp3' },
+  { id: 'winter-rain', name: 'Winter Rain', url: '/music/fxprosound-winter-rain-in-oak-forest-loop-185672.mp3' },
+  { id: 'light-rain', name: 'Light Rain', url: '/music/liecio-light-rain-109591.mp3' },
+  { id: 'nature-birds', name: 'Nature Birds', url: '/music/mdjahidhossain-birds-nature-relax-sounds-110839.mp3' },
+  { id: 'hz-transformation', name: '528Hz Transform', url: '/music/soul_frequencies-528-hz-transformation-music-500282.mp3' },
 ];
 
 export function useSoundscape() {
