@@ -1,5 +1,5 @@
 {
-  "name": "inhale-monorepo",
+  "name": "inhaler-monorepo",
   "private": true,
   "scripts": {
     "build": "turbo build",

@@ -1,6 +1,6 @@
 {
-  "name": "Inhale Breathing App",
-  "short_name": "Inhale",
+  "name": "Inhaler Breathing App",
+  "short_name": "Inhaler",
   "description": "Premium breathing exercises for mindfulness and relaxation.",
   "start_url": "/",
   "display": "standalone",

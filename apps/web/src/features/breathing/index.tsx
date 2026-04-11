@@ -103,7 +103,7 @@ function HomeView({ onStart, onDetails }: { onStart: (ex: Exercise) => void; onD
       transition={{ duration: 0.4 }}
       className="w-full"
     >
-      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left">Inhale</h1>
+      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left">Inhaler</h1>
       <p className="text-gray-400 text-sm font-light mb-10 text-center sm:text-left tracking-wide">Premium breathing journeys for inner peace.</p>
       
       {exercises.map((ex) => (
