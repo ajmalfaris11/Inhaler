@@ -2,8 +2,19 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Plus, Minus, Info } from 'lucide-react';
-import { Exercise } from '../data';
+import { X, Save, Plus, Minus, Info, Moon, Zap, Activity, ShieldAlert, Wind, Flame, Compass, Heart } from 'lucide-react';
+import { Exercise, IconMap } from '../data';
+
+const GRADIENTS = [
+  { start: '#6366f1', end: '#a855f7', name: 'Mystic' },
+  { start: '#0082ff', end: '#00ffd5', name: 'Zen' },
+  { start: '#f43f5e', end: '#fb923c', name: 'Sunset' },
+  { start: '#10b981', end: '#3b82f6', name: 'Forest' },
+  { start: '#ec4899', end: '#8b5cf6', name: 'Lotus' },
+  { start: '#4b5563', end: '#111827', name: 'Void' },
+];
+
+const ICONS = Object.keys(IconMap);
 
 interface CustomBuilderProps {
   isOpen: boolean;
@@ -47,6 +58,8 @@ export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
   const [hold1, setHold1] = useState(4);
   const [exhale, setExhale] = useState(4);
   const [hold2, setHold2] = useState(4);
+  const [selectedIcon, setSelectedIcon] = useState('Activity');
+  const [selectedGradient, setSelectedGradient] = useState(GRADIENTS[0]);
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -59,10 +72,10 @@ export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
       howTo: `Inhale for ${inhale}s, hold for ${hold1}s, exhale for ${exhale}s, and hold for ${hold2}s.`,
       why: 'This is your personalized breathing journey designed for your specific needs.',
       benefits: ['Personalized flow', 'Custom rhythm'],
-      icon: 'Activity',
+      icon: selectedIcon,
       gradient: {
-        start: '#6366f1',
-        end: '#a855f7'
+        start: selectedGradient.start,
+        end: selectedGradient.end
       },
       pattern: { inhale, hold1, exhale, hold2 }
     };
@@ -100,7 +113,7 @@ export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
               </button>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-10">
               <div className="flex flex-col gap-3">
                 <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium px-1">Journey Name</span>
                 <input 
@@ -119,10 +132,56 @@ export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
                 <DurationSelector label="Hold Duration (Empty)" value={hold2} setter={setHold2} />
               </div>
 
+              <div className="space-y-4">
+                <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium px-1">Visual Identity</span>
+                <div className="flex flex-col gap-6 p-6 bg-white/[0.03] border border-white/5 rounded-3xl">
+                  {/* Icon Selector */}
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
+                    {ICONS.map((iconName) => {
+                      const Icon = IconMap[iconName as keyof typeof IconMap];
+                      const isActive = selectedIcon === iconName;
+                      return (
+                        <button
+                          key={iconName}
+                          onClick={() => setSelectedIcon(iconName)}
+                          className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all ${
+                            isActive ? 'bg-white text-black border-white' : 'bg-white/5 text-gray-500 border-white/10 hover:bg-white/10'
+                          }`}
+                        >
+                          <Icon size={18} />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Gradient Selector */}
+                  <div className="grid grid-cols-3 gap-3">
+                    {GRADIENTS.map((g) => {
+                      const isActive = selectedGradient.start === g.start;
+                      return (
+                        <button
+                          key={g.name}
+                          onClick={() => setSelectedGradient(g)}
+                          className={`h-10 rounded-xl border flex items-center justify-center gap-2 px-3 transition-all ${
+                            isActive ? 'border-white bg-white/10' : 'border-white/10 bg-white/5 hover:border-white/20'
+                          }`}
+                        >
+                          <div 
+                            className="w-4 h-4 rounded-full" 
+                            style={{ background: `linear-gradient(135deg, ${g.start}, ${g.end})` }}
+                          />
+                          <span className={`text-[10px] font-medium ${isActive ? 'text-white' : 'text-gray-500'}`}>{g.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
               <div className="p-5 bg-white/[0.02] border border-white/5 rounded-3xl flex gap-4">
                 <Info size={20} className="text-gray-500 shrink-0 mt-0.5" />
                 <p className="text-xs text-gray-500 leading-relaxed font-light">
-                  A typical cycle usually lasts between 12-24 seconds. Try to keep your exhale equal to or longer than your inhale for maximum relaxation.
+                  Customizing your visuals helps you mentally associate specific themes with your breathing states.
                 </p>
               </div>
 
@@ -132,6 +191,9 @@ export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
                 className={`w-full h-16 rounded-full flex items-center justify-center gap-3 font-medium text-lg transition-all active:scale-[0.98] shadow-xl ${
                   name.trim() ? 'bg-white text-black hover:opacity-90' : 'bg-white/5 text-gray-600 border border-white/5 pointer-events-none'
                 }`}
+                style={{ 
+                  boxShadow: name.trim() ? `0 10px 30px ${selectedGradient.start}44` : 'none'
+                }}
               >
                 <Save size={20} />
                 Save to My Journey
