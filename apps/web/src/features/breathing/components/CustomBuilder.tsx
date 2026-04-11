@@ -12,28 +12,33 @@ interface CustomBuilderProps {
 }
 
 const DurationSelector = React.memo(({ label, value, setter }: { label: string, value: number, setter: (v: number) => void }) => {
-  const options = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15];
+  const options = [0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15];
   
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center px-1">
         <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">{label}</span>
         <span className="text-sm font-light text-white">{value}s</span>
       </div>
-      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
+      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
         {options.map((opt) => {
           const isActive = value === opt;
           return (
             <button
               key={opt}
               onClick={() => setter(opt)}
-              className={`flex-shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center text-xs transition-all duration-300 snap-start ${
+              className={`group flex items-center justify-center gap-2 h-11 rounded-2xl border transition-all duration-300 ${
                 isActive 
-                  ? 'bg-white border-white text-black font-medium shadow-[0_0_15px_rgba(255,255,255,0.3)]' 
-                  : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/10 hover:border-white/20'
+                  ? 'bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]' 
+                  : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:border-white/20'
               }`}
             >
-              {opt}
+              <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                isActive ? 'border-black' : 'border-white/20 group-hover:border-white/40'
+              }`}>
+                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
+              </div>
+              <span className="text-xs font-medium">{opt}s</span>
             </button>
           );
         })}
