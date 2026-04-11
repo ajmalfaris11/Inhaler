@@ -42,37 +42,72 @@ export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
     onClose();
   };
 
-  const Counter = ({ label, value, setter }: { label: string, value: number, setter: (v: number) => void }) => (
-    <div className="flex flex-col gap-2">
+const DurationSelector = React.memo(({ label, value, setter }: { label: string, value: number, setter: (v: number) => void }) => {
+  const options = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15];
+  
+  return (
+    <div className="flex flex-col gap-3">
       <div className="flex justify-between items-center px-1">
         <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">{label}</span>
         <span className="text-sm font-light text-white">{value}s</span>
       </div>
-      <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-2xl p-1">
-        <button 
-          onClick={() => setter(Math.max(0, value - 1))}
-          className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 transition-all text-gray-400"
-        >
-          <Minus size={16} />
-        </button>
-        <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
-          <motion.div 
-            className="h-full bg-white/30"
-            animate={{ width: `${(value / 20) * 100}%` }}
-          />
-        </div>
-        <button 
-          onClick={() => setter(Math.min(20, value + 1))}
-          className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/5 transition-all text-gray-400"
-        >
-          <Plus size={16} />
-        </button>
+      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide snap-x">
+        {options.map((opt) => {
+          const isActive = value === opt;
+          return (
+            <button
+              key={opt}
+              onClick={() => setter(opt)}
+              className={`flex-shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center text-xs transition-all duration-300 snap-start ${
+                isActive 
+                  ? 'bg-white border-white text-black font-medium shadow-[0_0_15px_rgba(255,255,255,0.3)]' 
+                  : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/10 hover:border-white/20'
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
+});
+
+DurationSelector.displayName = 'DurationSelector';
+
+export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
+  const [name, setName] = useState('');
+  const [inhale, setInhale] = useState(4);
+  const [hold1, setHold1] = useState(4);
+  const [exhale, setExhale] = useState(4);
+  const [hold2, setHold2] = useState(4);
+
+  const handleSave = () => {
+    if (!name.trim()) return;
+
+    const newExercise: Exercise = {
+      id: `custom-${Date.now()}`,
+      name: name,
+      subtitle: 'My Journey',
+      description: `Custom pattern: ${inhale}-${hold1}-${exhale}-${hold2}`,
+      howTo: `Inhale for ${inhale}s, hold for ${hold1}s, exhale for ${exhale}s, and hold for ${hold2}s.`,
+      why: 'This is your personalized breathing journey designed for your specific needs.',
+      benefits: ['Personalized flow', 'Custom rhythm'],
+      icon: 'Activity',
+      gradient: {
+        start: '#6366f1',
+        end: '#a855f7'
+      },
+      pattern: { inhale, hold1, exhale, hold2 }
+    };
+
+    onSave(newExercise);
+    setName('');
+    onClose();
+  };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
         <>
           <motion.div
@@ -111,11 +146,11 @@ export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Counter label="Inhale" value={inhale} setter={setInhale} />
-                <Counter label="Hold (Full)" value={hold1} setter={setHold1} />
-                <Counter label="Exhale" value={exhale} setter={setExhale} />
-                <Counter label="Hold (Empty)" value={hold2} setter={setHold2} />
+              <div className="flex flex-col gap-8">
+                <DurationSelector label="Inhale Duration" value={inhale} setter={setInhale} />
+                <DurationSelector label="Hold Duration (Full)" value={hold1} setter={setHold1} />
+                <DurationSelector label="Exhale Duration" value={exhale} setter={setExhale} />
+                <DurationSelector label="Hold Duration (Empty)" value={hold2} setter={setHold2} />
               </div>
 
               <div className="p-5 bg-white/[0.02] border border-white/5 rounded-3xl flex gap-4">
