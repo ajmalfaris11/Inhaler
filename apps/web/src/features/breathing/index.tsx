@@ -8,6 +8,7 @@ import { BreathingCircle } from './components/BreathingCircle';
 import { exercises, Exercise, IconMap } from './data';
 import { useSoundscape } from './hooks/useSoundscape';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
+import { useBinauralBeats } from './hooks/useBinauralBeats';
 import { SessionSettings } from './components/SessionSettings';
 
 
@@ -239,6 +240,7 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
   const { isActive, phase, timer, cycleCount, toggle, reset } = useBreathingTimer(exercise.pattern);
   const { activeSoundscape, toggleSoundscape, soundscapes, volume, setVolume } = useSoundscape();
   const { selectedProfileId, setSelectedProfileId, speak, testVoice, voiceVolume, setVoiceVolume, isEnabled, setIsEnabled } = useVoiceAssistant();
+  const { activeBinaural, toggleBinaural, binauralVolume, setBinauralVolume } = useBinauralBeats();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const lastPhaseRef = useRef(phase);
 
@@ -386,6 +388,10 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
         isVoiceEnabled={isEnabled}
         onSetVoiceEnabled={setIsEnabled}
         onTestVoice={testVoice}
+        activeBinaural={activeBinaural}
+        onSelectBinaural={toggleBinaural}
+        binauralVolume={binauralVolume}
+        onSetBinauralVolume={setBinauralVolume}
       />
     </motion.div>
   );

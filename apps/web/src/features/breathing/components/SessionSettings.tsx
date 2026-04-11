@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CloudRain, Trees, Sparkles, Waves, Volume2, X, Play, Check, Wind } from 'lucide-react';
 import { SoundscapeType, soundscapes } from '../hooks/useSoundscape';
 import { voiceProfiles } from '../hooks/useVoiceAssistant';
+import { BinauralType, binauralConfigs } from '../hooks/useBinauralBeats';
 
 interface SessionSettingsProps {
   activeSoundscape: SoundscapeType;
@@ -18,6 +19,10 @@ interface SessionSettingsProps {
   isVoiceEnabled: boolean;
   onSetVoiceEnabled: (enabled: boolean) => void;
   onTestVoice: (id: string) => void;
+  activeBinaural: BinauralType;
+  onSelectBinaural: (id: BinauralType) => void;
+  binauralVolume: number;
+  onSetBinauralVolume: (v: number) => void;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -30,6 +35,9 @@ const IconMap = {
   'nature-birds': Trees,
   'hz-transformation': Sparkles,
   none: X,
+  alpha: Zap,
+  theta: Waves,
+  delta: Moon,
 };
 
 export function SessionSettings({ 
@@ -44,10 +52,14 @@ export function SessionSettings({
   isVoiceEnabled,
   onSetVoiceEnabled,
   onTestVoice,
+  activeBinaural,
+  onSelectBinaural,
+  binauralVolume,
+  onSetBinauralVolume,
   isOpen, 
   onClose 
 }: SessionSettingsProps) {
-  const [activeTab, setActiveTab] = useState<'sound' | 'voice'>('sound');
+  const [activeTab, setActiveTab] = useState<'sound' | 'voice' | 'binaural'>('sound');
 
   return (
     <AnimatePresence>
@@ -75,30 +87,36 @@ export function SessionSettings({
 
             <div className="max-w-md mx-auto">
               <div className="flex justify-between items-center mb-8">
-                <div className="flex bg-white/10 p-1 rounded-full border border-white/10 shadow-inner">
+                <div className="flex bg-white/10 p-1 rounded-full border border-white/10 shadow-inner overflow-x-auto scrollbar-hide">
                   <button 
                     onClick={() => setActiveTab('sound')}
-                    className={`px-7 py-2 rounded-full text-sm font-medium transition-all duration-400 ${activeTab === 'sound' ? 'bg-white text-black shadow-md' : 'text-gray-300'}`}
+                    className={`px-5 py-2 rounded-full text-[11px] font-medium transition-all duration-400 whitespace-nowrap ${activeTab === 'sound' ? 'bg-white text-black shadow-md' : 'text-gray-300'}`}
                   >
                     Ambience
                   </button>
                   <button 
                     onClick={() => setActiveTab('voice')}
-                    className={`px-7 py-2 rounded-full text-sm font-medium transition-all duration-400 ${activeTab === 'voice' ? 'bg-white text-black shadow-md' : 'text-gray-300'}`}
+                    className={`px-5 py-2 rounded-full text-[11px] font-medium transition-all duration-400 whitespace-nowrap ${activeTab === 'voice' ? 'bg-white text-black shadow-md' : 'text-gray-300'}`}
                   >
                     Guide
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('binaural')}
+                    className={`px-5 py-2 rounded-full text-[11px] font-medium transition-all duration-400 whitespace-nowrap ${activeTab === 'binaural' ? 'bg-white text-black shadow-md' : 'text-gray-300'}`}
+                  >
+                    Frequencies
                   </button>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="p-2.5 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 transition-all"
+                  className="p-2.5 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 transition-all shrink-0 ml-2"
                 >
                   <X size={20} strokeWidth={1.5} />
                 </button>
               </div>
 
               <div className="max-h-[60vh] overflow-y-auto pr-1 scrollbar-hide">
-                {activeTab === 'sound' ? (
+                {activeTab === 'sound' && (
                   <div className="flex flex-col gap-8">
                     <div className="grid grid-cols-2 gap-4">
                       <button
@@ -162,7 +180,9 @@ export function SessionSettings({
                       </div>
                     )}
                   </div>
-                ) : (
+                )}
+
+                {activeTab === 'voice' && (
                   <div className="flex flex-col gap-6">
                     <div className="flex items-center justify-between px-2 mb-2">
                       <div className="flex flex-col">
@@ -237,6 +257,76 @@ export function SessionSettings({
                         );
                       })}
                     </div>
+                  </div>
+                )}
+
+                {activeTab === 'binaural' && (
+                  <div className="flex flex-col gap-8">
+                    <div className="grid grid-cols-1 gap-3">
+                      <button
+                        onClick={() => onSelectBinaural('none')}
+                        className={`flex items-center gap-4 p-5 rounded-[28px] border relative transition-all duration-400 ${
+                          activeBinaural === 'none'
+                            ? 'bg-white/15 border-white/40 shadow-xl'
+                            : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activeBinaural === 'none' ? 'bg-white text-black' : 'bg-white/5 text-gray-500'}`}>
+                          <X size={20} />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <h4 className={`text-sm font-medium ${activeBinaural === 'none' ? 'text-white' : 'text-gray-400'}`}>No Frequency</h4>
+                          <p className="text-[10px] uppercase tracking-widest opacity-60">Silent Mind</p>
+                        </div>
+                        {activeBinaural === 'none' && <Check size={16} className="text-white" />}
+                      </button>
+
+                      {binauralConfigs.map((c) => {
+                        const isActive = activeBinaural === c.id;
+                        const Icon = IconMap[c.id as keyof typeof IconMap] || Sparkles;
+                        return (
+                          <button
+                            key={c.id}
+                            onClick={() => onSelectBinaural(c.id)}
+                            className={`flex items-center gap-4 p-5 rounded-[28px] border relative transition-all duration-400 ${
+                              isActive
+                                ? 'bg-white/15 border-white/40 shadow-xl'
+                                : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                            }`}
+                          >
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isActive ? 'bg-white text-black' : 'bg-white/5 text-gray-500'}`}>
+                              <Icon size={20} />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <h4 className={`text-sm font-medium ${isActive ? 'text-white' : 'text-gray-300'}`}>{c.name}</h4>
+                              <p className="text-[10px] uppercase tracking-widest opacity-60 mt-0.5">{c.description}</p>
+                            </div>
+                            {isActive && <Check size={16} className="text-white" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {activeBinaural !== 'none' && (
+                      <div className="px-2">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-[10px] uppercase tracking-widest text-gray-400 font-medium">Frequency Volume</span>
+                          <span className="text-[10px] text-white font-medium">{Math.round(binauralVolume * 100)}%</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="1" 
+                          step="0.01" 
+                          value={binauralVolume} 
+                          onChange={(e) => onSetBinauralVolume(parseFloat(e.target.value))}
+                          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                        />
+                        <p className="text-[9px] text-gray-500 mt-4 text-center leading-relaxed">
+                          Best experienced with headphones. Binaural beats work by playing slightly different frequencies in each ear to stimulate specific brainwave states.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -23,7 +23,7 @@ export const voiceProfiles: VoiceProfile[] = [
   {
     id: 'atlas',
     name: 'Scientific Instructor',
-    pitch: 0.8, 
+    pitch: 0.8,
     rate: 0.8,
     lang: 'en-US',
     voiceNameIncludes: ['Natural', 'Neural', 'David', 'Microsoft David', 'Guy', 'Google US English Male'],
@@ -39,7 +39,7 @@ export const voiceProfiles: VoiceProfile[] = [
   {
     id: 'caspian',
     name: 'Deep Presence',
-    pitch: 0.9, 
+    pitch: 0.9,
     rate: 0.75,
     lang: 'en-US',
     voiceNameIncludes: ['Natural', 'Neural', 'James', 'Google UK English Male'],
@@ -80,7 +80,7 @@ export function useVoiceAssistant() {
 
   const getVoice = useCallback((profile: VoiceProfile) => {
     if (voices.length === 0) return null;
-    
+
     const isMaleProfile = profile.id === 'atlas' || profile.id === 'caspian';
 
     // 1. Try to find by specific priority names + Natural/Neural
@@ -88,17 +88,17 @@ export function useVoiceAssistant() {
       const voice = voices.find(v => v.name.includes(name));
       if (voice) return voice;
     }
-    
+
     // 2. Fallback to gender detection + quality
     if (isMaleProfile) {
-      const maleVoice = voices.find(v => 
-        (v.name.includes('Natural') || v.name.includes('Neural')) && 
+      const maleVoice = voices.find(v =>
+        (v.name.includes('Natural') || v.name.includes('Neural')) &&
         (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy'))
       );
       if (maleVoice) return maleVoice;
     } else {
-      const femaleVoice = voices.find(v => 
-        (v.name.includes('Natural') || v.name.includes('Neural')) && 
+      const femaleVoice = voices.find(v =>
+        (v.name.includes('Natural') || v.name.includes('Neural')) &&
         (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('aria'))
       );
       if (femaleVoice) return femaleVoice;
@@ -112,22 +112,22 @@ export function useVoiceAssistant() {
 
     synthRef.current.cancel();
     const profile = forceProfile || voiceProfiles.find(p => p.id === selectedProfileId) || voiceProfiles[0];
-    
+
     // Adding commas and ellipses to force natural-sounding pauses
     const formattedText = text
-      .replace('Inhale', 'Breathe in... deeply.')
-      .replace('Exhale', 'Breathe out... slowly.')
-      .replace('Hold', 'Hold... gently.');
+      .replace('Inhale', 'Breathe in...')
+      .replace('Exhale', 'Breathe out...')
+      .replace('Hold', 'Hold...');
 
     const utterance = new SpeechSynthesisUtterance(formattedText);
-    
+
     const voice = getVoice(profile);
     if (voice) utterance.voice = voice;
-    
+
     utterance.pitch = profile.pitch;
     utterance.rate = profile.rate;
     utterance.volume = voiceVolume;
-    
+
     synthRef.current.speak(utterance);
   }, [selectedProfileId, isEnabled, voiceVolume, getVoice]);
 
