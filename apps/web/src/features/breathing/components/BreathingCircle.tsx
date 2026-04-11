@@ -41,14 +41,12 @@ export function BreathingCircle({ phase, timer, gradient }: BreathingCircleProps
         <AnimatePresence mode="popLayout">
           <motion.span
             key={timer}
-            initial={{ y: 20, opacity: 0, scale: 0.8 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -20, opacity: 0, scale: 1.1 }}
+            initial={{ opacity: 0, scale: 0.9, filter: 'blur(4px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, scale: 1.1, filter: 'blur(4px)' }}
             transition={{ 
-              type: "spring", 
-              stiffness: 400, 
-              damping: 30,
-              opacity: { duration: 0.2 }
+              duration: 0.4,
+              ease: "easeInOut"
             }}
             className="absolute"
           >
