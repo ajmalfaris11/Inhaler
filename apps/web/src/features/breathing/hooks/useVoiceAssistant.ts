@@ -46,7 +46,7 @@ export const voiceProfiles: VoiceProfile[] = [
   }
 ];
 
-export function useVoiceAssistant() {
+export function useVoiceAssistant(phase?: string, isActive?: boolean) {
   const [selectedProfileId, setSelectedProfileId] = useState<string>('luna');
   const [isEnabled, setIsEnabled] = useState(true);
   const [voiceVolume, setVoiceVolume] = useState(1.0);
@@ -130,6 +130,12 @@ export function useVoiceAssistant() {
 
     synthRef.current.speak(utterance);
   }, [selectedProfileId, isEnabled, voiceVolume, getVoice]);
+
+  useEffect(() => {
+    if (isActive && isEnabled && phase && phase !== 'Rest') {
+      speak(phase);
+    }
+  }, [phase, isActive, isEnabled, speak]);
 
   const testVoice = (profileId: string) => {
     const profile = voiceProfiles.find(p => p.id === profileId);
