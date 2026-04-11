@@ -19,7 +19,7 @@ export const soundscapes: Soundscape[] = [
   { id: 'hz-transformation', name: '528Hz Transform', url: '/music/soul_frequencies-528-hz-transformation-music-500282.mp3' },
 ];
 
-export function useSoundscape() {
+export function useSoundscape(isPlaying: boolean = false) {
   const [activeSoundscape, setActiveSoundscape] = useState<SoundscapeType>('none');
   const [volume, setVolume] = useState(0.5);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -34,12 +34,14 @@ export function useSoundscape() {
 
     const audio = audioRef.current;
 
-    if (activeSoundscape === 'none') {
+    if (activeSoundscape === 'none' || !isPlaying) {
       audio.pause();
     } else {
       const sound = soundscapes.find(s => s.id === activeSoundscape);
       if (sound) {
-        audio.src = sound.url;
+        if (audio.src !== window.location.origin + sound.url) {
+          audio.src = sound.url;
+        }
         audio.volume = volume;
         audio.play().catch(err => console.error("Audio play failed:", err));
       }
@@ -48,7 +50,7 @@ export function useSoundscape() {
     return () => {
       audio.pause();
     };
-  }, [activeSoundscape]);
+  }, [activeSoundscape, isPlaying]);
 
   useEffect(() => {
     if (audioRef.current) {

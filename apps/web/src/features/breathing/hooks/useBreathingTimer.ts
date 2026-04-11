@@ -19,11 +19,14 @@ export function useBreathingTimer(pattern: Pattern) {
   const phaseRef = useRef<BreathingPhase>('Rest');
   const timerRef = useRef(pattern.inhale);
 
+  const [totalTime, setTotalTime] = useState(0);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
     if (isActive) {
       interval = setInterval(() => {
+        setTotalTime((t) => t + 1);
         timerRef.current -= 1;
         
         if (timerRef.current <= 0) {
@@ -76,13 +79,12 @@ export function useBreathingTimer(pattern: Pattern) {
     setIsActive((prev) => {
       const starting = !prev;
       if (starting) {
-        phaseRef.current = 'Inhale';
-        timerRef.current = pattern.inhale;
-        setPhase('Inhale');
-        setTimer(pattern.inhale);
-      } else {
-        phaseRef.current = 'Rest';
-        setPhase('Rest');
+        if (phaseRef.current === 'Rest') {
+          phaseRef.current = 'Inhale';
+          timerRef.current = pattern.inhale;
+          setPhase('Inhale');
+          setTimer(pattern.inhale);
+        }
       }
       return starting;
     });
@@ -95,7 +97,13 @@ export function useBreathingTimer(pattern: Pattern) {
     setPhase('Rest');
     setTimer(pattern.inhale);
     setCycleCount(0);
+    setTotalTime(0);
   }, [pattern.inhale]);
 
-  return { isActive, phase, timer, cycleCount, toggle, reset };
+  const duration = phase === 'Inhale' ? pattern.inhale :
+                   phase === 'Hold' ? pattern.hold1 :
+                   phase === 'Exhale' ? pattern.exhale :
+                   pattern.hold2;
+
+  return { isActive, phase, timeLeft: timer, cycles: cycleCount, totalTime, duration, toggle, reset };
 }

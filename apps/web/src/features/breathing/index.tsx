@@ -12,9 +12,9 @@ import {
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
 import { exercises, Exercise, IconMap } from './data';
-import { useSoundscape } from './hooks/useSoundscape';
+import { useSoundscape, SoundscapeType } from './hooks/useSoundscape';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
-import { useBinauralBeats } from './hooks/useBinauralBeats';
+import { useBinauralBeats, BinauralType } from './hooks/useBinauralBeats';
 import { useLibrary } from './hooks/useCustomExercises';
 import { SessionSettings } from './components/SessionSettings';
 import { CustomBuilder } from './components/CustomBuilder';
@@ -520,26 +520,18 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
 
 function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
   const timer = useBreathingTimer(exercise.pattern);
-  const soundscape = useSoundscape();
+  const soundscape = useSoundscape(timer.isActive);
   const voice = useVoiceAssistant(timer.phase, timer.isActive);
-  const binaural = useBinauralBeats();
+  const binaural = useBinauralBeats(timer.isActive);
 
-  const handleTogglePlay = () => {
-    if (timer.isActive) {
-      timer.pause();
-      soundscape.pause();
-      binaural.pause();
-    } else {
-      timer.start();
-      soundscape.play();
-      binaural.play();
-    }
-  };
+  // Local settings state
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [voiceVolume, setVoiceVolume] = useState(0.8);
+  const [selectedVoiceId, setSelectedVoiceId] = useState('seraphina');
 
   const handleReset = () => {
     timer.reset();
-    soundscape.pause();
-    binaural.pause();
   };
 
   return (
@@ -557,23 +549,20 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
           <h2 className="text-xl font-light text-white tracking-tight">{exercise.name}</h2>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-1">{timer.phase}</p>
         </div>
-        <SessionSettings />
+        <button 
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all"
+        >
+          <SettingsIcon size={20} />
+        </button>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full relative">
         <BreathingCircle 
           phase={timer.phase} 
-          isActive={timer.isActive} 
-          duration={timer.duration}
+          timer={timer.timeLeft}
           gradient={exercise.gradient}
         />
-        
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center">
-            <span className="text-7xl font-thin text-white tabular-nums">{timer.timeLeft}</span>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-gray-500 mt-2">Seconds</p>
-          </div>
-        </div>
       </div>
 
       <div className="w-full space-y-8 mt-12">
@@ -586,7 +575,7 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
           </button>
           
           <button 
-            onClick={handleTogglePlay}
+            onClick={timer.toggle}
             className="w-24 h-24 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all shadow-2xl"
           >
             {timer.isActive ? <Pause size={32} fill="black" /> : <Play size={32} className="ml-1" fill="black" />}
@@ -604,10 +593,40 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
           </div>
           <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
             <span className="text-[9px] uppercase tracking-widest text-gray-600">Duration</span>
-            <span className="text-xl font-light text-white">{Math.floor(timer.totalTime / 60)}:{(timer.totalTime % 60).toString().padStart(2, '0')}</span>
+            <span className="text-xl font-light text-white">
+              {Math.floor(timer.totalTime / 60)}:{(timer.totalTime % 60).toString().padStart(2, '0')}
+            </span>
           </div>
         </div>
       </div>
+
+      <SessionSettings 
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        activeSoundscape={soundscape.activeSoundscape}
+        onSelectSoundscape={soundscape.toggleSoundscape}
+        soundscapeVolume={soundscape.volume}
+        onSetSoundscapeVolume={soundscape.setVolume}
+        isVoiceEnabled={isVoiceEnabled}
+        onSetVoiceEnabled={setIsVoiceEnabled}
+        selectedVoiceId={selectedVoiceId}
+        onSelectVoice={setSelectedVoiceId}
+        voiceVolume={voiceVolume}
+        onSetVoiceVolume={setVoiceVolume}
+        onTestVoice={(id) => {
+          if (typeof window !== 'undefined') {
+            const utterance = new SpeechSynthesisUtterance("Inhale deeply through your nose.");
+            const voices = window.speechSynthesis.getVoices();
+            const voice = voices.find(v => v.name.includes(id === 'atlas' ? 'Male' : 'Female'));
+            if (voice) utterance.voice = voice;
+            window.speechSynthesis.speak(utterance);
+          }
+        }}
+        activeBinaural={binaural.activeBinaural}
+        onSelectBinaural={binaural.toggleBinaural}
+        binauralVolume={binaural.binauralVolume}
+        onSetBinauralVolume={binaural.setBinauralVolume}
+      />
     </motion.div>
   );
 }

@@ -36,7 +36,7 @@ export const binauralConfigs: BinauralConfig[] = [
   },
 ];
 
-export function useBinauralBeats() {
+export function useBinauralBeats(isPlaying: boolean = false) {
   const [activeBinaural, setActiveBinaural] = useState<BinauralType>('none');
   const [volume, setVolume] = useState(0.3);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -104,7 +104,7 @@ export function useBinauralBeats() {
   };
 
   useEffect(() => {
-    if (activeBinaural === 'none') {
+    if (activeBinaural === 'none' || !isPlaying) {
       stop();
     } else {
       const config = binauralConfigs.find(c => c.id === activeBinaural);
@@ -112,7 +112,7 @@ export function useBinauralBeats() {
     }
 
     return () => stop();
-  }, [activeBinaural]);
+  }, [activeBinaural, isPlaying]);
 
   useEffect(() => {
     if (gainNodeRef.current) {
