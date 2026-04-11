@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, Play, Pause, RotateCcw, Info, CheckCircle2, AlertTriangle, Trophy, 
   Music, Settings, Activity, Plus, Trash2, Home, Compass, User, Library, 
-  Bookmark, Settings as SettingsIcon, LogOut, Target, Zap as ZapIcon, ChevronRight 
+  Bookmark, Settings as SettingsIcon, LogOut, Target, Zap as ZapIcon, ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
+
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
 import { exercises, Exercise, IconMap } from './data';
@@ -34,7 +36,6 @@ export function BreathingExercise() {
     // Register/Unregister Service Worker for PWA
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       if (process.env.NODE_ENV === 'development') {
-        // In development, unregister service workers to avoid stale cache issues with Turbopack
         navigator.serviceWorker.getRegistrations().then(registrations => {
           for (const registration of registrations) {
             registration.unregister();
@@ -220,7 +221,7 @@ function ExploreView({ onStart, onDetails, customExercises, favorites, onToggleF
       </div>
       
       <div className="flex flex-col gap-4">
-        {exercises.map((ex) => (
+        {exercises.map((ex: Exercise) => (
           <ExerciseCard 
             key={ex.id} 
             exercise={ex} 
@@ -243,7 +244,7 @@ function LibraryView({ onStart, onDetails, customExercises, favorites, onToggleF
   onToggleFavorite: (id: string) => void;
   onDeleteCustom: (id: string) => void;
 }) {
-  const favoriteExercises = exercises.filter(ex => favorites.includes(ex.id));
+  const favoriteExercises = exercises.filter((ex: Exercise) => favorites.includes(ex.id));
 
   return (
     <motion.div
@@ -257,7 +258,7 @@ function LibraryView({ onStart, onDetails, customExercises, favorites, onToggleF
       {customExercises.length === 0 && favoriteExercises.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">
           <Library size={48} strokeWidth={1} className="mb-4 text-gray-500" />
-          <p className="text-sm font-light text-gray-400">Your library is empty.<br/>Create a journey or favorite a practice.</p>
+          <p className="text-sm font-light text-gray-400">Your library is empty.<br/>Create a journey or bookmark a practice.</p>
         </div>
       )}
       
@@ -267,7 +268,7 @@ function LibraryView({ onStart, onDetails, customExercises, favorites, onToggleF
             <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">Created Collections</span>
           </div>
           <div className="flex flex-col gap-4 mb-10">
-            {customExercises.map((ex) => (
+            {customExercises.map((ex: Exercise) => (
               <ExerciseCard 
                 key={ex.id} 
                 exercise={ex} 
@@ -287,7 +288,7 @@ function LibraryView({ onStart, onDetails, customExercises, favorites, onToggleF
             <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">Saved Practices</span>
           </div>
           <div className="flex flex-col gap-4">
-            {favoriteExercises.map((ex) => (
+            {favoriteExercises.map((ex: Exercise) => (
               <ExerciseCard 
                 key={ex.id} 
                 exercise={ex} 
@@ -370,7 +371,7 @@ function ExerciseCard({ exercise, onStart, onDetails, onDelete, isCustom, isFavo
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
 }) {
-  const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
+  const Icon = (IconMap as any)[exercise.icon] || Activity;
 
   return (
     <motion.div 
@@ -379,7 +380,6 @@ function ExerciseCard({ exercise, onStart, onDetails, onDelete, isCustom, isFavo
       onClick={onStart}
       className="relative w-full bg-white/[0.03] border border-white/10 rounded-[32px] p-8 cursor-pointer group transition-all duration-500 overflow-hidden shadow-xl"
     >
-      {/* Accent Glow */}
       <div 
         className="absolute -right-20 -top-20 w-40 h-40 rounded-full blur-[80px] opacity-0 group-hover:opacity-20 transition-opacity duration-700"
         style={{ background: exercise.gradient.start }}
@@ -431,7 +431,7 @@ function ExerciseCard({ exercise, onStart, onDetails, onDelete, isCustom, isFavo
 
           <div className="flex items-center justify-between pt-2 border-t border-white/5">
             <div className="flex gap-2">
-              {exercise.benefits.slice(0, 2).map((b, i) => (
+              {exercise.benefits.slice(0, 2).map((b: string, i: number) => (
                 <span key={i} className="text-[9px] text-gray-600 bg-white/5 px-2 py-1 rounded-lg border border-white/5">{b}</span>
               ))}
             </div>
@@ -450,250 +450,164 @@ function ExerciseCard({ exercise, onStart, onDetails, onDelete, isCustom, isFavo
 }
 
 function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack: () => void; onStart: () => void }) {
-  const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
-
-  return (
-    <motion.div
-      initial={{ y: '100%' }}
-      animate={{ y: 0 }}
-      exit={{ y: '100%' }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="fixed inset-0 bg-background z-[100] overflow-y-auto flex flex-col font-sans"
-    >
-      {/* Hero Section */}
-      <div className="sticky top-0 z-20 h-[220px] sm:h-[280px] bg-surface flex flex-col items-center justify-center p-8 border-b border-white/5">
-        <div className="absolute inset-0 opacity-40 z-[-1]" style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}22 0%, #000 100%)` }} />
-        
-        <button onClick={onBack} className="absolute top-6 left-6 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-          <ArrowLeft size={22} strokeWidth={1.5} />
-        </button>
-        
-        <div 
-          className="w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-xl"
-          style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
-        >
-          <Icon size={40} color="black" strokeWidth={1.5} />
-        </div>
-        
-        <h1 className="text-4xl sm:text-5xl font-light tracking-tighter text-center leading-none">
-          {exercise.name}
-        </h1>
-      </div>
-
-      {/* Content Section */}
-      <div className="flex-1 p-8 sm:p-12 max-w-2xl mx-auto w-full font-light">
-        {exercise.warning && (
-          <div className="mb-10 p-5 bg-orange-500/5 border border-orange-500/20 rounded-[24px] flex gap-4 items-start">
-            <AlertTriangle className="text-orange-500 shrink-0 mt-1" size={20} />
-            <div>
-              <span className="block text-[10px] uppercase tracking-[0.1em] font-medium text-orange-500 mb-1">Safety Warning</span>
-              <p className="text-sm text-gray-300 leading-relaxed font-light">{exercise.warning}</p>
-            </div>
-          </div>
-        )}
-
-        <div className="mb-12">
-          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>The Essence</span>
-          <p className="text-xl text-white leading-relaxed font-light">{exercise.description}</p>
-        </div>
-        
-        <div className="mb-12">
-          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>Methodology</span>
-          <p className="text-base text-gray-400 leading-relaxed">{exercise.howTo}</p>
-        </div>
-        
-        <div className="mb-12">
-          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>The Science</span>
-          <p className="text-base text-gray-400 leading-relaxed">{exercise.why}</p>
-        </div>
-        
-        <div className="mb-16">
-          <span className="block text-[11px] uppercase tracking-[0.3em] font-medium mb-4 opacity-80" style={{ color: exercise.gradient.end }}>Core Benefits</span>
-          <div className="flex flex-wrap gap-3">
-            {exercise.benefits.map((b, i) => (
-              <span key={i} className="flex items-center gap-2.5 px-5 py-2.5 bg-white/[0.02] border border-white/5 rounded-full text-xs font-light text-gray-300">
-                <CheckCircle2 size={14} className="opacity-60" strokeWidth={1.5} style={{ color: exercise.gradient.end }} />
-                {b}
-              </span>
-            ))}
-          </div>
-        </div>
-        
-        <div className="h-24" />
-      </div>
-
-      {/* Sticky Bottom Bar */}
-      <div className="sticky bottom-0 w-full p-6 sm:p-10 bg-gradient-to-t from-background via-background/95 to-transparent z-30 flex justify-center">
-        <button 
-          onClick={onStart}
-          className="w-full max-w-md h-16 rounded-full text-black font-medium text-lg flex items-center justify-center gap-3 shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all"
-          style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
-        >
-          <Play size={20} fill="black" />
-          Begin Practice
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
-function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
-  const { isActive, phase, timer, cycleCount, toggle, reset } = useBreathingTimer(exercise.pattern);
-  const { activeSoundscape, toggleSoundscape, soundscapes, volume, setVolume } = useSoundscape();
-  const { selectedProfileId, setSelectedProfileId, speak, testVoice, voiceVolume, setVoiceVolume, isEnabled, setIsEnabled } = useVoiceAssistant();
-  const { activeBinaural, toggleBinaural, binauralVolume, setBinauralVolume } = useBinauralBeats();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const lastPhaseRef = useRef(phase);
-
-  // Trigger speech on phase change
-  useEffect(() => {
-    if (isActive && phase !== lastPhaseRef.current) {
-      speak(phase);
-      lastPhaseRef.current = phase;
-    }
-  }, [phase, isActive, speak]);
-
-  const handleToggle = () => {
-    if (!isActive) {
-      speak('Inhale');
-      lastPhaseRef.current = 'Inhale';
-    }
-    toggle();
-  };
-
-  useEffect(() => {
-    return () => {
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
-  // Milestones for Breath Hold
-  const milestones = [60, 45, 30, 15, 5];
+  const Icon = (IconMap as any)[exercise.icon] || Activity;
   
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed inset-0 bg-background z-[50] flex flex-col items-center justify-center overflow-hidden font-sans"
+      className="fixed inset-0 bg-black/60 backdrop-blur-3xl z-[200] flex items-center justify-center p-4 sm:p-6"
     >
-      {/* Top Left Return Button */}
-      <button 
-        onClick={onBack} 
-        className="absolute top-8 left-8 p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all z-[60]"
+      <motion.div
+        initial={{ scale: 0.95, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.95, y: 20, opacity: 0 }}
+        className="bg-surface border border-white/10 rounded-[48px] w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl relative scrollbar-hide"
       >
-        <ArrowLeft size={24} strokeWidth={1.5} />
-      </button>
-
-      {/* Top Right Settings Button */}
-      <button 
-        onClick={() => setIsSettingsOpen(true)} 
-        className={`absolute top-8 right-8 p-3 rounded-full border transition-all z-[60] flex items-center gap-2 ${
-          activeSoundscape !== 'none' || selectedProfileId !== 'deep-calm'
-            ? 'bg-white border-white text-black' 
-            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
-        }`}
-      >
-        <Settings size={20} strokeWidth={1.5} />
-        {(activeSoundscape !== 'none' || selectedProfileId !== 'deep-calm') && (
-          <span className="text-[10px] font-bold uppercase tracking-wider pr-1">
-            Session
-          </span>
-        )}
-      </button>
-
-      <div className="flex-1 flex flex-col items-center justify-center w-full px-8 pb-32">
-        <motion.h1 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="text-5xl font-light tracking-tighter text-center leading-tight mb-2 font-sans"
+        <button 
+          onClick={onBack}
+          className="absolute top-8 left-8 p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-gray-400 hover:text-white z-10"
         >
-          {exercise.name}
-        </motion.h1>
-        <p className="text-[11px] uppercase tracking-[0.4em] font-medium mb-12 opacity-80" style={{ color: exercise.gradient.end }}>{exercise.subtitle}</p>
+          <ArrowLeft size={20} />
+        </button>
 
-        <BreathingCircle phase={phase} timer={timer} gradient={exercise.gradient} />
+        <div className="p-8 sm:p-12">
+          <div className="flex flex-col items-center text-center mb-10 pt-4">
+            <div 
+              className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl"
+              style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
+            >
+              <Icon className="text-white" size={40} />
+            </div>
+            <h2 className="text-4xl font-light text-white mb-2">{exercise.name}</h2>
+            <p className="text-gray-400 text-sm font-light tracking-wide">{exercise.subtitle}</p>
+          </div>
 
-        <div className="h-10 text-2xl font-light text-center mt-12 flex flex-col items-center gap-2">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={phase}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="font-light tracking-[0.2em] text-gray-200"
+          <div className="space-y-10">
+            <section>
+              <h4 className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 mb-4">Focus</h4>
+              <p className="text-gray-300 leading-relaxed font-light">{exercise.description}</p>
+            </section>
+
+            <section>
+              <h4 className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 mb-4">How to practice</h4>
+              <p className="text-gray-300 leading-relaxed font-light">{exercise.howTo}</p>
+            </section>
+
+            <div className="grid grid-cols-2 gap-4">
+              {exercise.benefits.map((b: string, i: number) => (
+                <div key={i} className="flex items-center gap-3 bg-white/[0.03] border border-white/5 p-4 rounded-3xl">
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                  <span className="text-xs text-gray-400 font-light">{b}</span>
+                </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={onStart}
+              className="w-full h-16 rounded-full bg-white text-black font-medium text-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl"
             >
-              {isActive ? phase : 'Ready to Begin'}
-            </motion.div>
-          </AnimatePresence>
-          
-          {/* Milestone UI for Hold phase */}
-          {isActive && phase === 'Hold' && exercise.id === 'deep-hold' && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-medium mt-2"
-            >
-              <Trophy size={12} className="text-yellow-500" />
-              Target: {timer > 60 ? 'Mastery' : timer > 30 ? 'Advanced' : 'Beginner'}
-            </motion.div>
-          )}
+              <Play size={20} fill="currentColor" />
+              Begin Journey
+            </button>
+          </div>
         </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
+  const timer = useBreathingTimer(exercise.pattern);
+  const soundscape = useSoundscape();
+  const voice = useVoiceAssistant(timer.phase, timer.isActive);
+  const binaural = useBinauralBeats();
+
+  const handleTogglePlay = () => {
+    if (timer.isActive) {
+      timer.pause();
+      soundscape.pause();
+      binaural.pause();
+    } else {
+      timer.start();
+      soundscape.play();
+      binaural.play();
+    }
+  };
+
+  const handleReset = () => {
+    timer.reset();
+    soundscape.pause();
+    binaural.pause();
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="flex flex-col items-center w-full min-h-[80vh] justify-between py-8"
+    >
+      <div className="w-full flex justify-between items-center mb-8">
+        <button onClick={onBack} className="p-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all">
+          <ArrowLeft size={20} />
+        </button>
+        <div className="text-center">
+          <h2 className="text-xl font-light text-white tracking-tight">{exercise.name}</h2>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-1">{timer.phase}</p>
+        </div>
+        <SessionSettings />
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center w-full relative">
+        <BreathingCircle 
+          phase={timer.phase} 
+          isActive={timer.isActive} 
+          duration={timer.duration}
+          gradient={exercise.gradient}
+        />
         
-        <div className="mt-12 text-[11px] uppercase tracking-[0.5em] font-medium text-gray-700">
-          {cycleCount} Cycles Completed
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="text-center">
+            <span className="text-7xl font-thin text-white tabular-nums">{timer.timeLeft}</span>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-gray-500 mt-2">Seconds</p>
+          </div>
         </div>
       </div>
 
-      {/* Sticky Bottom Row for Start and Reset */}
-      <div className="absolute bottom-0 w-full p-6 sm:p-10 bg-gradient-to-t from-background via-background/95 to-transparent z-[60]">
-        <div className="max-w-xl mx-auto flex gap-4 w-full">
+      <div className="w-full space-y-8 mt-12">
+        <div className="flex items-center justify-center gap-8">
           <button 
-            onClick={handleToggle}
-            className="flex-1 h-16 rounded-full font-medium text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-black shadow-xl"
-            style={{ 
-              background: isActive 
-                ? 'white' 
-                : `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` 
-            }}
+            onClick={handleReset}
+            className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg"
           >
-            {isActive ? <Pause size={24} /> : <Play size={24} fill="black" />}
-            {isActive ? 'Pause' : 'Start'}
+            <RotateCcw size={20} />
           </button>
           
           <button 
-            onClick={reset}
-            className="flex-1 h-16 rounded-full font-medium text-lg flex items-center justify-center gap-3 bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all active:scale-[0.98]"
+            onClick={handleTogglePlay}
+            className="w-24 h-24 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all shadow-2xl"
           >
-            <RotateCcw size={24} />
-            Restart
+            {timer.isActive ? <Pause size={32} fill="black" /> : <Play size={32} className="ml-1" fill="black" />}
+          </button>
+
+          <button className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg">
+            <Music size={20} />
           </button>
         </div>
-      </div>
 
-      <SessionSettings 
-        isOpen={isSettingsOpen} 
-        onClose={() => setIsSettingsOpen(false)} 
-        activeSoundscape={activeSoundscape}
-        onSelectSoundscape={toggleSoundscape}
-        soundscapeVolume={volume}
-        onSetSoundscapeVolume={setVolume}
-        selectedVoiceId={selectedProfileId}
-        onSelectVoice={setSelectedProfileId}
-        voiceVolume={voiceVolume}
-        onSetVoiceVolume={setVoiceVolume}
-        isVoiceEnabled={isEnabled}
-        onSetVoiceEnabled={setIsEnabled}
-        onTestVoice={testVoice}
-        activeBinaural={activeBinaural}
-        onSelectBinaural={toggleBinaural}
-        binauralVolume={binauralVolume}
-        onSetBinauralVolume={setBinauralVolume}
-      />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
+            <span className="text-[9px] uppercase tracking-widest text-gray-600">Cycles</span>
+            <span className="text-xl font-light text-white">{timer.cycles}</span>
+          </div>
+          <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
+            <span className="text-[9px] uppercase tracking-widest text-gray-600">Duration</span>
+            <span className="text-xl font-light text-white">{Math.floor(timer.totalTime / 60)}:{(timer.totalTime % 60).toString().padStart(2, '0')}</span>
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }
