@@ -13,25 +13,27 @@ interface CustomBuilderProps {
 
 const DurationSelector = React.memo(({ label, value, setter }: { label: string, value: number, setter: (v: number) => void }) => {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-center px-1">
-        <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">{label}</span>
-        <span className="text-sm font-light text-white">{value}s</span>
-      </div>
-      <div className="relative flex items-center gap-4">
-        <input 
-          type="range" 
-          min="0" 
-          max="20" 
-          step="1" 
-          value={value} 
-          onChange={(e) => setter(parseInt(e.target.value))}
-          className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-white hover:bg-white/15 transition-all"
-        />
-        <div className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl bg-white/5 border border-white/10 shrink-0">
-          <span className="text-xs font-medium text-white">{value}</span>
-          <span className="text-[8px] text-gray-500 uppercase">sec</span>
+    <div className="flex flex-col gap-3">
+      <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium px-1">{label}</span>
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={() => setter(Math.max(0, value - 1))}
+          className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+        >
+          <Minus size={18} />
+        </button>
+        
+        <div className="flex-1 h-12 flex items-center justify-center rounded-2xl bg-white/[0.03] border border-white/5">
+          <span className="text-xl font-light text-white">{value}</span>
+          <span className="text-[10px] text-gray-500 ml-1.5 uppercase tracking-wide">sec</span>
         </div>
+
+        <button 
+          onClick={() => setter(Math.min(60, value + 1))}
+          className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+        >
+          <Plus size={18} />
+        </button>
       </div>
     </div>
   );
