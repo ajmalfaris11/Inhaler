@@ -5,16 +5,26 @@ import { Exercise } from '../data';
 
 const STORAGE_KEY = 'inhale_custom_exercises';
 
-export function useCustomExercises() {
+export function useLibrary() {
   const [customExercises, setCustomExercises] = useState<Exercise[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+    const savedCustom = localStorage.getItem(STORAGE_KEY);
+    if (savedCustom) {
       try {
-        setCustomExercises(JSON.parse(saved));
+        setCustomExercises(JSON.parse(savedCustom));
       } catch (e) {
         console.error('Failed to parse custom exercises', e);
+      }
+    }
+
+    const savedFavs = localStorage.getItem('inhale_favorites');
+    if (savedFavs) {
+      try {
+        setFavorites(JSON.parse(savedFavs));
+      } catch (e) {
+        console.error('Failed to parse favorites', e);
       }
     }
   }, []);
@@ -31,9 +41,19 @@ export function useCustomExercises() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
 
+  const toggleFavorite = (id: string) => {
+    const updated = favorites.includes(id) 
+      ? favorites.filter(favId => favId !== id)
+      : [...favorites, id];
+    setFavorites(updated);
+    localStorage.setItem('inhale_favorites', JSON.stringify(updated));
+  };
+
   return {
     customExercises,
+    favorites,
     addExercise,
-    deleteExercise
+    deleteExercise,
+    toggleFavorite
   };
 }

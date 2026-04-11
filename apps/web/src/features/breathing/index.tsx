@@ -9,37 +9,23 @@ import { exercises, Exercise, IconMap } from './data';
 import { useSoundscape } from './hooks/useSoundscape';
 import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { useBinauralBeats } from './hooks/useBinauralBeats';
-import { useCustomExercises } from './hooks/useCustomExercises';
+import { useLibrary } from './hooks/useCustomExercises';
 import { SessionSettings } from './components/SessionSettings';
 import { CustomBuilder } from './components/CustomBuilder';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Home, Compass, User, Library, Heart as HeartIcon, Settings as SettingsIcon, LogOut, Target, Zap as ZapIcon } from 'lucide-react';
 
-
+type TabType = 'explore' | 'library' | 'create' | 'profile';
 
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  const [view, setView] = useState<'home' | 'exercise' | 'details' | 'builder'>('home');
-  const { customExercises, addExercise, deleteExercise } = useCustomExercises();
+  const [view, setView] = useState<'home' | 'exercise' | 'details'>('home');
+  const [activeTab, setActiveTab] = useState<TabType>('explore');
+  const { customExercises, favorites, addExercise, deleteExercise, toggleFavorite } = useLibrary();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
-
-    // Register Service Worker for PWA
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      const register = () => {
-        navigator.serviceWorker.register('/sw.js').catch((err) => {
-          console.error('Service Worker registration failed:', err);
-        });
-      };
-
-      if (document.readyState === 'complete') {
-        register();
-      } else {
-        window.addEventListener('load', register);
-      }
     }
   }, []);
 
@@ -59,169 +45,361 @@ export function BreathingExercise() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto py-12 font-sans">
-      <AnimatePresence mode="wait">
-        {view === 'home' && (
-          <HomeView 
-            key="home" 
-            onStart={handleStart} 
-            onDetails={handleDetails} 
-            customExercises={customExercises}
-            onOpenBuilder={() => setView('builder')}
-            onDeleteCustom={deleteExercise}
-          />
-        )}
-        {view === 'exercise' && selectedExercise && (
-          <ExerciseView key="exercise" exercise={selectedExercise} onBack={handleBack} />
-        )}
-        {view === 'builder' && (
-          <CustomBuilder 
-            key="builder"
-            onBack={() => setView('home')} 
-            onSave={addExercise} 
-          />
-        )}
-      </AnimatePresence>
+    <div className="min-h-screen bg-black text-white selection:bg-white/20">
+      <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto py-12 pb-32 font-sans">
+        <AnimatePresence mode="wait">
+          {view === 'home' && (
+            <div key="home-tabs" className="w-full">
+              {activeTab === 'explore' && (
+                <ExploreView 
+                  key="explore" 
+                  onStart={handleStart} 
+                  onDetails={handleDetails} 
+                  customExercises={customExercises}
+                  favorites={favorites}
+                  onToggleFavorite={toggleFavorite}
+                />
+              )}
+              {activeTab === 'library' && (
+                <LibraryView 
+                  key="library"
+                  onStart={handleStart}
+                  onDetails={handleDetails}
+                  customExercises={customExercises}
+                  favorites={favorites}
+                  onToggleFavorite={toggleFavorite}
+                  onDeleteCustom={deleteExercise}
+                />
+              )}
+              {activeTab === 'create' && (
+                <CustomBuilder 
+                  key="builder"
+                  onBack={() => setActiveTab('explore')} 
+                  onSave={addExercise} 
+                />
+              )}
+              {activeTab === 'profile' && (
+                <ProfileView key="profile" />
+              )}
+            </div>
+          )}
+          {view === 'exercise' && selectedExercise && (
+            <ExerciseView key="exercise" exercise={selectedExercise} onBack={handleBack} />
+          )}
+        </AnimatePresence>
 
-      <AnimatePresence>
-        {view === 'details' && selectedExercise && (
-          <DetailsView key="details" exercise={selectedExercise} onBack={handleBack} onStart={() => setView('exercise')} />
-        )}
-      </AnimatePresence>
+        <AnimatePresence>
+          {view === 'details' && selectedExercise && (
+            <DetailsView key="details" exercise={selectedExercise} onBack={handleBack} onStart={() => setView('exercise')} />
+          )}
+        </AnimatePresence>
+      </div>
+
+      {view === 'home' && (
+        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      )}
     </div>
   );
 }
 
-function HomeView({ onStart, onDetails, customExercises, onOpenBuilder, onDeleteCustom }: { 
+function BottomNav({ activeTab, setActiveTab }: { activeTab: TabType, setActiveTab: (t: TabType) => void }) {
+  const tabs: { id: TabType, icon: any, label: string }[] = [
+    { id: 'explore', icon: Compass, label: 'Explore' },
+    { id: 'library', icon: Library, label: 'Library' },
+    { id: 'create', icon: Plus, label: 'Create' },
+    { id: 'profile', icon: User, label: 'Profile' },
+  ];
+
+  return (
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[400px] px-4 z-[100]">
+      <div className="bg-black/40 backdrop-blur-2xl border border-white/10 rounded-[32px] p-2 flex items-center justify-between shadow-2xl">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative flex flex-col items-center justify-center py-3 px-6 rounded-2xl transition-all duration-500 ${
+                isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              {isActive && (
+                <motion.div 
+                  layoutId="active-tab-bg"
+                  className="absolute inset-0 bg-white/5 rounded-2xl border border-white/5"
+                  transition={{ type: 'spring', duration: 0.6 }}
+                />
+              )}
+              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
+              <span className={`text-[9px] mt-1.5 uppercase tracking-widest font-medium transition-all duration-500 ${isActive ? 'opacity-100' : 'opacity-0 scale-90'}`}>
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ExploreView({ onStart, onDetails, customExercises, favorites, onToggleFavorite }: { 
   onStart: (ex: Exercise) => void; 
   onDetails: (ex: Exercise) => void;
   customExercises: Exercise[];
-  onOpenBuilder: () => void;
-  onDeleteCustom: (id: string) => void;
+  favorites: string[];
+  onToggleFavorite: (id: string) => void;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4 }}
+      exit={{ opacity: 0, y: -10 }}
       className="w-full"
     >
-      <h1 className="text-5xl font-light tracking-tight mb-2 bg-gradient-to-br from-white via-white to-gray-400 bg-clip-text text-transparent text-center sm:text-left">Inhaler</h1>
-      <p className="text-gray-400 text-sm font-light mb-10 text-center sm:text-left tracking-wide">Premium breathing journeys for inner peace.</p>
-      
-      {/* Create New Journey Card */}
-      <div 
-        onClick={onOpenBuilder}
-        className="group bg-white/[0.03] border border-dashed border-white/10 rounded-[32px] p-8 mb-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-white/5 hover:border-white/20 transition-all duration-500"
-      >
-        <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-500">
-          <Plus size={24} strokeWidth={1.5} />
+      <div className="flex justify-between items-center mb-10">
+        <div>
+          <h1 className="text-4xl font-light tracking-tight bg-gradient-to-br from-white via-white to-gray-500 bg-clip-text text-transparent">Inhaler</h1>
+          <p className="text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-1">Deep Breathing System</p>
         </div>
-        <div className="text-center">
-          <div className="text-white font-medium">Create New Journey</div>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-1">Design your custom rhythm</p>
+        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400">
+          <SettingsIcon size={20} />
         </div>
       </div>
-
+      
       {customExercises.length > 0 && (
-        <div className="mb-6">
-          <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">My Journeys</span>
+        <div className="mb-6 flex justify-between items-center px-1">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600">My Journeys</span>
+          <span className="text-[10px] text-gray-500">{customExercises.length} items</span>
         </div>
       )}
 
-      <div className="flex flex-col gap-4 mb-10">
+      <div className="flex flex-col gap-4 mb-12">
         {customExercises.map((ex) => (
           <ExerciseCard 
             key={ex.id} 
             exercise={ex} 
             onStart={() => onStart(ex)} 
-            onDetails={() => onDetails(ex)} 
-            onDelete={() => onDeleteCustom(ex.id)}
-            isCustom
+            onDetails={() => onDetails(ex)}
+            isFavorite={favorites.includes(ex.id)}
+            onToggleFavorite={() => onToggleFavorite(ex.id)}
           />
         ))}
       </div>
 
-      <div className="mb-6">
-        <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">Global Practices</span>
+      <div className="mb-6 flex justify-between items-center px-1">
+        <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600">Global Practices</span>
+        <span className="text-[10px] text-gray-500">{exercises.length} items</span>
       </div>
       
       <div className="flex flex-col gap-4">
         {exercises.map((ex) => (
-          <ExerciseCard key={ex.id} exercise={ex} onStart={() => onStart(ex)} onDetails={() => onDetails(ex)} />
+          <ExerciseCard 
+            key={ex.id} 
+            exercise={ex} 
+            onStart={() => onStart(ex)} 
+            onDetails={() => onDetails(ex)}
+            isFavorite={favorites.includes(ex.id)}
+            onToggleFavorite={() => onToggleFavorite(ex.id)}
+          />
         ))}
       </div>
     </motion.div>
   );
 }
 
-function ExerciseCard({ exercise, onStart, onDetails, onDelete, isCustom }: { 
+function LibraryView({ onStart, onDetails, customExercises, favorites, onToggleFavorite, onDeleteCustom }: { 
+  onStart: (ex: Exercise) => void; 
+  onDetails: (ex: Exercise) => void;
+  customExercises: Exercise[];
+  favorites: string[];
+  onToggleFavorite: (id: string) => void;
+  onDeleteCustom: (id: string) => void;
+}) {
+  const favoriteExercises = exercises.filter(ex => favorites.includes(ex.id));
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="w-full"
+    >
+      <h1 className="text-3xl font-light tracking-tight text-white mb-10">My Library</h1>
+
+      {customExercises.length === 0 && favoriteExercises.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">
+          <Library size={48} strokeWidth={1} className="mb-4 text-gray-500" />
+          <p className="text-sm font-light text-gray-400">Your library is empty.<br/>Create a journey or favorite a practice.</p>
+        </div>
+      )}
+      
+      {customExercises.length > 0 && (
+        <>
+          <div className="mb-6">
+            <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">Created Collections</span>
+          </div>
+          <div className="flex flex-col gap-4 mb-10">
+            {customExercises.map((ex) => (
+              <ExerciseCard 
+                key={ex.id} 
+                exercise={ex} 
+                onStart={() => onStart(ex)} 
+                onDetails={() => onDetails(ex)} 
+                onDelete={() => onDeleteCustom(ex.id)}
+                isCustom
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {favoriteExercises.length > 0 && (
+        <>
+          <div className="mb-6">
+            <span className="text-[10px] uppercase tracking-[0.3em] font-medium text-gray-600 px-1">Saved Practices</span>
+          </div>
+          <div className="flex flex-col gap-4">
+            {favoriteExercises.map((ex) => (
+              <ExerciseCard 
+                key={ex.id} 
+                exercise={ex} 
+                onStart={() => onStart(ex)} 
+                onDetails={() => onDetails(ex)}
+                isFavorite
+                onToggleFavorite={() => onToggleFavorite(ex.id)}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </motion.div>
+  );
+}
+
+function ProfileView() {
+  const stats = [
+    { label: 'Total Minutes', value: '124', icon: Target },
+    { label: 'Deep Sessions', value: '42', icon: ZapIcon },
+    { label: 'Current Streak', value: '7', icon: Trophy },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="w-full"
+    >
+      <div className="flex flex-col items-center mb-12">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-1 mb-4 shadow-xl">
+          <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+            <User size={40} className="text-white/80" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-light text-white">Zen Practitioner</h2>
+        <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-1">Journey Member since April 2026</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 mb-12">
+        {stats.map((stat) => (
+          <div key={stat.label} className="p-6 bg-white/[0.03] border border-white/5 rounded-[32px] flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-indigo-400">
+                <stat.icon size={20} />
+              </div>
+              <span className="text-sm font-light text-gray-400">{stat.label}</span>
+            </div>
+            <span className="text-2xl font-light text-white">{stat.value}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-3">
+        <button className="w-full h-16 rounded-[24px] bg-white/5 border border-white/10 flex items-center justify-between px-6 text-gray-300 hover:bg-white/10 transition-all">
+          <div className="flex items-center gap-3">
+            <SettingsIcon size={18} />
+            <span className="text-sm font-light">Account Settings</span>
+          </div>
+          <ArrowLeft size={16} className="rotate-180 opacity-30" />
+        </button>
+        <button className="w-full h-16 rounded-[24px] bg-red-500/5 border border-red-500/10 flex items-center justify-between px-6 text-red-400 hover:bg-red-500/10 transition-all">
+          <div className="flex items-center gap-3">
+            <LogOut size={18} />
+            <span className="text-sm font-light">Logout Journey</span>
+          </div>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+function ExerciseCard({ exercise, onStart, onDetails, onDelete, isCustom, isFavorite, onToggleFavorite }: { 
   exercise: Exercise; 
   onStart: () => void; 
   onDetails: () => void; 
   onDelete?: () => void;
   isCustom?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }) {
   const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
 
   return (
-    <div className="bg-surface border border-white/5 rounded-[32px] p-7 mb-6 transition-all duration-500 hover:border-white/10 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
+    <motion.div 
+      whileHover={{ scale: 1.01, y: -2 }}
+      whileTap={{ scale: 0.99 }}
+      onClick={onStart}
+      className="relative w-full bg-white/[0.03] border border-white/10 rounded-[32px] p-6 cursor-pointer group hover:bg-white/5 hover:border-white/20 transition-all duration-500 overflow-hidden"
+    >
+      <div className="absolute top-0 left-0 w-1 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `linear-gradient(to bottom, ${exercise.gradient.start}, ${exercise.gradient.end})` }} />
+      
       {exercise.isAdvanced && !isCustom && (
-        <div className="absolute top-4 right-4 bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[10px] uppercase tracking-widest font-medium px-2 py-0.5 rounded-full">
+        <div className="absolute top-4 right-14 bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[10px] uppercase tracking-widest font-medium px-2 py-0.5 rounded-full">
           Advanced
         </div>
       )}
-      {isCustom && (
-        <button 
-          onClick={(e) => { e.stopPropagation(); onDelete?.(); }}
-          className="absolute top-4 right-4 p-2 rounded-full bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-all z-10"
-        >
-          <Trash2 size={16} strokeWidth={1.5} />
-        </button>
-      )}
+
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+        {onToggleFavorite && (
+          <button 
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+            className={`p-2 rounded-full transition-all duration-300 ${isFavorite ? 'bg-red-500/10 text-red-500' : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white'}`}
+          >
+            <HeartIcon size={16} fill={isFavorite ? "currentColor" : "none"} strokeWidth={1.5} />
+          </button>
+        )}
+        {isCustom && (
+          <button 
+            onClick={(e) => { e.stopPropagation(); onDelete?.(); }}
+            className="p-2 rounded-full bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-all"
+          >
+            <Trash2 size={16} strokeWidth={1.5} />
+          </button>
+        )}
+      </div>
+
       <div className="flex items-center gap-5">
         <div 
-          className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 opacity-90 shadow-lg"
+          className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 opacity-90 shadow-lg group-hover:scale-110 transition-transform duration-500"
           style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
         >
-          <Icon size={26} color="black" strokeWidth={1.5} />
+          <Icon className="text-white" size={24} />
         </div>
-        <div className="flex-1">
-          <div className="font-normal text-xl leading-tight tracking-tight">{exercise.name}</div>
-          <div 
-            className="text-[11px] mt-1 uppercase tracking-[0.2em] font-medium"
-            style={{ color: exercise.gradient.end }}
-          >
-            {exercise.subtitle}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="text-lg font-medium text-white truncate">{exercise.name}</h3>
           </div>
+          <p className="text-gray-500 text-xs truncate font-light tracking-wide">{exercise.subtitle}</p>
         </div>
-      </div>
-
-      <p className="text-[0.9rem] text-gray-400 leading-relaxed font-light">
-        {exercise.description}
-      </p>
-
-      <div className="flex gap-4 w-full">
         <button 
-          className="flex-1 text-black hover:opacity-90 rounded-full h-12 font-medium text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.98]" 
-          onClick={onStart}
-          style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
+          onClick={(e) => { e.stopPropagation(); onDetails(); }}
+          className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-gray-400 group-hover:text-white"
         >
-          <Play size={16} fill="black" />
-          Start
-        </button>
-        <button 
-          className="flex-1 bg-white/[0.03] border border-white/10 text-white hover:bg-white/10 rounded-full h-12 font-medium text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.98]" 
-          onClick={onDetails}
-        >
-          <div style={{ color: exercise.gradient.end }}>
-            <Info size={16} strokeWidth={1.5} />
-          </div>
-          Details
+          <Info size={18} strokeWidth={1.5} />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
