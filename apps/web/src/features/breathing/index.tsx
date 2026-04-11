@@ -237,8 +237,8 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
 
 function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
   const { isActive, phase, timer, cycleCount, toggle, reset } = useBreathingTimer(exercise.pattern);
-  const { activeSoundscape, toggleSoundscape, soundscapes } = useSoundscape();
-  const { selectedProfileId, setSelectedProfileId, speak, testVoice } = useVoiceAssistant();
+  const { activeSoundscape, toggleSoundscape, soundscapes, volume, setVolume } = useSoundscape();
+  const { selectedProfileId, setSelectedProfileId, speak, testVoice, voiceVolume, setVoiceVolume, isEnabled, setIsEnabled } = useVoiceAssistant();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const lastPhaseRef = useRef(phase);
 
