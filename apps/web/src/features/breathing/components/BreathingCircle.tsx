@@ -1,5 +1,4 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BreathingPhase } from '../hooks/useBreathingTimer';
 
 interface BreathingCircleProps {
@@ -38,8 +37,24 @@ export function BreathingCircle({ phase, timer, gradient }: BreathingCircleProps
         variants={circleVariants}
       />
       
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl sm:text-9xl font-extralight text-white drop-shadow-2xl font-sans pointer-events-none">
-        {timer}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl sm:text-9xl font-extralight text-white drop-shadow-2xl font-sans pointer-events-none flex items-center justify-center w-full h-full">
+        <AnimatePresence mode="popLayout">
+          <motion.span
+            key={timer}
+            initial={{ y: 20, opacity: 0, scale: 0.8 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -20, opacity: 0, scale: 1.1 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 400, 
+              damping: 30,
+              opacity: { duration: 0.2 }
+            }}
+            className="absolute"
+          >
+            {timer}
+          </motion.span>
+        </AnimatePresence>
       </div>
     </div>
   );
