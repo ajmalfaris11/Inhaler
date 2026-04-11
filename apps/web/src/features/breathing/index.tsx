@@ -2,45 +2,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Play, Pause, RotateCcw, Info, Moon, Zap, Activity, CheckCircle2, ShieldAlert, Wind, AlertTriangle, Trophy, Flame, Compass } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Info, CheckCircle2, AlertTriangle, Trophy, Music, Settings, Activity } from 'lucide-react';
 import { useBreathingTimer } from './hooks/useBreathingTimer';
 import { BreathingCircle } from './components/BreathingCircle';
-import { exercises, Exercise } from './data';
+import { exercises, Exercise, IconMap } from './data';
 import { useSoundscape } from './hooks/useSoundscape';
-import { SoundscapeSelector } from './components/SoundscapeSelector';
-import { Music } from 'lucide-react';
+import { useVoiceAssistant } from './hooks/useVoiceAssistant';
+import { SessionSettings } from './components/SessionSettings';
 
-const IconMap = {
-  Moon,
-  Zap,
-  Activity,
-  ShieldAlert,
-  Wind,
-  Flame,
-  Compass,
-};
 
-// Precise Speech Utility
-const speakPhase = (text: string) => {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return;
-
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  const voices = window.speechSynthesis.getVoices();
-  const priorityVoices = ['Google US English', 'Microsoft Aria Online', 'Natural', 'Samantha', 'Aria'];
-
-  let selectedVoice = null;
-  for (const name of priorityVoices) {
-    selectedVoice = voices.find(v => v.name.includes(name) && !v.name.includes('Male'));
-    if (selectedVoice) break;
-  }
-
-  if (selectedVoice) utterance.voice = selectedVoice;
-  utterance.pitch = 0.95;
-  utterance.rate = 0.9;
-  utterance.volume = 1.0;
-  window.speechSynthesis.speak(utterance);
-};
 
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
@@ -268,20 +238,21 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
 function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
   const { isActive, phase, timer, cycleCount, toggle, reset } = useBreathingTimer(exercise.pattern);
   const { activeSoundscape, toggleSoundscape, soundscapes } = useSoundscape();
-  const [isSoundscapeOpen, setIsSoundscapeOpen] = useState(false);
+  const { selectedProfileId, setSelectedProfileId, speak, testVoice } = useVoiceAssistant();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const lastPhaseRef = useRef(phase);
 
   // Trigger speech on phase change
   useEffect(() => {
     if (isActive && phase !== lastPhaseRef.current) {
-      speakPhase(phase);
+      speak(phase);
       lastPhaseRef.current = phase;
     }
-  }, [phase, isActive]);
+  }, [phase, isActive, speak]);
 
   const handleToggle = () => {
     if (!isActive) {
-      speakPhase('Inhale');
+      speak('Inhale');
       lastPhaseRef.current = 'Inhale';
     }
     toggle();
@@ -314,19 +285,19 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
         <ArrowLeft size={24} strokeWidth={1.5} />
       </button>
 
-      {/* Top Right Soundscape Button */}
+      {/* Top Right Settings Button */}
       <button 
-        onClick={() => setIsSoundscapeOpen(true)} 
+        onClick={() => setIsSettingsOpen(true)} 
         className={`absolute top-8 right-8 p-3 rounded-full border transition-all z-[60] flex items-center gap-2 ${
-          activeSoundscape !== 'none' 
+          activeSoundscape !== 'none' || selectedProfileId !== 'deep-calm'
             ? 'bg-white border-white text-black' 
             : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
         }`}
       >
-        <Music size={20} strokeWidth={1.5} />
-        {activeSoundscape !== 'none' && (
+        <Settings size={20} strokeWidth={1.5} />
+        {(activeSoundscape !== 'none' || selectedProfileId !== 'deep-calm') && (
           <span className="text-[10px] font-bold uppercase tracking-wider pr-1">
-            {soundscapes.find(s => s.id === activeSoundscape)?.name}
+            Session
           </span>
         )}
       </button>
@@ -401,11 +372,14 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
         </div>
       </div>
 
-      <SoundscapeSelector 
-        isOpen={isSoundscapeOpen} 
-        onClose={() => setIsSoundscapeOpen(false)} 
+      <SessionSettings 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
         activeSoundscape={activeSoundscape}
-        onSelect={toggleSoundscape}
+        onSelectSoundscape={toggleSoundscape}
+        selectedVoiceId={selectedProfileId}
+        onSelectVoice={setSelectedProfileId}
+        onTestVoice={testVoice}
       />
     </motion.div>
   );
