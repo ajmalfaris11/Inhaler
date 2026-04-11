@@ -1,4 +1,4 @@
-import { Moon, Zap, Activity, ShieldAlert, Wind, Heart, Flame, Compass } from 'lucide-react';
+import { Moon, Zap, Activity, ShieldAlert, Wind, Heart, Flame, Compass, Sun, Cloud, Infinity, Timer, Dna, Leaf, Sparkle, Brain } from 'lucide-react';
 
 export const IconMap = {
   Moon,
@@ -9,6 +9,14 @@ export const IconMap = {
   Flame,
   Compass,
   Heart,
+  Sun,
+  Cloud,
+  Infinity,
+  Timer,
+  Dna,
+  Leaf,
+  Sparkle,
+  Brain,
 };
 
 export interface Exercise {

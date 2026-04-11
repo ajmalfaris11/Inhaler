@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Plus, Minus, Info, Moon, Zap, Activity, ShieldAlert, Wind, Flame, Compass, Heart } from 'lucide-react';
+import { X, Save, Plus, Minus, Info, Moon, Zap, Activity, ShieldAlert, Wind, Flame, Compass, Heart, Sun, Cloud, Infinity, Timer, Dna, Leaf, Sparkle, Brain } from 'lucide-react';
 import { Exercise, IconMap } from '../data';
 
 const GRADIENTS = [
@@ -12,6 +12,12 @@ const GRADIENTS = [
   { start: '#10b981', end: '#3b82f6', name: 'Forest' },
   { start: '#ec4899', end: '#8b5cf6', name: 'Lotus' },
   { start: '#4b5563', end: '#111827', name: 'Void' },
+  { start: '#0ea5e9', end: '#2563eb', name: 'Ocean' },
+  { start: '#fbcfe8', end: '#f472b6', name: 'Quartz' },
+  { start: '#fbbf24', end: '#d97706', name: 'Gold' },
+  { start: '#065f46', end: '#064e3b', name: 'Jungle' },
+  { start: '#e9d5ff', end: '#a855f7', name: 'Mist' },
+  { start: '#f97316', end: '#7c3aed', name: 'Nova' },
 ];
 
 const ICONS = Object.keys(IconMap);
