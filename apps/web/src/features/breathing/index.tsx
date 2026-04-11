@@ -27,6 +27,30 @@ export function BreathingExercise() {
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
+
+    // Register/Unregister Service Worker for PWA
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      if (process.env.NODE_ENV === 'development') {
+        // In development, unregister service workers to avoid stale cache issues with Turbopack
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
+        });
+      } else {
+        const register = () => {
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.error('Service Worker registration failed:', err);
+          });
+        };
+
+        if (document.readyState === 'complete') {
+          register();
+        } else {
+          window.addEventListener('load', register);
+        }
+      }
+    }
   }, []);
 
   const handleStart = (ex: Exercise) => {
