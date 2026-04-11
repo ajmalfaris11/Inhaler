@@ -11,37 +11,6 @@ interface CustomBuilderProps {
   onSave: (exercise: Exercise) => void;
 }
 
-export function CustomBuilder({ isOpen, onClose, onSave }: CustomBuilderProps) {
-  const [name, setName] = useState('');
-  const [inhale, setInhale] = useState(4);
-  const [hold1, setHold1] = useState(4);
-  const [exhale, setExhale] = useState(4);
-  const [hold2, setHold2] = useState(4);
-
-  const handleSave = () => {
-    if (!name.trim()) return;
-
-    const newExercise: Exercise = {
-      id: `custom-${Date.now()}`,
-      name: name,
-      subtitle: 'My Journey',
-      description: `Custom pattern: ${inhale}-${hold1}-${exhale}-${hold2}`,
-      howTo: `Inhale for ${inhale}s, hold for ${hold1}s, exhale for ${exhale}s, and hold for ${hold2}s.`,
-      why: 'This is your personalized breathing journey designed for your specific needs.',
-      benefits: ['Personalized flow', 'Custom rhythm'],
-      icon: 'Activity',
-      gradient: {
-        start: '#6366f1',
-        end: '#a855f7'
-      },
-      pattern: { inhale, hold1, exhale, hold2 }
-    };
-
-    onSave(newExercise);
-    setName('');
-    onClose();
-  };
-
 const DurationSelector = React.memo(({ label, value, setter }: { label: string, value: number, setter: (v: number) => void }) => {
   const options = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15];
   
