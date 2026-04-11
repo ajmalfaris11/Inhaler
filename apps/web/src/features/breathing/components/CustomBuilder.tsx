@@ -29,7 +29,7 @@ const DurationSelector = React.memo(({ label, value, setter }: { label: string, 
         </div>
 
         <button 
-          onClick={() => setter(Math.min(60, value + 1))}
+          onClick={() => setter(value + 1)}
           className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
         >
           <Plus size={18} />
