@@ -377,8 +377,14 @@ function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => 
         onClose={() => setIsSettingsOpen(false)} 
         activeSoundscape={activeSoundscape}
         onSelectSoundscape={toggleSoundscape}
+        soundscapeVolume={volume}
+        onSetSoundscapeVolume={setVolume}
         selectedVoiceId={selectedProfileId}
         onSelectVoice={setSelectedProfileId}
+        voiceVolume={voiceVolume}
+        onSetVoiceVolume={setVoiceVolume}
+        isVoiceEnabled={isEnabled}
+        onSetVoiceEnabled={setIsEnabled}
         onTestVoice={testVoice}
       />
     </motion.div>

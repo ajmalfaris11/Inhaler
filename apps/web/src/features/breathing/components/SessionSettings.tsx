@@ -9,8 +9,14 @@ import { voiceProfiles } from '../hooks/useVoiceAssistant';
 interface SessionSettingsProps {
   activeSoundscape: SoundscapeType;
   onSelectSoundscape: (id: SoundscapeType) => void;
+  soundscapeVolume: number;
+  onSetSoundscapeVolume: (v: number) => void;
   selectedVoiceId: string;
   onSelectVoice: (id: string) => void;
+  voiceVolume: number;
+  onSetVoiceVolume: (v: number) => void;
+  isVoiceEnabled: boolean;
+  onSetVoiceEnabled: (enabled: boolean) => void;
   onTestVoice: (id: string) => void;
   isOpen: boolean;
   onClose: () => void;
@@ -29,8 +35,14 @@ const IconMap = {
 export function SessionSettings({ 
   activeSoundscape, 
   onSelectSoundscape, 
+  soundscapeVolume,
+  onSetSoundscapeVolume,
   selectedVoiceId,
   onSelectVoice,
+  voiceVolume,
+  onSetVoiceVolume,
+  isVoiceEnabled,
+  onSetVoiceEnabled,
   onTestVoice,
   isOpen, 
   onClose 
@@ -87,91 +99,144 @@ export function SessionSettings({
 
               <div className="max-h-[60vh] overflow-y-auto pr-1 scrollbar-hide">
                 {activeTab === 'sound' ? (
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={() => onSelectSoundscape('none')}
-                      className={`flex flex-col items-center justify-center p-6 rounded-[28px] border relative transition-all duration-400 ${
-                        activeSoundscape === 'none'
-                          ? 'bg-white/15 border-white/40 text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]'
-                          : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
-                      }`}
-                    >
-                      <X size={24} strokeWidth={1.5} className="mb-2" />
-                      <span className="text-xs font-medium">None</span>
-                      {activeSoundscape === 'none' && (
-                        <div className="absolute top-3 right-3 w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                          <Check size={12} className="text-black" strokeWidth={3} />
+                  <div className="flex flex-col gap-8">
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => onSelectSoundscape('none')}
+                        className={`flex flex-col items-center justify-center p-6 rounded-[28px] border relative transition-all duration-400 ${
+                          activeSoundscape === 'none'
+                            ? 'bg-white/15 border-white/40 text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]'
+                            : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                        }`}
+                      >
+                        <X size={24} strokeWidth={1.5} className="mb-2" />
+                        <span className="text-xs font-medium">None</span>
+                        {activeSoundscape === 'none' && (
+                          <div className="absolute top-3 right-3 w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                            <Check size={12} className="text-black" strokeWidth={3} />
+                          </div>
+                        )}
+                      </button>
+
+                      {soundscapes.map((s) => {
+                        const Icon = IconMap[s.id as keyof typeof IconMap] || Volume2;
+                        const isActive = activeSoundscape === s.id;
+
+                        return (
+                          <button
+                            key={s.id}
+                            onClick={() => onSelectSoundscape(s.id)}
+                            className={`flex flex-col items-center justify-center p-6 rounded-[28px] border relative transition-all duration-400 ${
+                              isActive
+                                ? 'bg-white/15 border-white/40 text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]'
+                                : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                            }`}
+                          >
+                            <Icon size={24} strokeWidth={1.5} className="mb-2" />
+                            <span className="text-xs font-medium">{s.name}</span>
+                            {isActive && (
+                              <div className="absolute top-3 right-3 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                <Check size={12} className="text-black" strokeWidth={3} />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {activeSoundscape !== 'none' && (
+                      <div className="px-2">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-[10px] uppercase tracking-widest text-gray-400 font-medium">Volume</span>
+                          <span className="text-[10px] text-white font-medium">{Math.round(soundscapeVolume * 100)}%</span>
                         </div>
-                      )}
-                    </button>
-
-                    {soundscapes.map((s) => {
-                      const Icon = IconMap[s.id as keyof typeof IconMap] || Volume2;
-                      const isActive = activeSoundscape === s.id;
-
-                      return (
-                        <button
-                          key={s.id}
-                          onClick={() => onSelectSoundscape(s.id)}
-                          className={`flex flex-col items-center justify-center p-6 rounded-[28px] border relative transition-all duration-400 ${
-                            isActive
-                              ? 'bg-white/15 border-white/40 text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]'
-                              : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
-                          }`}
-                        >
-                          <Icon size={24} strokeWidth={1.5} className="mb-2" />
-                          <span className="text-xs font-medium">{s.name}</span>
-                          {isActive && (
-                            <div className="absolute top-3 right-3 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg">
-                              <Check size={12} className="text-black" strokeWidth={3} />
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="1" 
+                          step="0.01" 
+                          value={soundscapeVolume} 
+                          onChange={(e) => onSetSoundscapeVolume(parseFloat(e.target.value))}
+                          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                        />
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-3">
-                    {voiceProfiles.map((v) => {
-                      const isActive = selectedVoiceId === v.id;
-                      const isMale = v.id === 'atlas' || v.id === 'caspian';
-                      return (
-                        <div 
-                          key={v.id}
-                          className={`flex items-center gap-4 p-4 rounded-[28px] border relative transition-all duration-400 ${
-                            isActive ? 'bg-white/15 border-white/40 shadow-xl' : 'bg-white/5 border-white/10'
-                          }`}
-                        >
+                  <div className="flex flex-col gap-6">
+                    <div className="flex items-center justify-between px-2 mb-2">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium text-white">Voice Guidance</span>
+                        <span className="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">Toggle Audio Cues</span>
+                      </div>
+                      <button 
+                        onClick={() => onSetVoiceEnabled(!isVoiceEnabled)}
+                        className={`w-12 h-6 rounded-full transition-all duration-500 p-1 flex items-center ${isVoiceEnabled ? 'bg-white' : 'bg-white/10 border border-white/10'}`}
+                      >
+                        <div className={`w-4 h-4 rounded-full transition-all duration-500 ${isVoiceEnabled ? 'bg-black translate-x-6' : 'bg-gray-500 translate-x-0'}`} />
+                      </button>
+                    </div>
+
+                    {isVoiceEnabled && (
+                      <div className="px-2 mb-4">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-[10px] uppercase tracking-widest text-gray-400 font-medium">Voice Volume</span>
+                          <span className="text-[10px] text-white font-medium">{Math.round(voiceVolume * 100)}%</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="1" 
+                          step="0.01" 
+                          value={voiceVolume} 
+                          onChange={(e) => onSetVoiceVolume(parseFloat(e.target.value))}
+                          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex flex-col gap-3">
+                      {voiceProfiles.map((v) => {
+                        const isActive = selectedVoiceId === v.id;
+                        const isMale = v.id === 'atlas' || v.id === 'caspian';
+                        return (
                           <div 
-                            onClick={() => onSelectVoice(v.id)}
-                            className="flex-1 cursor-pointer"
+                            key={v.id}
+                            className={`flex items-center gap-4 p-4 rounded-[28px] border relative transition-all duration-400 ${
+                              isActive ? 'bg-white/15 border-white/40 shadow-xl' : 'bg-white/5 border-white/10'
+                            } ${!isVoiceEnabled ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                           >
-                            <h4 className={`text-base font-normal ${isActive ? 'text-white' : 'text-gray-300'}`}>{v.name}</h4>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
-                              {isMale ? 'Deep Velvet' : 'Smooth Ethereal'}
-                            </p>
-                          </div>
-                          
-                          <div className="flex items-center gap-3">
-                            <button 
-                              onClick={() => onTestVoice(v.id)}
-                              className="p-3 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-white transition-all"
-                            >
-                              <Play size={14} fill="currentColor" />
-                            </button>
-                            
                             <div 
                               onClick={() => onSelectVoice(v.id)}
-                              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all ${
-                                isActive ? 'border-white bg-white' : 'border-white/20'
-                              }`}
+                              className="flex-1 cursor-pointer"
                             >
-                              {isActive && <Check size={14} className="text-black" strokeWidth={3} />}
+                              <h4 className={`text-base font-normal ${isActive ? 'text-white' : 'text-gray-300'}`}>{v.name}</h4>
+                              <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
+                                {isMale ? 'Deep Presence' : 'Ethereal Harmony'}
+                              </p>
+                            </div>
+                            
+                            <div className="flex items-center gap-3">
+                              <button 
+                                onClick={() => onTestVoice(v.id)}
+                                className="p-3 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-white transition-all"
+                              >
+                                <Play size={14} fill="currentColor" />
+                              </button>
+                              
+                              <div 
+                                onClick={() => onSelectVoice(v.id)}
+                                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all ${
+                                  isActive ? 'border-white bg-white' : 'border-white/20'
+                                }`}
+                              >
+                                {isActive && <Check size={14} className="text-black" strokeWidth={3} />}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>

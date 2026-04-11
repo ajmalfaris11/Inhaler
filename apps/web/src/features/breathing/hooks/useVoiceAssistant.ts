@@ -14,7 +14,7 @@ export interface VoiceProfile {
 export const voiceProfiles: VoiceProfile[] = [
   {
     id: 'luna',
-    name: 'Luna',
+    name: 'Zen Guide',
     pitch: 1.05,
     rate: 0.75,
     lang: 'en-US',
@@ -22,7 +22,7 @@ export const voiceProfiles: VoiceProfile[] = [
   },
   {
     id: 'atlas',
-    name: 'Atlas',
+    name: 'Scientific Instructor',
     pitch: 0.8, 
     rate: 0.8,
     lang: 'en-US',
@@ -30,7 +30,7 @@ export const voiceProfiles: VoiceProfile[] = [
   },
   {
     id: 'aria',
-    name: 'Aria',
+    name: 'Soft Whisper',
     pitch: 0.95,
     rate: 0.7,
     lang: 'en-US',
@@ -38,7 +38,7 @@ export const voiceProfiles: VoiceProfile[] = [
   },
   {
     id: 'caspian',
-    name: 'Caspian',
+    name: 'Deep Presence',
     pitch: 0.9, 
     rate: 0.75,
     lang: 'en-US',
@@ -49,6 +49,7 @@ export const voiceProfiles: VoiceProfile[] = [
 export function useVoiceAssistant() {
   const [selectedProfileId, setSelectedProfileId] = useState<string>('luna');
   const [isEnabled, setIsEnabled] = useState(true);
+  const [voiceVolume, setVoiceVolume] = useState(1.0);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
@@ -125,15 +126,15 @@ export function useVoiceAssistant() {
     
     utterance.pitch = profile.pitch;
     utterance.rate = profile.rate;
-    utterance.volume = 1.0;
+    utterance.volume = voiceVolume;
     
     synthRef.current.speak(utterance);
-  }, [selectedProfileId, isEnabled, getVoice]);
+  }, [selectedProfileId, isEnabled, voiceVolume, getVoice]);
 
   const testVoice = (profileId: string) => {
     const profile = voiceProfiles.find(p => p.id === profileId);
     if (profile) {
-      speak(`Hello. I am ${profile.name}. Let's find some peace together. Breathe in... and out.`, profile);
+      speak(`Hello. I am the ${profile.name}. Let's find some peace together. Breathe in... and out.`, profile);
     }
   };
 
@@ -142,6 +143,8 @@ export function useVoiceAssistant() {
     setSelectedProfileId,
     isEnabled,
     setIsEnabled,
+    voiceVolume,
+    setVoiceVolume,
     speak,
     testVoice,
     voiceProfiles
