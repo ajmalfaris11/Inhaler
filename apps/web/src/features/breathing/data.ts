@@ -1,5 +1,16 @@
 import { Moon, Zap, Activity, ShieldAlert, Wind, Heart, Flame, Compass } from 'lucide-react';
 
+export const IconMap = {
+  Moon,
+  Zap,
+  Activity,
+  ShieldAlert,
+  Wind,
+  Flame,
+  Compass,
+  Heart,
+};
+
 export interface Exercise {
   id: string;
   name: string;
