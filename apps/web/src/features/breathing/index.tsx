@@ -18,8 +18,7 @@ import { Plus, Trash2 } from 'lucide-react';
 
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  const [view, setView] = useState<'home' | 'exercise' | 'details'>('home');
-  const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const [view, setView] = useState<'home' | 'exercise' | 'details' | 'builder'>('home');
   const { customExercises, addExercise, deleteExercise } = useCustomExercises();
 
   useEffect(() => {
@@ -68,20 +67,21 @@ export function BreathingExercise() {
             onStart={handleStart} 
             onDetails={handleDetails} 
             customExercises={customExercises}
-            onOpenBuilder={() => setIsBuilderOpen(true)}
+            onOpenBuilder={() => setView('builder')}
             onDeleteCustom={deleteExercise}
           />
         )}
         {view === 'exercise' && selectedExercise && (
           <ExerciseView key="exercise" exercise={selectedExercise} onBack={handleBack} />
         )}
+        {view === 'builder' && (
+          <CustomBuilder 
+            key="builder"
+            onBack={() => setView('home')} 
+            onSave={addExercise} 
+          />
+        )}
       </AnimatePresence>
-
-      <CustomBuilder 
-        isOpen={isBuilderOpen} 
-        onClose={() => setIsBuilderOpen(false)} 
-        onSave={addExercise} 
-      />
 
       <AnimatePresence>
         {view === 'details' && selectedExercise && (
