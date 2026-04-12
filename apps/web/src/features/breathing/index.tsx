@@ -12,13 +12,16 @@ import { LibraryView } from './components/LibraryView';
 import { ProfileView } from './components/ProfileView';
 import { ExerciseView } from './components/ExerciseView';
 import { DetailsView } from './components/DetailsView';
+import { SessionSetup, SessionConfig } from './components/SessionSetup';
 
 type TabType = 'explore' | 'library' | 'create' | 'profile';
+type ViewType = 'home' | 'exercise' | 'details' | 'setup';
 
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  const [view, setView] = useState<'home' | 'exercise' | 'details'>('home');
+  const [view, setView] = useState<ViewType>('home');
   const [activeTab, setActiveTab] = useState<TabType>('explore');
+  const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
   const { customExercises, favorites, stats, toggleFavorite, deleteExercise, addExercise, recordSession } = useLibrary();
 
   useEffect(() => {
@@ -53,6 +56,11 @@ export function BreathingExercise() {
 
   const handleStart = (ex: Exercise) => {
     setSelectedExercise(ex);
+    setView('setup');
+  };
+
+  const handleConfirmSetup = (config: SessionConfig) => {
+    setSessionConfig(config);
     setView('exercise');
   };
 
@@ -105,14 +113,27 @@ export function BreathingExercise() {
               )}
             </div>
           )}
+          {view === 'setup' && selectedExercise && (
+            <SessionSetup 
+              key="setup" 
+              exercise={selectedExercise} 
+              onBack={handleBack} 
+              onConfirm={handleConfirmSetup} 
+            />
+          )}
           {view === 'exercise' && selectedExercise && (
-            <ExerciseView key="exercise" exercise={selectedExercise} onBack={handleBack} onRecordSession={recordSession} />
+            <ExerciseView 
+              key="exercise" 
+              exercise={selectedExercise} 
+              onBack={() => setView('setup')} 
+              onRecordSession={recordSession} 
+            />
           )}
         </AnimatePresence>
 
         <AnimatePresence>
           {view === 'details' && selectedExercise && (
-            <DetailsView key="details" exercise={selectedExercise} onBack={handleBack} onStart={() => setView('exercise')} />
+            <DetailsView key="details" exercise={selectedExercise} onBack={handleBack} onStart={() => setView('setup')} />
           )}
         </AnimatePresence>
       </div>
