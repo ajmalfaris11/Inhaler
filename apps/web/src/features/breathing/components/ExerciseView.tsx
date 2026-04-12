@@ -29,6 +29,13 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
 
   const timer = useBreathingTimer(exercise.pattern);
   
+  // Use a ref to avoid infinite loops with onComplete/onRecordSession
+  const hasCompletedRef = useRef(false);
+  const totalTimeRef = useRef(0);
+  useEffect(() => {
+    totalTimeRef.current = timer.totalTime;
+  }, [timer.totalTime]);
+
   // Audio hooks now play if session is active OR if settings are open (for testing)
   const soundscape = useSoundscape(timer.isActive || isSettingsOpen);
   const voice = useVoiceAssistant(timer.phase, timer.isActive);
@@ -36,10 +43,14 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
 
   // Check for completion
   useEffect(() => {
+    if (hasCompletedRef.current) return;
+
     if (config.mode === 'duration' && timer.totalTime >= config.value * 60) {
+      hasCompletedRef.current = true;
       if (timer.isActive) timer.toggle();
       onComplete(timer.totalTime, timer.cycles);
     } else if (config.mode === 'cycles' && timer.cycles >= config.value) {
+      hasCompletedRef.current = true;
       if (timer.isActive) timer.toggle();
       onComplete(timer.totalTime, timer.cycles);
     }
@@ -48,11 +59,12 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
   // Record session on leave if any time was spent
   useEffect(() => {
     return () => {
-      if (timer.totalTime > 10) {
-        onRecordSession(exercise.id, timer.totalTime);
+      // Use the ref value to get the latest time without triggering the effect on change
+      if (totalTimeRef.current > 10 && !hasCompletedRef.current) {
+        onRecordSession(exercise.id, totalTimeRef.current);
       }
     };
-  }, [timer.totalTime, exercise.id, onRecordSession]);
+  }, [exercise.id, onRecordSession]);
 
   const handleReset = () => {
     timer.reset();
