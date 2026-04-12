@@ -21,18 +21,26 @@ interface ExerciseViewProps {
 }
 
 export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSession }: ExerciseViewProps) {
+  // Local settings state (Moved up so it can be used by hooks)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [voiceVolume, setVoiceVolume] = useState(0.8);
+  const [selectedVoiceId, setSelectedVoiceId] = useState('seraphina');
+
   const timer = useBreathingTimer(exercise.pattern);
-  const soundscape = useSoundscape(timer.isActive);
+  
+  // Audio hooks now play if session is active OR if settings are open (for testing)
+  const soundscape = useSoundscape(timer.isActive || isSettingsOpen);
   const voice = useVoiceAssistant(timer.phase, timer.isActive);
-  const binaural = useBinauralBeats(timer.isActive);
+  const binaural = useBinauralBeats(timer.isActive || isSettingsOpen);
 
   // Check for completion
   useEffect(() => {
     if (config.mode === 'duration' && timer.totalTime >= config.value * 60) {
-      if (timer.isActive) timer.toggle(); // Pause timer
+      if (timer.isActive) timer.toggle();
       onComplete(timer.totalTime, timer.cycles);
     } else if (config.mode === 'cycles' && timer.cycles >= config.value) {
-      if (timer.isActive) timer.toggle(); // Pause timer
+      if (timer.isActive) timer.toggle();
       onComplete(timer.totalTime, timer.cycles);
     }
   }, [timer.totalTime, timer.cycles, config, onComplete, timer.isActive]);
@@ -40,17 +48,11 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
   // Record session on leave if any time was spent
   useEffect(() => {
     return () => {
-      if (timer.totalTime > 10) { // Only record if spent more than 10 seconds
+      if (timer.totalTime > 10) {
         onRecordSession(exercise.id, timer.totalTime);
       }
     };
   }, [timer.totalTime, exercise.id, onRecordSession]);
-
-  // Local settings state
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
-  const [voiceVolume, setVoiceVolume] = useState(0.8);
-  const [selectedVoiceId, setSelectedVoiceId] = useState('seraphina');
 
   const handleReset = () => {
     timer.reset();
@@ -58,12 +60,13 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="flex flex-col items-center w-full min-h-[80vh] justify-between py-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black z-[100] flex flex-col"
     >
-      <div className="w-full flex justify-between items-center mb-8">
+      {/* Header - Fixed Top */}
+      <div className="px-6 pt-12 pb-6 flex justify-between items-center bg-gradient-to-b from-black to-transparent">
         <button onClick={onBack} className="p-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all">
           <ArrowLeft size={20} />
         </button>
@@ -79,8 +82,9 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center w-full relative">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-4">
+      {/* Main Content Area - Scrollable or Centered */}
+      <div className="flex-1 flex flex-col items-center justify-center w-full px-6 relative overflow-y-auto scrollbar-hide py-10">
+        <div className="mb-12">
            {config.mode !== 'infinite' && (
              <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
@@ -90,49 +94,50 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
              </div>
            )}
         </div>
+        
         <BreathingCircle 
           phase={timer.phase} 
           timer={timer.timeLeft}
           gradient={exercise.gradient}
         />
-      </div>
 
-      <div className="w-full space-y-12">
-        {/* Stats Section - Now above controls */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
-            <span className="text-[9px] uppercase tracking-widest text-gray-600">Cycles</span>
-            <span className="text-xl font-light text-white">{timer.cycles}</span>
+        {/* Stats Grid - Now in the center flow */}
+        <div className="grid grid-cols-2 gap-4 w-full max-w-[340px] mt-16">
+          <div className="bg-white/[0.03] border border-white/5 p-5 rounded-[28px] flex flex-col items-center gap-1 shadow-lg">
+            <span className="text-[9px] uppercase tracking-widest text-gray-600 font-bold">Cycles</span>
+            <span className="text-2xl font-light text-white">{timer.cycles}</span>
           </div>
-          <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
-            <span className="text-[9px] uppercase tracking-widest text-gray-600">Duration</span>
-            <span className="text-xl font-light text-white">
+          <div className="bg-white/[0.03] border border-white/5 p-5 rounded-[28px] flex flex-col items-center gap-1 shadow-lg">
+            <span className="text-[9px] uppercase tracking-widest text-gray-600 font-bold">Duration</span>
+            <span className="text-2xl font-light text-white">
               {Math.floor(timer.totalTime / 60)}:{(timer.totalTime % 60).toString().padStart(2, '0')}
             </span>
           </div>
         </div>
+      </div>
 
-        {/* Controls Section - Now at bottom */}
-        <div className="flex items-center justify-center gap-8 pb-4">
+      {/* Sticky Bottom Controls */}
+      <div className="px-8 pt-8 pb-12 bg-gradient-to-t from-black via-black/90 to-transparent">
+        <div className="max-w-[400px] mx-auto flex items-center justify-center gap-10">
           <button 
             onClick={handleReset}
-            className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg"
+            className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-xl"
           >
-            <RotateCcw size={20} />
+            <RotateCcw size={22} />
           </button>
           
           <button 
             onClick={timer.toggle}
-            className="w-24 h-24 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all shadow-2xl"
+            className="w-24 h-24 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.2)]"
           >
-            {timer.isActive ? <Pause size={32} fill="black" /> : <Play size={32} className="ml-1" fill="black" />}
+            {timer.isActive ? <Pause size={36} fill="black" /> : <Play size={36} className="ml-1" fill="black" />}
           </button>
 
           <button 
             onClick={() => setIsSettingsOpen(true)}
-            className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg"
+            className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-xl"
           >
-            <Music size={20} />
+            <Music size={22} />
           </button>
         </div>
       </div>
