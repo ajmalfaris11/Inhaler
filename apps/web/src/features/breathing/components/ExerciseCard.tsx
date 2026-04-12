@@ -60,10 +60,6 @@ export function ExerciseCard({
                 <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-bold">
                   {exercise.subtitle}
                 </span>
-                <span className="w-1 h-1 rounded-full bg-white/10" />
-                <span className={`text-[9px] uppercase tracking-widest font-black ${exercise.isAdvanced ? 'text-orange-500' : 'text-emerald-500'}`}>
-                  {level}
-                </span>
               </div>
             </div>
           </div>
@@ -97,14 +93,20 @@ export function ExerciseCard({
           {exercise.description}
         </p>
 
-        {/* Bottom Row: Tags (Left) and Start Button (Right) */}
+        {/* Bottom Row: Level (Left) and Start Button (Right) */}
         <div className="flex items-center justify-between pt-2">
-          <div className="flex gap-2.5">
-            {exercise.benefits.slice(0, 2).map((tag, i) => (
-              <div key={i} className="px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.05] shadow-inner">
-                <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">{tag}</span>
-              </div>
-            ))}
+          <div className="flex items-center gap-2">
+            <div className={`px-4 py-2 rounded-full border shadow-inner ${
+              exercise.isAdvanced 
+                ? 'bg-orange-500/5 border-orange-500/10' 
+                : 'bg-emerald-500/5 border-emerald-500/10'
+            }`}>
+              <span className={`text-[9px] uppercase tracking-[0.2em] font-black ${
+                exercise.isAdvanced ? 'text-orange-500' : 'text-emerald-500'
+              }`}>
+                {level}
+              </span>
+            </div>
           </div>
 
           <button 
