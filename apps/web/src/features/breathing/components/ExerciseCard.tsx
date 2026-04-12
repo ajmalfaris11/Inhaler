@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Bookmark, Trash2, ChevronRight, Play } from 'lucide-react';
+import { Activity, Bookmark, Trash2, ChevronRight, Play, Info } from 'lucide-react';
 import { Exercise, IconMap } from '../data';
 
 interface ExerciseCardProps {
@@ -25,12 +25,12 @@ export function ExerciseCard({
   onToggleFavorite 
 }: ExerciseCardProps) {
   const Icon = (IconMap as any)[exercise.icon] || Activity;
+  const level = exercise.isAdvanced ? 'Advanced' : 'Beginner';
 
   return (
     <motion.div 
       whileHover={{ y: -6, scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
-      onClick={onStart}
       className="relative w-full bg-[#0A0A0A] border border-white/[0.08] rounded-[38px] p-1 overflow-hidden group transition-all duration-700 shadow-2xl"
     >
       {/* Inner Glow / Mesh Gradient Effect */}
@@ -58,9 +58,15 @@ export function ExerciseCard({
               <h3 className="text-xl font-medium text-white/90 tracking-tight leading-tight group-hover:text-white transition-colors">
                 {exercise.name}
               </h3>
-              <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-semibold mt-1">
-                {exercise.subtitle}
-              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-semibold">
+                  {exercise.subtitle}
+                </span>
+                <span className="w-1 h-1 rounded-full bg-white/10" />
+                <span className={`text-[9px] uppercase tracking-widest font-bold ${exercise.isAdvanced ? 'text-orange-500' : 'text-emerald-500'}`}>
+                  {level}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -95,40 +101,25 @@ export function ExerciseCard({
           </p>
         </div>
 
-        {/* Footer Section */}
-        <div className="flex items-center justify-between pt-4 mt-2 border-t border-white/[0.03]">
-          <div className="flex gap-2">
-            {exercise.benefits.slice(0, 2).map((b, i) => (
-              <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.05]">
-                <div className="w-1 h-1 rounded-full bg-white/30" />
-                <span className="text-[9px] text-gray-500 font-medium">{b}</span>
-              </div>
-            ))}
-          </div>
+        {/* Action Buttons Section */}
+        <div className="flex items-center gap-3 mt-2">
+          <button 
+            onClick={(e) => { e.stopPropagation(); onStart(); }}
+            className="flex-1 h-14 rounded-2xl bg-white text-black font-semibold text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all"
+          >
+            <Play size={14} fill="currentColor" />
+            Start Session
+          </button>
           
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={(e) => { e.stopPropagation(); onDetails(); }}
-              className="text-[11px] font-medium text-gray-600 hover:text-white transition-colors flex items-center gap-1"
-            >
-              Info
-              <ChevronRight size={14} />
-            </button>
-            
-            <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
-              <Play size={14} fill="currentColor" className="ml-0.5" />
-            </div>
-          </div>
+          <button 
+            onClick={(e) => { e.stopPropagation(); onDetails(); }}
+            className="flex-1 h-14 rounded-2xl bg-white/5 border border-white/10 text-white font-semibold text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-2 hover:bg-white/10 active:scale-[0.98] transition-all"
+          >
+            <Info size={14} />
+            Details
+          </button>
         </div>
       </div>
-
-      {exercise.isAdvanced && !isCustom && (
-        <div className="absolute top-1 right-1/2 translate-x-1/2 z-20">
-          <div className="bg-orange-500/20 backdrop-blur-md border border-orange-500/30 text-orange-500 text-[7px] uppercase tracking-[0.2em] font-black px-3 py-1 rounded-b-xl shadow-lg">
-            Mastery
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 }
