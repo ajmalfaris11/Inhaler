@@ -56,6 +56,19 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
     }
   }, [timer.totalTime, timer.cycles, config, onComplete, timer.isActive]);
 
+  // Haptic Feedback for mobile
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'vibrate' in navigator && timer.isActive) {
+      if (timer.phase === 'inhale') {
+        navigator.vibrate(100);
+      } else if (timer.phase === 'exhale') {
+        navigator.vibrate(100);
+      } else if (timer.phase.includes('hold')) {
+        navigator.vibrate(50);
+      }
+    }
+  }, [timer.phase, timer.isActive]);
+
   // Record session on leave if any time was spent
   useEffect(() => {
     return () => {
