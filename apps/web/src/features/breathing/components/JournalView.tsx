@@ -61,13 +61,13 @@ export function JournalView({ sessions }: JournalViewProps) {
       className="w-full space-y-10"
     >
       {/* Header */}
-      <div className="px-1 flex justify-between items-end">
+      <div className="px-1 flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-light tracking-tight text-white/90">Journal</h1>
           <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-1 font-bold">Progress Analytics</p>
         </div>
-        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
-          <BarChart3 size={22} />
+        <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
+          <BarChart3 size={20} />
         </div>
       </div>
 
