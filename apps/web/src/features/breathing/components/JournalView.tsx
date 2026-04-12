@@ -58,10 +58,10 @@ export function JournalView({ sessions }: JournalViewProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="w-full space-y-10"
+      className="w-full space-y-6"
     >
       {/* Header */}
-      <div className="px-1 flex justify-between items-start">
+      <div className="px-1 flex justify-between items-start mb-2">
         <div>
           <h1 className="text-3xl font-light tracking-tight text-white/90">Journal</h1>
           <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-1 font-bold">Progress Analytics</p>
@@ -72,17 +72,16 @@ export function JournalView({ sessions }: JournalViewProps) {
       </div>
 
       {/* Graphical Representation (Custom Bar Chart) */}
-      <div className="bg-white/[0.03] border border-white/5 rounded-[40px] p-8 shadow-2xl">
-        <div className="flex justify-between items-center mb-10">
+      <div className="bg-white/[0.03] border border-white/5 rounded-[40px] p-6 shadow-2xl">
+        <div className="flex justify-between items-center mb-8">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Weekly Activity</span>
-          <span className="text-[10px] text-gray-500 font-medium">Minutes / Day</span>
+          <span className="text-[10px] text-gray-500 font-medium">Min / Day</span>
         </div>
         
-        <div className="flex items-end justify-between h-40 gap-2 px-1">
+        <div className="flex items-end justify-between h-36 gap-2 px-1">
           {graphData.map((day, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
               <div className="relative w-full flex flex-col items-center justify-end h-full">
-                {/* Tooltip on hover */}
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-black text-[9px] font-black px-2 py-1 rounded-md z-20 pointer-events-none whitespace-nowrap">
                   {day.minutes} min
                 </div>
@@ -108,7 +107,7 @@ export function JournalView({ sessions }: JournalViewProps) {
 
       {/* Insights Cards */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white/[0.03] border border-white/5 rounded-[32px] p-6 flex flex-col gap-4 shadow-xl">
+        <div className="bg-white/[0.03] border border-white/5 rounded-[32px] p-5 flex flex-col gap-4 shadow-xl">
           <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
             <Clock size={20} />
           </div>
@@ -121,7 +120,7 @@ export function JournalView({ sessions }: JournalViewProps) {
           </div>
         </div>
 
-        <div className="bg-white/[0.03] border border-white/5 rounded-[32px] p-6 flex flex-col gap-4 shadow-xl">
+        <div className="bg-white/[0.03] border border-white/5 rounded-[32px] p-5 flex flex-col gap-4 shadow-xl">
           <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
             <Activity size={20} />
           </div>
@@ -136,7 +135,7 @@ export function JournalView({ sessions }: JournalViewProps) {
       </div>
 
       {/* History List */}
-      <div className="space-y-6 pb-4">
+      <div className="space-y-5 pb-2">
         <div className="flex justify-between items-center px-1">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Recent Sessions</span>
           <History size={16} className="text-gray-700" />
