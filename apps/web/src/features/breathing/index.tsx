@@ -115,6 +115,7 @@ export function BreathingExercise() {
                 <JournalView 
                   key="journal"
                   sessions={sessions}
+                  stats={stats}
                 />
               )}
               {activeTab === 'profile' && (
