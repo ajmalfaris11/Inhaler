@@ -99,12 +99,7 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
           <h2 className="text-xl font-light text-white tracking-tight">{exercise.name}</h2>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-1">{timer.phase}</p>
         </div>
-        <button 
-          onClick={() => setIsSettingsOpen(true)}
-          className="p-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all"
-        >
-          <SettingsIcon size={20} />
-        </button>
+        <div className="w-12" /> {/* Spacer to maintain title centering */}
       </div>
 
       {/* Main Content Area - Scrollable or Centered */}

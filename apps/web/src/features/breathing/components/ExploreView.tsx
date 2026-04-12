@@ -50,9 +50,6 @@ export function ExploreView({
             <Zap className="text-orange-500" size={14} fill="currentColor" />
             <span className="text-[11px] font-black text-orange-500 uppercase tracking-widest">{stats.streak} Day Streak</span>
           </motion.div>
-          <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white/10 transition-all cursor-pointer">
-            <Settings size={18} />
-          </div>
         </div>
       </div>
 
