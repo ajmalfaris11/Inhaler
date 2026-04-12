@@ -10,18 +10,32 @@ import { useVoiceAssistant } from '../hooks/useVoiceAssistant';
 import { useBinauralBeats } from '../hooks/useBinauralBeats';
 import { BreathingCircle } from './BreathingCircle';
 import { SessionSettings } from './SessionSettings';
+import { SessionConfig } from './SessionSetup';
 
 interface ExerciseViewProps {
   exercise: Exercise;
+  config: SessionConfig;
   onBack: () => void;
+  onComplete: (duration: number, cycles: number) => void;
   onRecordSession: (id: string, duration: number) => void;
 }
 
-export function ExerciseView({ exercise, onBack, onRecordSession }: ExerciseViewProps) {
+export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSession }: ExerciseViewProps) {
   const timer = useBreathingTimer(exercise.pattern);
   const soundscape = useSoundscape(timer.isActive);
   const voice = useVoiceAssistant(timer.phase, timer.isActive);
   const binaural = useBinauralBeats(timer.isActive);
+
+  // Check for completion
+  useEffect(() => {
+    if (config.mode === 'duration' && timer.totalTime >= config.value * 60) {
+      if (timer.isActive) timer.toggle(); // Pause timer
+      onComplete(timer.totalTime, timer.cycles);
+    } else if (config.mode === 'cycles' && timer.cycles >= config.value) {
+      if (timer.isActive) timer.toggle(); // Pause timer
+      onComplete(timer.totalTime, timer.cycles);
+    }
+  }, [timer.totalTime, timer.cycles, config, onComplete, timer.isActive]);
 
   // Record session on leave if any time was spent
   useEffect(() => {
@@ -66,6 +80,16 @@ export function ExerciseView({ exercise, onBack, onRecordSession }: ExerciseView
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-4">
+           {config.mode !== 'infinite' && (
+             <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
+               <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                 Goal: {config.value} {config.mode === 'duration' ? 'min' : 'cycles'}
+               </span>
+             </div>
+           )}
+        </div>
         <BreathingCircle 
           phase={timer.phase} 
           timer={timer.timeLeft}

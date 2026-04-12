@@ -13,15 +13,18 @@ import { ProfileView } from './components/ProfileView';
 import { ExerciseView } from './components/ExerciseView';
 import { DetailsView } from './components/DetailsView';
 import { SessionSetup, SessionConfig } from './components/SessionSetup';
+import { SessionComplete } from './components/SessionComplete';
 
 type TabType = 'explore' | 'library' | 'create' | 'profile';
-type ViewType = 'home' | 'exercise' | 'details' | 'setup';
+type ViewType = 'home' | 'exercise' | 'details' | 'setup' | 'complete';
 
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [view, setView] = useState<ViewType>('home');
   const [activeTab, setActiveTab] = useState<TabType>('explore');
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
+  const [sessionResults, setSessionResults] = useState<{ duration: number; cycles: number } | null>(null);
+  
   const { customExercises, favorites, stats, toggleFavorite, deleteExercise, addExercise, recordSession } = useLibrary();
 
   useEffect(() => {
@@ -62,6 +65,11 @@ export function BreathingExercise() {
   const handleConfirmSetup = (config: SessionConfig) => {
     setSessionConfig(config);
     setView('exercise');
+  };
+
+  const handleComplete = (duration: number, cycles: number) => {
+    setSessionResults({ duration, cycles });
+    setView('complete');
   };
 
   const handleDetails = (ex: Exercise) => {
@@ -121,12 +129,24 @@ export function BreathingExercise() {
               onConfirm={handleConfirmSetup} 
             />
           )}
-          {view === 'exercise' && selectedExercise && (
+          {view === 'exercise' && selectedExercise && sessionConfig && (
             <ExerciseView 
               key="exercise" 
               exercise={selectedExercise} 
+              config={sessionConfig}
               onBack={() => setView('setup')} 
+              onComplete={handleComplete}
               onRecordSession={recordSession} 
+            />
+          )}
+          {view === 'complete' && selectedExercise && sessionResults && (
+            <SessionComplete 
+              key="complete"
+              exercise={selectedExercise}
+              duration={sessionResults.duration}
+              cycles={sessionResults.cycles}
+              onHome={handleBack}
+              onRestart={() => setView('exercise')}
             />
           )}
         </AnimatePresence>
