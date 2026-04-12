@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Compass, Library, BarChart3, User, Target } from 'lucide-react';
+import { Compass, Library, BarChart3, User } from 'lucide-react';
 
 export type TabType = 'explore' | 'library' | 'achievements' | 'journal' | 'profile';
 
@@ -11,11 +11,32 @@ interface BottomNavProps {
   setActiveTab: (t: TabType) => void;
 }
 
+// Custom Target Arrow Icon
+const TargetArrow = ({ size = 20, strokeWidth = 2, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+    <path d="m22 2-7 7" />
+    <path d="M22 6V2h-4" />
+  </svg>
+);
+
 export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
   const tabs: { id: TabType, icon: any, label: string }[] = [
     { id: 'explore', icon: Compass, label: 'Explore' },
     { id: 'library', icon: Library, label: 'Library' },
-    { id: 'achievements', icon: Target, label: 'Goals' },
+    { id: 'achievements', icon: TargetArrow, label: 'Goals' },
     { id: 'journal', icon: BarChart3, label: 'Journal' },
     { id: 'profile', icon: User, label: 'Profile' },
   ];

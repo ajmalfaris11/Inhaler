@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, Trophy, Plus, Trash2, Lock, Clock, Calendar, Sparkles, ChevronDown } from 'lucide-react';
+import { Trophy, Plus, Trash2, Lock, Clock, Calendar, Sparkles, ChevronDown } from 'lucide-react';
 import { Badge, CustomGoal } from '../hooks/useCustomExercises';
 import { Exercise, exercises as defaultExercises } from '../data';
 
@@ -21,6 +21,27 @@ interface AchievementsViewProps {
   onDeleteGoal: (id: string) => void;
 }
 
+// Custom Target Arrow Icon
+const TargetArrow = ({ size = 20, strokeWidth = 2, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+    <path d="m22 2-7 7" />
+    <path d="M22 6V2h-4" />
+  </svg>
+);
+
 export function AchievementsView({ stats, customGoals, customExercises, onAddGoal, onDeleteGoal }: AchievementsViewProps) {
   const [isAddingGoal, setIsAddingGoal] = useState(false);
   const [newGoalName, setNewGoalName] = useState('');
@@ -33,7 +54,7 @@ export function AchievementsView({ stats, customGoals, customExercises, onAddGoa
     { id: 'daily', label: 'Daily', icon: Clock, color: 'text-indigo-400' },
     { id: 'weekly', label: 'Weekly', icon: Calendar, color: 'text-emerald-400' },
     { id: 'milestone', label: 'Milestones', icon: Trophy, color: 'text-yellow-400' },
-    { id: 'custom', label: 'Personal Goals', icon: Target, color: 'text-rose-400' }
+    { id: 'custom', label: 'Personal Goals', icon: TargetArrow, color: 'text-rose-400' }
   ];
 
   const handleAddGoal = () => {
@@ -62,7 +83,7 @@ export function AchievementsView({ stats, customGoals, customExercises, onAddGoa
           <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-bold">Goals & Milestones</p>
         </div>
         <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
-          <Target size={20} />
+          <TargetArrow size={20} />
         </div>
       </div>
 
@@ -169,7 +190,7 @@ export function AchievementsView({ stats, customGoals, customExercises, onAddGoa
             >
               <div className="text-center space-y-2">
                 <div className="w-16 h-16 rounded-[24px] bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-6">
-                  <Target size={32} />
+                  <TargetArrow size={32} />
                 </div>
                 <h3 className="text-2xl font-light text-white tracking-tight">Personal Goal</h3>
                 <p className="text-xs text-gray-500 font-light">Customize your mindfulness target.</p>
