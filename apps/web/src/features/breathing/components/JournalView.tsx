@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, BarChart3, Activity, Zap, History } from 'lucide-react';
+import { Clock, BarChart3, Activity, Zap, History } from 'lucide-react';
 import { exercises } from '../data';
 
 interface JournalViewProps {
@@ -62,9 +62,9 @@ export function JournalView({ sessions }: JournalViewProps) {
     >
       {/* Header */}
       <div className="px-1 flex justify-between items-start mb-2">
-        <div>
+        <div className="space-y-1">
           <h1 className="text-3xl font-light tracking-tight text-white/90">Journal</h1>
-          <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-1 font-bold">Progress Analytics</p>
+          <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-bold">Progress Analytics</p>
         </div>
         <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
           <BarChart3 size={20} />
@@ -72,76 +72,82 @@ export function JournalView({ sessions }: JournalViewProps) {
       </div>
 
       {/* Graphical Representation (Custom Bar Chart) */}
-      <div className="bg-white/[0.03] border border-white/5 rounded-[40px] p-6 shadow-2xl">
-        <div className="flex justify-between items-center mb-8">
-          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Weekly Activity</span>
-          <span className="text-[10px] text-gray-500 font-medium">Min / Day</span>
-        </div>
+      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl overflow-hidden relative group">
+        <div className="absolute inset-0 bg-indigo-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         
-        <div className="flex items-end justify-between h-36 gap-2 px-1">
-          {graphData.map((day, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
-              <div className="relative w-full flex flex-col items-center justify-end h-full">
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-black text-[9px] font-black px-2 py-1 rounded-md z-20 pointer-events-none whitespace-nowrap">
-                  {day.minutes} min
+        <div className="relative z-10">
+          <div className="flex justify-between items-center mb-10 px-1">
+            <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Weekly Activity</span>
+            <span className="text-[10px] text-gray-500 font-medium">Min / Day</span>
+          </div>
+          
+          <div className="flex items-end justify-between h-40 gap-3 px-1">
+            {graphData.map((day, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-4 group/bar">
+                <div className="relative w-full flex flex-col items-center justify-end h-full">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all bg-white text-black text-[10px] font-black px-2.5 py-1.5 rounded-xl z-20 pointer-events-none whitespace-nowrap shadow-xl">
+                    {day.minutes}m
+                  </div>
+                  
+                  <motion.div 
+                    initial={{ height: 0 }}
+                    animate={{ height: `${(day.minutes / maxMinutes) * 100}%` }}
+                    transition={{ delay: i * 0.1, type: 'spring', damping: 15 }}
+                    className={`w-full rounded-full min-h-[4px] relative transition-all duration-700 ${
+                      day.minutes > 0 
+                        ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_10px_30px_rgba(99,102,241,0.3)]' 
+                        : 'bg-white/[0.05]'
+                    }`}
+                  />
                 </div>
-                
-                <motion.div 
-                  initial={{ height: 0 }}
-                  animate={{ height: `${(day.minutes / maxMinutes) * 100}%` }}
-                  transition={{ delay: i * 0.1, type: 'spring', damping: 15 }}
-                  className={`w-full rounded-full min-h-[4px] relative transition-all duration-500 ${
-                    day.minutes > 0 
-                      ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.3)]' 
-                      : 'bg-white/5'
-                  }`}
-                />
+                <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${day.minutes > 0 ? 'text-white/80' : 'text-gray-800'}`}>
+                  {day.label[0]}
+                </span>
               </div>
-              <span className={`text-[9px] font-bold uppercase tracking-widest ${day.minutes > 0 ? 'text-white' : 'text-gray-700'}`}>
-                {day.label}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Insights Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white/[0.03] border border-white/5 rounded-[32px] p-5 flex flex-col gap-4 shadow-xl">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-            <Clock size={20} />
+      <div className="grid grid-cols-2 gap-5 w-full">
+        <div className="bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 flex flex-col gap-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute inset-0 bg-indigo-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="w-12 h-12 rounded-[22px] bg-indigo-500/10 flex items-center justify-center text-indigo-400 relative z-10 border border-indigo-500/10">
+            <Clock size={24} strokeWidth={1.5} />
           </div>
-          <div>
-            <span className="text-[9px] uppercase tracking-widest text-gray-600 font-black">Total Mindful</span>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-3xl font-light text-white">{totalMinutes}</span>
+          <div className="relative z-10">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-black">Total Mindful</span>
+            <div className="flex items-baseline gap-1.5 mt-2">
+              <span className="text-4xl font-light text-white tracking-tighter">{totalMinutes}</span>
               <span className="text-xs text-gray-500 font-light">min</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white/[0.03] border border-white/5 rounded-[32px] p-5 flex flex-col gap-4 shadow-xl">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-            <Activity size={20} />
+        <div className="bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 flex flex-col gap-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute inset-0 bg-emerald-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="w-12 h-12 rounded-[22px] bg-emerald-500/10 flex items-center justify-center text-emerald-400 relative z-10 border border-emerald-500/10">
+            <Activity size={24} strokeWidth={1.5} />
           </div>
-          <div>
-            <span className="text-[9px] uppercase tracking-widest text-gray-600 font-black">Top Technique</span>
-            <div className="mt-1">
-              <span className="text-sm font-medium text-white truncate block">{mostUsedEx.name}</span>
-              <span className="text-[10px] text-gray-500 uppercase tracking-widest">{counts[mostUsedId] || 0} times</span>
+          <div className="relative z-10">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-black">Top Practice</span>
+            <div className="mt-2">
+              <span className="text-sm font-medium text-white truncate block tracking-tight">{mostUsedEx.name}</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-bold">{counts[mostUsedId] || 0} sessions</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* History List */}
-      <div className="space-y-5 pb-2">
-        <div className="flex justify-between items-center px-1">
-          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Recent Sessions</span>
-          <History size={16} className="text-gray-700" />
+      <div className="space-y-6 pb-4 w-full">
+        <div className="flex justify-between items-center px-2">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Session History</span>
+          <History size={16} className="text-gray-800" />
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           {recentSessions.length > 0 ? (
             recentSessions.map((session, i) => {
               const ex = exercises.find(e => e.id === session.exerciseId) || exercises[0];
@@ -152,34 +158,37 @@ export function JournalView({ sessions }: JournalViewProps) {
               return (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="bg-white/[0.02] border border-white/[0.05] rounded-[28px] p-5 flex items-center justify-between group hover:bg-white/[0.04] transition-all"
+                  className="bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 flex items-center justify-between group hover:bg-white/[0.02] transition-all duration-500 shadow-xl"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-6">
                     <div 
-                      className="w-12 h-12 rounded-[18px] flex items-center justify-center shadow-lg"
+                      className="w-14 h-14 rounded-[22px] flex items-center justify-center shadow-2xl relative overflow-hidden"
                       style={{ background: `linear-gradient(135deg, ${ex.gradient.start}, ${ex.gradient.end})` }}
                     >
-                      <Zap size={20} className="text-white" />
+                      <Zap size={24} className="text-white relative z-10" />
+                      <div className="absolute inset-0 blur-xl opacity-30 bg-white" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-white">{ex.name}</h4>
-                      <p className="text-[10px] text-gray-500 font-light">{formattedDate} • {formattedTime}</p>
+                      <h4 className="text-lg font-light text-white tracking-tight leading-none mb-1">{ex.name}</h4>
+                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{formattedDate} • {formattedTime}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-light text-white">{Math.floor(session.duration / 60)}:{(session.duration % 60).toString().padStart(2, '0')}</span>
-                    <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">Duration</p>
+                    <span className="text-xl font-light text-white tracking-tighter">
+                      {Math.floor(session.duration / 60)}:{(session.duration % 60).toString().padStart(2, '0')}
+                    </span>
+                    <p className="text-[9px] text-gray-700 uppercase tracking-[0.2em] font-black mt-1">Duration</p>
                   </div>
                 </motion.div>
               );
             })
           ) : (
-            <div className="bg-white/[0.02] border border-white/[0.05] rounded-[32px] p-12 flex flex-col items-center text-center gap-4 opacity-40">
-              <History size={40} strokeWidth={1} />
-              <p className="text-xs font-light tracking-wide">No sessions recorded yet.<br/>Your journey begins with the first breath.</p>
+            <div className="bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-16 flex flex-col items-center text-center gap-6 opacity-30">
+              <History size={48} strokeWidth={1} />
+              <p className="text-xs font-light tracking-widest leading-relaxed">No sessions recorded yet.<br/>Your journey begins with the first breath.</p>
             </div>
           )}
         </div>
