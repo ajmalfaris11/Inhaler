@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, BarChart3, Activity, Zap, History, PieChart } from 'lucide-react';
-import { Exercise, exercises } from '../data';
+import { exercises } from '../data';
 
 interface JournalViewProps {
   sessions: { exerciseId: string; date: string; duration: number }[];
@@ -105,8 +105,8 @@ export function JournalView({ sessions }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Graphical Representation Card - Full Width Thicker Bars with Y-Axis */}
-      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl relative overflow-hidden group">
+      {/* Graphical Representation Card - Ultra Wide Bars */}
+      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-6 sm:p-8 shadow-2xl relative overflow-hidden group">
         <div className="absolute inset-0 bg-indigo-500/[0.01] pointer-events-none" />
         
         <div className="relative z-10">
@@ -126,9 +126,9 @@ export function JournalView({ sessions }: JournalViewProps) {
             </div>
           </div>
           
-          <div className="flex h-52 relative">
+          <div className="flex h-56 relative">
             {/* Y-Axis Labels */}
-            <div className="flex flex-col justify-between pr-4 pb-10 text-[9px] font-black text-gray-700 uppercase tracking-widest h-full text-right w-10">
+            <div className="flex flex-col justify-between pr-3 pb-12 text-[9px] font-black text-gray-700 uppercase tracking-widest h-full text-right w-8">
               {yAxisTicks.map((tick, i) => (
                 <span key={i}>{tick}m</span>
               ))}
@@ -136,13 +136,13 @@ export function JournalView({ sessions }: JournalViewProps) {
 
             {/* Graph Area */}
             <div className="flex-1 flex flex-col h-full">
-              <div className="flex-1 flex items-end justify-between gap-4 px-2 relative">
+              <div className="flex-1 flex items-end justify-between gap-1 sm:gap-2 px-0 relative">
                 {/* Horizontal Grid Lines */}
                 <div className="absolute inset-x-0 top-0 h-px bg-white/[0.02]" />
                 <div className="absolute inset-x-0 top-1/2 h-px bg-white/[0.02]" />
                 
                 {graphData.map((day, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group/bar">
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group/bar px-0.5">
                     <div className="relative w-full flex flex-col items-center justify-end h-full">
                       <AnimatePresence>
                         <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all bg-white text-black text-[10px] font-black px-3 py-2 rounded-2xl z-20 pointer-events-none whitespace-nowrap shadow-2xl scale-110">
@@ -154,7 +154,7 @@ export function JournalView({ sessions }: JournalViewProps) {
                         initial={{ height: 0 }}
                         animate={{ height: `${(day.value / maxVal) * 100}%` }}
                         transition={{ type: 'spring', damping: 15, stiffness: 100 }}
-                        className={`w-full rounded-[14px] min-h-[6px] relative transition-all duration-700 ${
+                        className={`w-full rounded-[10px] min-h-[4px] relative transition-all duration-700 ${
                           day.value > 0 
                             ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_15px_40px_rgba(99,102,241,0.4)]' 
                             : 'bg-white/[0.04]'
@@ -166,10 +166,10 @@ export function JournalView({ sessions }: JournalViewProps) {
               </div>
 
               {/* X-Axis Labels */}
-              <div className="flex justify-between gap-4 px-2 pt-4">
+              <div className="flex justify-between gap-1 sm:gap-2 px-0 pt-4">
                 {graphData.map((day, i) => (
                   <div key={i} className="flex-1 text-center">
-                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500 ${day.value > 0 ? 'text-white/90' : 'text-gray-800'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-[0.1em] transition-colors duration-500 ${day.value > 0 ? 'text-white/90' : 'text-gray-800'}`}>
                       {day.label[0]}
                     </span>
                   </div>
