@@ -97,8 +97,23 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
         />
       </div>
 
-      <div className="w-full space-y-8 mt-12">
-        <div className="flex items-center justify-center gap-8">
+      <div className="w-full space-y-12">
+        {/* Stats Section - Now above controls */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
+            <span className="text-[9px] uppercase tracking-widest text-gray-600">Cycles</span>
+            <span className="text-xl font-light text-white">{timer.cycles}</span>
+          </div>
+          <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
+            <span className="text-[9px] uppercase tracking-widest text-gray-600">Duration</span>
+            <span className="text-xl font-light text-white">
+              {Math.floor(timer.totalTime / 60)}:{(timer.totalTime % 60).toString().padStart(2, '0')}
+            </span>
+          </div>
+        </div>
+
+        {/* Controls Section - Now at bottom */}
+        <div className="flex items-center justify-center gap-8 pb-4">
           <button 
             onClick={handleReset}
             className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg"
@@ -113,22 +128,12 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
             {timer.isActive ? <Pause size={32} fill="black" /> : <Play size={32} className="ml-1" fill="black" />}
           </button>
 
-          <button className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg">
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className="w-14 h-14 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg"
+          >
             <Music size={20} />
           </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
-            <span className="text-[9px] uppercase tracking-widest text-gray-600">Cycles</span>
-            <span className="text-xl font-light text-white">{timer.cycles}</span>
-          </div>
-          <div className="bg-white/[0.03] border border-white/5 p-4 rounded-[24px] flex flex-col items-center gap-1">
-            <span className="text-[9px] uppercase tracking-widest text-gray-600">Duration</span>
-            <span className="text-xl font-light text-white">
-              {Math.floor(timer.totalTime / 60)}:{(timer.totalTime % 60).toString().padStart(2, '0')}
-            </span>
-          </div>
         </div>
       </div>
 
