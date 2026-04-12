@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, BarChart3, ChevronRight, Activity, Zap, History } from 'lucide-react';
+import { Calendar, Clock, BarChart3, Activity, Zap, History } from 'lucide-react';
 import { exercises } from '../data';
 
 interface JournalViewProps {
@@ -25,6 +25,34 @@ export function JournalView({ sessions }: JournalViewProps) {
 
   const recentSessions = [...sessions].reverse().slice(0, 10);
 
+  // Graph Data (Last 7 Days)
+  const getGraphData = () => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const data = [];
+    const now = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const dayName = days[d.getDay()];
+      
+      const daySeconds = sessions
+        .filter(s => s.date.startsWith(dateStr))
+        .reduce((acc, s) => acc + s.duration, 0);
+      
+      data.push({
+        label: dayName,
+        minutes: Math.floor(daySeconds / 60),
+        fullDate: dateStr
+      });
+    }
+    return data;
+  };
+
+  const graphData = getGraphData();
+  const maxMinutes = Math.max(...graphData.map(d => d.minutes), 1);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -33,9 +61,49 @@ export function JournalView({ sessions }: JournalViewProps) {
       className="w-full space-y-10"
     >
       {/* Header */}
-      <div className="px-1">
-        <h1 className="text-3xl font-light tracking-tight text-white/90">Journal</h1>
-        <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-1 font-bold">Your Breath History</p>
+      <div className="px-1 flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-light tracking-tight text-white/90">Journal</h1>
+          <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-1 font-bold">Progress Analytics</p>
+        </div>
+        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
+          <BarChart3 size={22} />
+        </div>
+      </div>
+
+      {/* Graphical Representation (Custom Bar Chart) */}
+      <div className="bg-white/[0.03] border border-white/5 rounded-[40px] p-8 shadow-2xl">
+        <div className="flex justify-between items-center mb-10">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Weekly Activity</span>
+          <span className="text-[10px] text-gray-500 font-medium">Minutes / Day</span>
+        </div>
+        
+        <div className="flex items-end justify-between h-40 gap-2 px-1">
+          {graphData.map((day, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
+              <div className="relative w-full flex flex-col items-center justify-end h-full">
+                {/* Tooltip on hover */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-black text-[9px] font-black px-2 py-1 rounded-md z-20 pointer-events-none whitespace-nowrap">
+                  {day.minutes} min
+                </div>
+                
+                <motion.div 
+                  initial={{ height: 0 }}
+                  animate={{ height: `${(day.minutes / maxMinutes) * 100}%` }}
+                  transition={{ delay: i * 0.1, type: 'spring', damping: 15 }}
+                  className={`w-full rounded-full min-h-[4px] relative transition-all duration-500 ${
+                    day.minutes > 0 
+                      ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.3)]' 
+                      : 'bg-white/5'
+                  }`}
+                />
+              </div>
+              <span className={`text-[9px] font-bold uppercase tracking-widest ${day.minutes > 0 ? 'text-white' : 'text-gray-700'}`}>
+                {day.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Insights Cards */}
@@ -68,7 +136,7 @@ export function JournalView({ sessions }: JournalViewProps) {
       </div>
 
       {/* History List */}
-      <div className="space-y-6">
+      <div className="space-y-6 pb-4">
         <div className="flex justify-between items-center px-1">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Recent Sessions</span>
           <History size={16} className="text-gray-700" />
