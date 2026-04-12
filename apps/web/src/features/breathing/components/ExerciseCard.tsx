@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Bookmark, Trash2, ChevronRight } from 'lucide-react';
+import { Activity, Bookmark, Trash2, ChevronRight, Play } from 'lucide-react';
 import { Exercise, IconMap } from '../data';
 
 interface ExerciseCardProps {
@@ -28,76 +28,107 @@ export function ExerciseCard({
 
   return (
     <motion.div 
-      whileHover={{ y: -4, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+      whileHover={{ y: -6, scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
       onClick={onStart}
-      className="relative w-full bg-white/[0.03] border border-white/10 rounded-[32px] p-8 cursor-pointer group transition-all duration-500 overflow-hidden shadow-xl"
+      className="relative w-full bg-[#0A0A0A] border border-white/[0.08] rounded-[38px] p-1 overflow-hidden group transition-all duration-700 shadow-2xl"
     >
+      {/* Inner Glow / Mesh Gradient Effect */}
       <div 
-        className="absolute -right-20 -top-20 w-40 h-40 rounded-full blur-[80px] opacity-0 group-hover:opacity-20 transition-opacity duration-700"
-        style={{ background: exercise.gradient.start }}
+        className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-700 pointer-events-none"
+        style={{ 
+          background: `radial-gradient(circle at 70% 30%, ${exercise.gradient.start} 0%, transparent 70%)` 
+        }}
       />
       
-      {exercise.isAdvanced && !isCustom && (
-        <div className="absolute top-6 left-6 bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[8px] uppercase tracking-[0.2em] font-bold px-2 py-1 rounded-full z-10">
-          Advanced
-        </div>
-      )}
-
-      <div className="absolute top-6 right-6 flex items-center gap-2 z-10 opacity-40 group-hover:opacity-100 transition-opacity">
-        {onToggleFavorite && (
-          <button 
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-            className={`p-2.5 rounded-full transition-all duration-300 ${isFavorite ? 'bg-white text-black' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'}`}
-          >
-            <Bookmark size={16} fill={isFavorite ? "currentColor" : "none"} strokeWidth={1.5} />
-          </button>
-        )}
-        {isCustom && (
-          <button 
-            onClick={(e) => { e.stopPropagation(); onDelete?.(); }}
-            className="p-2.5 rounded-full bg-white/5 text-gray-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
-          >
-            <Trash2 size={16} strokeWidth={1.5} />
-          </button>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-6">
-        <div className="flex items-start gap-5">
-          <div 
-            className="w-16 h-16 rounded-3xl flex items-center justify-center shrink-0 shadow-2xl group-hover:scale-110 transition-transform duration-700"
-            style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
-          >
-            <Icon className="text-white" size={28} />
+      <div className="relative bg-[#111111] border border-white/[0.05] rounded-[34px] p-6 sm:p-8 flex flex-col gap-6">
+        
+        {/* Header Section */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <div 
+              className="w-14 h-14 rounded-2xl flex items-center justify-center relative z-10 shadow-2xl group-hover:rotate-[5deg] transition-transform duration-500"
+              style={{ background: `linear-gradient(135deg, ${exercise.gradient.start}, ${exercise.gradient.end})` }}
+            >
+              <div className="absolute inset-0 blur-xl opacity-40 rounded-full" style={{ background: exercise.gradient.start }} />
+              <Icon className="text-white relative z-10" size={24} />
+            </div>
+            
+            <div className="flex flex-col">
+              <h3 className="text-xl font-medium text-white/90 tracking-tight leading-tight group-hover:text-white transition-colors">
+                {exercise.name}
+              </h3>
+              <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-semibold mt-1">
+                {exercise.subtitle}
+              </span>
+            </div>
           </div>
-          <div className="flex-1 min-w-0 pt-1">
-            <h3 className="text-xl font-light text-white mb-1 group-hover:translate-x-1 transition-transform duration-500">{exercise.name}</h3>
-            <p className="text-gray-500 text-[10px] uppercase tracking-[0.2em] font-medium">{exercise.subtitle}</p>
+
+          <div className="flex items-center gap-2">
+            {onToggleFavorite && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border ${
+                  isFavorite 
+                    ? 'bg-white border-white text-black' 
+                    : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <Bookmark size={16} fill={isFavorite ? "currentColor" : "none"} strokeWidth={2} />
+              </button>
+            )}
+            {isCustom && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); onDelete?.(); }}
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:bg-red-500/10 hover:text-red-500 transition-all duration-300 flex items-center justify-center"
+              >
+                <Trash2 size={16} strokeWidth={2} />
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-gray-400 text-xs leading-relaxed font-light line-clamp-2 px-1 opacity-60 group-hover:opacity-100 transition-opacity">
+        {/* Description Section */}
+        <div className="relative">
+          <p className="text-gray-400 text-[13px] leading-relaxed font-light line-clamp-2 pr-4 opacity-70 group-hover:opacity-100 transition-opacity">
             {exercise.description}
           </p>
+        </div>
 
-          <div className="flex items-center justify-between pt-2 border-t border-white/5">
-            <div className="flex gap-2">
-              {exercise.benefits.slice(0, 2).map((b: string, i: number) => (
-                <span key={i} className="text-[9px] text-gray-600 bg-white/5 px-2 py-1 rounded-lg border border-white/5">{b}</span>
-              ))}
-            </div>
+        {/* Footer Section */}
+        <div className="flex items-center justify-between pt-4 mt-2 border-t border-white/[0.03]">
+          <div className="flex gap-2">
+            {exercise.benefits.slice(0, 2).map((b, i) => (
+              <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.05]">
+                <div className="w-1 h-1 rounded-full bg-white/30" />
+                <span className="text-[9px] text-gray-500 font-medium">{b}</span>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex items-center gap-4">
             <button 
               onClick={(e) => { e.stopPropagation(); onDetails(); }}
-              className="flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-white transition-colors"
+              className="text-[11px] font-medium text-gray-600 hover:text-white transition-colors flex items-center gap-1"
             >
-              Learn More
+              Info
               <ChevronRight size={14} />
             </button>
+            
+            <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
+              <Play size={14} fill="currentColor" className="ml-0.5" />
+            </div>
           </div>
         </div>
       </div>
+
+      {exercise.isAdvanced && !isCustom && (
+        <div className="absolute top-1 right-1/2 translate-x-1/2 z-20">
+          <div className="bg-orange-500/20 backdrop-blur-md border border-orange-500/30 text-orange-500 text-[7px] uppercase tracking-[0.2em] font-black px-3 py-1 rounded-b-xl shadow-lg">
+            Mastery
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
