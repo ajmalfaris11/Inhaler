@@ -9,15 +9,25 @@ export interface Badge {
   id: string;
   name: string;
   description: string;
-  type: 'streak' | 'duration' | 'sessions' | 'technique' | 'time';
+  category: 'daily' | 'weekly' | 'milestone' | 'custom';
+  type: 'streak' | 'duration' | 'sessions' | 'technique' | 'time' | 'manual';
   requirement: number;
   unlocked: boolean;
+  progress?: number;
+}
+
+export interface CustomGoal {
+  id: string;
+  name: string;
+  targetMinutes: number;
+  currentMinutes: number;
 }
 
 export function useLibrary() {
   const [customExercises, setCustomExercises] = useState<Exercise[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [sessions, setSessions] = useState<{ exerciseId: string; date: string; duration: number }[]>([]);
+  const [customGoals, setCustomGoals] = useState<CustomGoal[]>([]);
 
   useEffect(() => {
     const savedCustom = localStorage.getItem(STORAGE_KEY);
@@ -33,6 +43,11 @@ export function useLibrary() {
     const savedSessions = localStorage.getItem('inhale_sessions');
     if (savedSessions) {
       try { setSessions(JSON.parse(savedSessions)); } catch (e) {}
+    }
+
+    const savedGoals = localStorage.getItem('inhale_custom_goals');
+    if (savedGoals) {
+      try { setCustomGoals(JSON.parse(savedGoals)); } catch (e) {}
     }
   }, []);
 
@@ -63,20 +78,35 @@ export function useLibrary() {
     localStorage.setItem('inhale_sessions', JSON.stringify(updated));
   };
 
+  const addCustomGoal = (goal: Omit<CustomGoal, 'currentMinutes'>) => {
+    const newGoal = { ...goal, currentMinutes: 0 };
+    const updated = [...customGoals, newGoal];
+    setCustomGoals(updated);
+    localStorage.setItem('inhale_custom_goals', JSON.stringify(updated));
+  };
+
+  const deleteCustomGoal = (id: string) => {
+    const updated = customGoals.filter(g => g.id !== id);
+    setCustomGoals(updated);
+    localStorage.setItem('inhale_custom_goals', JSON.stringify(updated));
+  };
+
   const calculateStats = () => {
     const totalMinutes = Math.floor(sessions.reduce((acc, s) => acc + s.duration, 0) / 60);
     const sessionCount = sessions.length;
     
-    // Streak calculation
+    // Dates & Streaks
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    
     const dates = sessions.map(s => s.date.split('T')[0]);
     const uniqueDates = Array.from(new Set(dates)).sort().reverse();
     
     let streak = 0;
     if (uniqueDates.length > 0) {
-      const today = new Date().toISOString().split('T')[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      
-      if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
+      if (uniqueDates[0] === todayStr || uniqueDates[0] === yesterday) {
         streak = 1;
         for (let i = 0; i < uniqueDates.length - 1; i++) {
           const d1 = new Date(uniqueDates[i]);
@@ -88,69 +118,110 @@ export function useLibrary() {
       }
     }
 
+    // Daily Stats
+    const todaySessions = sessions.filter(s => s.date.startsWith(todayStr));
+    const todayMinutes = Math.floor(todaySessions.reduce((acc, s) => acc + s.duration, 0) / 60);
+
+    // Weekly Stats
+    const weekSessions = sessions.filter(s => new Date(s.date) >= weekAgo);
+    const weekMinutes = Math.floor(weekSessions.reduce((acc, s) => acc + s.duration, 0) / 60);
+
     // Badge calculation
     const badges: Badge[] = [
+      // DAILY
       {
-        id: 'first_breath',
+        id: 'daily_first',
         name: 'First Breath',
-        description: 'Completed your first mindful session.',
+        description: 'Complete one session today.',
+        category: 'daily',
         type: 'sessions',
         requirement: 1,
-        unlocked: sessionCount >= 1
+        unlocked: todaySessions.length >= 1
       },
       {
-        id: 'deep_diver',
-        name: 'Deep Diver',
-        description: 'Completed a 10-minute session.',
+        id: 'daily_10',
+        name: 'Daily Focus',
+        description: 'Practice for 10 minutes today.',
+        category: 'daily',
         type: 'duration',
-        requirement: 600,
-        unlocked: sessions.some(s => s.duration >= 600)
+        requirement: 10,
+        unlocked: todayMinutes >= 10,
+        progress: Math.min(100, (todayMinutes / 10) * 100)
       },
+      // WEEKLY
       {
-        id: 'consistency_king',
+        id: 'weekly_king',
         name: 'Consistency King',
-        description: 'Maintained a 7-day streak.',
+        description: '7-day practice streak.',
+        category: 'weekly',
         type: 'streak',
         requirement: 7,
-        unlocked: streak >= 7
+        unlocked: streak >= 7,
+        progress: Math.min(100, (streak / 7) * 100)
       },
       {
-        id: 'mindful_master',
+        id: 'weekly_60',
+        name: 'Weekly Zen',
+        description: '60 minutes of mindfulness this week.',
+        category: 'weekly',
+        type: 'duration',
+        requirement: 60,
+        unlocked: weekMinutes >= 60,
+        progress: Math.min(100, (weekMinutes / 60) * 100)
+      },
+      // MILESTONES
+      {
+        id: 'milestone_master',
         name: 'Mindful Master',
-        description: 'Spent over 100 minutes in practice.',
+        description: '100 total minutes practiced.',
+        category: 'milestone',
         type: 'duration',
         requirement: 100,
-        unlocked: totalMinutes >= 100
+        unlocked: totalMinutes >= 100,
+        progress: Math.min(100, (totalMinutes / 100) * 100)
       },
       {
-        id: 'explorer',
+        id: 'milestone_explorer',
         name: 'Explorer',
-        description: 'Tried 3 different techniques.',
+        description: 'Try 3 different techniques.',
+        category: 'milestone',
         type: 'technique',
         requirement: 3,
         unlocked: new Set(sessions.map(s => s.exerciseId)).size >= 3
-      },
-      {
-        id: 'night_owl',
-        name: 'Night Owl',
-        description: 'Completed a session after 10 PM.',
-        type: 'time',
-        requirement: 22,
-        unlocked: sessions.some(s => new Date(s.date).getHours() >= 22)
       }
     ];
 
-    return { totalMinutes, sessionCount, streak, badges };
+    // Map custom goals to badges
+    const customGoalBadges: Badge[] = customGoals.map(goal => {
+      // Calculate current progress for this goal
+      // For simplicity, let's say custom goals are "Total minutes for this exercise" or just "Total minutes"
+      // Let's assume custom goals are "Total Minutes" goals for now
+      return {
+        id: goal.id,
+        name: goal.name,
+        description: `Target: ${goal.targetMinutes} minutes.`,
+        category: 'custom',
+        type: 'manual',
+        requirement: goal.targetMinutes,
+        unlocked: totalMinutes >= goal.targetMinutes,
+        progress: Math.min(100, (totalMinutes / goal.targetMinutes) * 100)
+      };
+    });
+
+    return { totalMinutes, sessionCount, streak, badges: [...badges, ...customGoalBadges], todayMinutes, weekMinutes };
   };
 
   return {
     customExercises,
     favorites,
     sessions,
+    customGoals,
     stats: calculateStats(),
     addExercise,
     deleteExercise,
     toggleFavorite,
-    recordSession
+    recordSession,
+    addCustomGoal,
+    deleteCustomGoal
   };
 }

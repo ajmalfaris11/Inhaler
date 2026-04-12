@@ -15,6 +15,7 @@ import { DetailsView } from './components/DetailsView';
 import { SessionSetup, SessionConfig } from './components/SessionSetup';
 import { SessionComplete } from './components/SessionComplete';
 import { JournalView } from './components/JournalView';
+import { AchievementsView } from './components/AchievementsView';
 
 type ViewType = 'home' | 'exercise' | 'details' | 'setup' | 'complete' | 'builder';
 
@@ -25,35 +26,15 @@ export function BreathingExercise() {
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
   const [sessionResults, setSessionResults] = useState<{ duration: number; cycles: number } | null>(null);
   
-  const { customExercises, favorites, sessions, stats, toggleFavorite, deleteExercise, addExercise, recordSession } = useLibrary();
+  const { 
+    customExercises, favorites, sessions, stats, customGoals,
+    toggleFavorite, deleteExercise, addExercise, recordSession, addCustomGoal, deleteCustomGoal 
+  } = useLibrary();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
-
-    // Register/Unregister Service Worker for PWA
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      if (process.env.NODE_ENV === 'development') {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (const registration of registrations) {
-            registration.unregister();
-          }
-        });
-      } else {
-        const register = () => {
-          navigator.serviceWorker.register('/sw.js').catch((err) => {
-            console.error('Service Worker registration failed:', err);
-          });
-        };
-
-        if (document.readyState === 'complete') {
-          register();
-        } else {
-          window.addEventListener('load', register);
-        }
-      }
     }
   }, []);
 
@@ -109,6 +90,15 @@ export function BreathingExercise() {
                   onToggleFavorite={toggleFavorite}
                   onDeleteCustom={deleteExercise}
                   onCreate={() => setView('builder')}
+                />
+              )}
+              {activeTab === 'achievements' && (
+                <AchievementsView 
+                  key="achievements"
+                  stats={stats}
+                  customGoals={customGoals}
+                  onAddGoal={addCustomGoal}
+                  onDeleteGoal={deleteCustomGoal}
                 />
               )}
               {activeTab === 'journal' && (

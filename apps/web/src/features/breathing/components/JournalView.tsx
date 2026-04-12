@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, BarChart3, Activity, Zap, History, PieChart, Trophy, Lock, CheckCircle2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { BarChart3, History, PieChart, Zap } from 'lucide-react';
 import { exercises } from '../data';
 import { Badge } from '../hooks/useCustomExercises';
 
@@ -141,52 +141,6 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Milestones & Badges - New Section */}
-      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-xl relative overflow-hidden group">
-        <div className="absolute inset-0 bg-yellow-500/[0.01] pointer-events-none" />
-        <div className="flex justify-between items-center mb-8 px-1 relative z-10">
-          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Achievements</span>
-          <Trophy size={14} className="text-gray-700" />
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4 relative z-10">
-          {stats.badges.map((badge) => (
-            <motion.div 
-              key={badge.id}
-              whileHover={{ scale: 1.02 }}
-              className={`p-4 rounded-[32px] border transition-all duration-500 flex flex-col gap-3 ${
-                badge.unlocked 
-                  ? 'bg-white/[0.03] border-white/10' 
-                  : 'bg-white/[0.01] border-white/5 opacity-40 grayscale'
-              }`}
-            >
-              <div className="flex justify-between items-start">
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-                  badge.unlocked ? 'bg-yellow-500/10 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]' : 'bg-white/5 text-gray-600'
-                }`}>
-                  {badge.unlocked ? <CheckCircle2 size={20} /> : <Lock size={18} />}
-                </div>
-                {badge.unlocked && (
-                  <motion.div 
-                    initial={{ scale: 0 }} 
-                    animate={{ scale: 1 }} 
-                    className="w-2 h-2 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.8)]" 
-                  />
-                )}
-              </div>
-              <div>
-                <h4 className={`text-xs font-bold uppercase tracking-widest ${badge.unlocked ? 'text-white/90' : 'text-gray-600'}`}>
-                  {badge.name}
-                </h4>
-                <p className="text-[10px] text-gray-500 leading-relaxed mt-1 font-light">
-                  {badge.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
         </div>
       </div>
 
