@@ -52,7 +52,6 @@ export function JournalView({ sessions }: JournalViewProps) {
         data.push({ label: days[d.getDay()], value: Math.floor(daySeconds / 60) });
       }
     } else if (range === 'month') {
-      // Group by weeks in the last 30 days
       for (let i = 3; i >= 0; i--) {
         const start = new Date(now);
         start.setDate(start.getDate() - (i + 1) * 7);
@@ -67,7 +66,6 @@ export function JournalView({ sessions }: JournalViewProps) {
         data.push({ label: `W${4-i}`, value: Math.floor(weekSeconds / 60) });
       }
     } else {
-      // Group by months in the last year
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       for (let i = 5; i >= 0; i--) {
         const d = new Date(now);
@@ -106,32 +104,33 @@ export function JournalView({ sessions }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Graphical Representation Card */}
+      {/* Graphical Representation Card - Full Width Thicker Bars */}
       <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-indigo-500/[0.01] pointer-events-none" />
+        
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-8 px-1">
-            <div className="flex gap-2 bg-white/[0.03] p-1 rounded-2xl border border-white/5">
+          <div className="flex justify-between items-center mb-10">
+            <div className="flex gap-1.5 bg-white/[0.03] p-1 rounded-[20px] border border-white/5">
               {(['week', 'month', 'year'] as TimeRange[]).map((r) => (
                 <button
                   key={r}
                   onClick={() => setRange(r)}
-                  className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                    range === r ? 'bg-white text-black shadow-lg' : 'text-gray-500 hover:text-gray-300'
+                  className={`px-5 py-2 rounded-[14px] text-[10px] font-black uppercase tracking-widest transition-all ${
+                    range === r ? 'bg-white text-black shadow-xl scale-105' : 'text-gray-500 hover:text-gray-300'
                   }`}
                 >
                   {r}
                 </button>
               ))}
             </div>
-            <span className="text-[10px] text-gray-500 font-medium">Min / {range}</span>
           </div>
           
-          <div className="flex items-end justify-between h-40 gap-3 px-1">
+          <div className="flex items-end justify-between h-48 gap-4 px-2">
             {graphData.map((day, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-4 group/bar">
                 <div className="relative w-full flex flex-col items-center justify-end h-full">
                   <AnimatePresence>
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all bg-white text-black text-[10px] font-black px-2.5 py-1.5 rounded-xl z-20 pointer-events-none whitespace-nowrap shadow-xl">
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all bg-white text-black text-[10px] font-black px-3 py-2 rounded-2xl z-20 pointer-events-none whitespace-nowrap shadow-2xl scale-110">
                       {day.value}m
                     </div>
                   </AnimatePresence>
@@ -139,15 +138,15 @@ export function JournalView({ sessions }: JournalViewProps) {
                   <motion.div 
                     initial={{ height: 0 }}
                     animate={{ height: `${(day.value / maxVal) * 100}%` }}
-                    transition={{ type: 'spring', damping: 15 }}
-                    className={`w-full rounded-full min-h-[4px] relative transition-all duration-700 ${
+                    transition={{ type: 'spring', damping: 15, stiffness: 100 }}
+                    className={`w-full rounded-[14px] min-h-[6px] relative transition-all duration-700 ${
                       day.value > 0 
-                        ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_10px_30px_rgba(99,102,241,0.3)]' 
-                        : 'bg-white/[0.05]'
+                        ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_15px_40px_rgba(99,102,241,0.4)]' 
+                        : 'bg-white/[0.04]'
                     }`}
                   />
                 </div>
-                <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${day.value > 0 ? 'text-white/80' : 'text-gray-800'}`}>
+                <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500 ${day.value > 0 ? 'text-white/90' : 'text-gray-800'}`}>
                   {day.label}
                 </span>
               </div>
@@ -157,21 +156,25 @@ export function JournalView({ sessions }: JournalViewProps) {
       </div>
 
       {/* Model Breakdown Section */}
-      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-xl">
-        <div className="flex justify-between items-center mb-8 px-1">
+      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-white/[0.01] pointer-events-none" />
+        <div className="flex justify-between items-center mb-8 px-1 relative z-10">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Technique Breakdown</span>
           <PieChart size={14} className="text-gray-700" />
         </div>
         
-        <div className="space-y-6">
+        <div className="space-y-8 relative z-10">
           {modelBreakdown.length > 0 ? (
             modelBreakdown.map((item, i) => (
-              <div key={item.exercise.id} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-light text-white/90">{item.exercise.name}</span>
-                  <span className="text-xs font-medium text-gray-500">{item.minutes} min</span>
+              <div key={item.exercise.id} className="space-y-3">
+                <div className="flex justify-between items-center px-1">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.exercise.gradient.start }} />
+                    <span className="text-base font-light text-white/90 tracking-tight">{item.exercise.name}</span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-500 tracking-tighter">{item.minutes} min</span>
                 </div>
-                <div className="w-full h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
+                <div className="w-full h-2.5 bg-white/[0.04] rounded-full overflow-hidden">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${(item.duration / (totalMinutes * 60)) * 100}%` }}
@@ -201,7 +204,7 @@ export function JournalView({ sessions }: JournalViewProps) {
             return (
               <motion.div
                 key={i}
-                className="bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 flex items-center justify-between group shadow-xl"
+                className="bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 flex items-center justify-between group shadow-xl hover:bg-white/[0.02] transition-all duration-500"
               >
                 <div className="flex items-center gap-6">
                   <div className="w-14 h-14 rounded-[22px] flex items-center justify-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${ex.gradient.start}, ${ex.gradient.end})` }}>
