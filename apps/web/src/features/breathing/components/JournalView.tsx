@@ -84,6 +84,7 @@ export function JournalView({ sessions }: JournalViewProps) {
   }, [range, sessions]);
 
   const maxVal = Math.max(...graphData.map(d => d.value), 1);
+  const yAxisTicks = [Math.floor(maxVal), Math.floor(maxVal / 2), 0];
   const recentSessions = [...sessions].reverse().slice(0, 5);
 
   return (
@@ -104,12 +105,12 @@ export function JournalView({ sessions }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Graphical Representation Card - Full Width Thicker Bars */}
+      {/* Graphical Representation Card - Full Width Thicker Bars with Y-Axis */}
       <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl relative overflow-hidden group">
         <div className="absolute inset-0 bg-indigo-500/[0.01] pointer-events-none" />
         
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-10">
+          <div className="flex justify-between items-center mb-12">
             <div className="flex gap-1.5 bg-white/[0.03] p-1 rounded-[20px] border border-white/5">
               {(['week', 'month', 'year'] as TimeRange[]).map((r) => (
                 <button
@@ -125,32 +126,56 @@ export function JournalView({ sessions }: JournalViewProps) {
             </div>
           </div>
           
-          <div className="flex items-end justify-between h-48 gap-4 px-2">
-            {graphData.map((day, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-4 group/bar">
-                <div className="relative w-full flex flex-col items-center justify-end h-full">
-                  <AnimatePresence>
-                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all bg-white text-black text-[10px] font-black px-3 py-2 rounded-2xl z-20 pointer-events-none whitespace-nowrap shadow-2xl scale-110">
-                      {day.value}m
+          <div className="flex h-52 relative">
+            {/* Y-Axis Labels */}
+            <div className="flex flex-col justify-between pr-4 pb-10 text-[9px] font-black text-gray-700 uppercase tracking-widest h-full text-right w-10">
+              {yAxisTicks.map((tick, i) => (
+                <span key={i}>{tick}m</span>
+              ))}
+            </div>
+
+            {/* Graph Area */}
+            <div className="flex-1 flex flex-col h-full">
+              <div className="flex-1 flex items-end justify-between gap-4 px-2 relative">
+                {/* Horizontal Grid Lines */}
+                <div className="absolute inset-x-0 top-0 h-px bg-white/[0.02]" />
+                <div className="absolute inset-x-0 top-1/2 h-px bg-white/[0.02]" />
+                
+                {graphData.map((day, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group/bar">
+                    <div className="relative w-full flex flex-col items-center justify-end h-full">
+                      <AnimatePresence>
+                        <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all bg-white text-black text-[10px] font-black px-3 py-2 rounded-2xl z-20 pointer-events-none whitespace-nowrap shadow-2xl scale-110">
+                          {day.value}m
+                        </div>
+                      </AnimatePresence>
+                      
+                      <motion.div 
+                        initial={{ height: 0 }}
+                        animate={{ height: `${(day.value / maxVal) * 100}%` }}
+                        transition={{ type: 'spring', damping: 15, stiffness: 100 }}
+                        className={`w-full rounded-[14px] min-h-[6px] relative transition-all duration-700 ${
+                          day.value > 0 
+                            ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_15px_40px_rgba(99,102,241,0.4)]' 
+                            : 'bg-white/[0.04]'
+                        }`}
+                      />
                     </div>
-                  </AnimatePresence>
-                  
-                  <motion.div 
-                    initial={{ height: 0 }}
-                    animate={{ height: `${(day.value / maxVal) * 100}%` }}
-                    transition={{ type: 'spring', damping: 15, stiffness: 100 }}
-                    className={`w-full rounded-[14px] min-h-[6px] relative transition-all duration-700 ${
-                      day.value > 0 
-                        ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_15px_40px_rgba(99,102,241,0.4)]' 
-                        : 'bg-white/[0.04]'
-                    }`}
-                  />
-                </div>
-                <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500 ${day.value > 0 ? 'text-white/90' : 'text-gray-800'}`}>
-                  {day.label}
-                </span>
+                  </div>
+                ))}
               </div>
-            ))}
+
+              {/* X-Axis Labels */}
+              <div className="flex justify-between gap-4 px-2 pt-4">
+                {graphData.map((day, i) => (
+                  <div key={i} className="flex-1 text-center">
+                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500 ${day.value > 0 ? 'text-white/90' : 'text-gray-800'}`}>
+                      {day.label[0]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
