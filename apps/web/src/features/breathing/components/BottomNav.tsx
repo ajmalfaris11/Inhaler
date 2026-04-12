@@ -42,11 +42,6 @@ export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
                 />
               )}
               <Icon size={20} strokeWidth={isActive ? 2 : 1.5} className="relative z-10" />
-              
-              {/* Specialized visual for Achievements (Center) */}
-              {tab.id === 'achievements' && (
-                <div className={`absolute -top-1 right-1 w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)] z-20 ${isActive ? 'animate-pulse' : 'opacity-40'}`} />
-              )}
             </button>
           );
         })}

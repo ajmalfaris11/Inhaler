@@ -97,6 +97,7 @@ export function BreathingExercise() {
                   key="achievements"
                   stats={stats}
                   customGoals={customGoals}
+                  customExercises={customExercises}
                   onAddGoal={addCustomGoal}
                   onDeleteGoal={deleteCustomGoal}
                 />

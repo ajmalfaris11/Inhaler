@@ -19,6 +19,7 @@ export interface Badge {
 export interface CustomGoal {
   id: string;
   name: string;
+  exerciseId: string;
   targetMinutes: number;
   currentMinutes: number;
 }
@@ -191,20 +192,22 @@ export function useLibrary() {
       }
     ];
 
-    // Map custom goals to badges
+    // Map custom goals to badges with exercise-specific tracking
     const customGoalBadges: Badge[] = customGoals.map(goal => {
-      // Calculate current progress for this goal
-      // For simplicity, let's say custom goals are "Total minutes for this exercise" or just "Total minutes"
-      // Let's assume custom goals are "Total Minutes" goals for now
+      // Calculate current progress for this specific exercise
+      const exerciseMinutes = Math.floor(sessions
+        .filter(s => s.exerciseId === goal.exerciseId || goal.exerciseId === 'all')
+        .reduce((acc, s) => acc + s.duration, 0) / 60);
+
       return {
         id: goal.id,
         name: goal.name,
-        description: `Target: ${goal.targetMinutes} minutes.`,
+        description: `Target: ${goal.targetMinutes}m of ${goal.exerciseId === 'all' ? 'any practice' : goal.exerciseId}.`,
         category: 'custom',
         type: 'manual',
         requirement: goal.targetMinutes,
-        unlocked: totalMinutes >= goal.targetMinutes,
-        progress: Math.min(100, (totalMinutes / goal.targetMinutes) * 100)
+        unlocked: exerciseMinutes >= goal.targetMinutes,
+        progress: Math.min(100, (exerciseMinutes / goal.targetMinutes) * 100)
       };
     });
 
