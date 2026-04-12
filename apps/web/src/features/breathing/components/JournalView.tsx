@@ -67,10 +67,10 @@ export function JournalView({ sessions }: JournalViewProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="w-full space-y-8"
+      className="w-full space-y-8 px-0"
     >
-      {/* Header - No side padding */}
-      <div className="w-full flex justify-between items-start mb-4">
+      {/* Header - With safe padding */}
+      <div className="w-full flex justify-between items-start mb-4 px-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-light tracking-tight text-white/90">Journal</h1>
           <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-bold">Progress Analytics</p>
@@ -80,8 +80,8 @@ export function JournalView({ sessions }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Graphical Representation Card - Expanded Width */}
-      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[48px] p-8 shadow-2xl relative overflow-hidden">
+      {/* Graphical Representation Card - True Edge-to-Edge */}
+      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-none sm:rounded-[48px] p-8 shadow-2xl relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-12">
             <div className="flex gap-2 bg-white/[0.03] p-1.5 rounded-[22px] border border-white/5">
@@ -105,7 +105,7 @@ export function JournalView({ sessions }: JournalViewProps) {
             </div>
 
             <div className="flex-1 flex flex-col h-full">
-              <div className="flex-1 flex items-end justify-between gap-1.5 relative">
+              <div className="flex-1 flex items-end justify-between gap-1 relative">
                 <div className="absolute inset-x-0 top-0 h-px bg-white/[0.02]" />
                 <div className="absolute inset-x-0 top-1/2 h-px bg-white/[0.02]" />
                 
@@ -119,13 +119,13 @@ export function JournalView({ sessions }: JournalViewProps) {
                         initial={{ height: 0 }}
                         animate={{ height: `${(day.value / maxVal) * 100}%` }}
                         transition={{ type: 'spring', damping: 15 }}
-                        className={`w-full rounded-[14px] min-h-[8px] transition-all duration-700 ${day.value > 0 ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_15px_40px_rgba(99,102,241,0.4)]' : 'bg-white/[0.04]'}`}
+                        className={`w-full rounded-[4px] min-h-[8px] transition-all duration-700 ${day.value > 0 ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_15px_40px_rgba(99,102,241,0.4)]' : 'bg-white/[0.04]'}`}
                       />
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between gap-1.5 pt-6">
+              <div className="flex justify-between gap-1 pt-6">
                 {graphData.map((day, i) => (
                   <div key={i} className="flex-1 text-center">
                     <span className={`text-[10px] font-black uppercase tracking-[0.1em] ${day.value > 0 ? 'text-white/90' : 'text-gray-800'}`}>
@@ -139,14 +139,14 @@ export function JournalView({ sessions }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Model Breakdown Section - Expanded Width */}
-      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[48px] p-10 shadow-xl">
-        <div className="flex justify-between items-center mb-10">
+      {/* Model Breakdown Section - True Edge-to-Edge */}
+      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-none sm:rounded-[48px] p-8 sm:p-10 shadow-xl">
+        <div className="flex justify-between items-center mb-10 px-2">
           <span className="text-[10px] uppercase tracking-[0.4em] font-black text-gray-700">Technique Breakdown</span>
           <PieChart size={16} className="text-gray-800" />
         </div>
         
-        <div className="space-y-10">
+        <div className="space-y-10 px-2">
           {modelBreakdown.length > 0 ? (
             modelBreakdown.map((item) => (
               <div key={item.exercise.id} className="space-y-4">
@@ -173,21 +173,21 @@ export function JournalView({ sessions }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Recent Sessions - Full Width Cards */}
+      {/* Recent Sessions - True Edge-to-Edge Cards */}
       <div className="w-full space-y-6 pb-6">
-        <div className="flex justify-between items-center px-1">
+        <div className="flex justify-between items-center px-6">
           <span className="text-[10px] uppercase tracking-[0.4em] font-black text-gray-700">Recent Sessions</span>
           <History size={16} className="text-gray-800" />
         </div>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1 sm:gap-5">
           {recentSessions.map((session, i) => {
             const ex = exercises.find(e => e.id === session.exerciseId) || exercises[0];
             const date = new Date(session.date);
             return (
               <motion.div
                 key={i}
-                className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[48px] p-8 flex items-center justify-between shadow-xl"
+                className="w-full bg-[#0D0D0D] border-y sm:border border-white/[0.06] rounded-none sm:rounded-[48px] p-8 flex items-center justify-between shadow-xl"
               >
                 <div className="flex items-center gap-6">
                   <div className="w-16 h-16 rounded-[24px] flex items-center justify-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${ex.gradient.start}, ${ex.gradient.end})` }}>
