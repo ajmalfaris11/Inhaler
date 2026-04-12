@@ -11,7 +11,7 @@ interface BottomNavProps {
   setActiveTab: (t: TabType) => void;
 }
 
-// Custom Target Arrow Icon
+// Custom Target Arrow Icon - Corrected Direction (Points into center from top-left)
 const TargetArrow = ({ size = 20, strokeWidth = 2, className = "" }) => (
   <svg
     width={size}
@@ -27,8 +27,9 @@ const TargetArrow = ({ size = 20, strokeWidth = 2, className = "" }) => (
     <circle cx="12" cy="12" r="10" />
     <circle cx="12" cy="12" r="6" />
     <circle cx="12" cy="12" r="2" />
-    <path d="m22 2-7 7" />
-    <path d="M22 6V2h-4" />
+    {/* Arrow pointing to center from top-right */}
+    <path d="M12 12l7-7" />
+    <path d="M19 8V5h-3" />
   </svg>
 );
 
