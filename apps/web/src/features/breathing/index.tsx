@@ -96,6 +96,7 @@ export function BreathingExercise() {
                   customExercises={customExercises}
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
+                  stats={stats}
                 />
               )}
               {activeTab === 'library' && (

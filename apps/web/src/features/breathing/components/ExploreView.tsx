@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Compass, Settings, Play, Sparkles } from 'lucide-react';
+import { Compass, Settings, Play, Sparkles, Trophy, Zap } from 'lucide-react';
 import { Exercise, exercises } from '../data';
 import { ExerciseCard } from './ExerciseCard';
 
@@ -12,6 +12,11 @@ interface ExploreViewProps {
   customExercises: Exercise[];
   favorites: string[];
   onToggleFavorite: (id: string) => void;
+  stats: {
+    totalMinutes: number;
+    sessionCount: number;
+    streak: number;
+  };
 }
 
 export function ExploreView({ 
@@ -19,7 +24,8 @@ export function ExploreView({
   onDetails, 
   customExercises, 
   favorites, 
-  onToggleFavorite 
+  onToggleFavorite,
+  stats
 }: ExploreViewProps) {
   const featuredExercise = exercises[0]; // Box Breathing as featured
 
@@ -28,16 +34,25 @@ export function ExploreView({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="w-full space-y-12"
+      className="w-full space-y-10"
     >
-      {/* Header */}
-      <div className="flex justify-between items-center px-1">
-        <div>
+      {/* Header & Streak */}
+      <div className="flex justify-between items-start px-1">
+        <div className="space-y-1">
           <h1 className="text-3xl font-light tracking-tight text-white/90">Inhaler</h1>
-          <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-1 font-bold">Zen System</p>
+          <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-bold">Zen System</p>
         </div>
-        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white/10 transition-all cursor-pointer">
-          <Settings size={20} />
+        <div className="flex gap-2">
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-orange-500/10 border border-orange-500/20 shadow-lg"
+          >
+            <Zap className="text-orange-500" size={14} fill="currentColor" />
+            <span className="text-[11px] font-black text-orange-500 uppercase tracking-widest">{stats.streak} Day Streak</span>
+          </motion.div>
+          <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white/10 transition-all cursor-pointer">
+            <Settings size={18} />
+          </div>
         </div>
       </div>
 
