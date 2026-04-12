@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Library } from 'lucide-react';
+import { Library, Plus } from 'lucide-react';
 import { Exercise, exercises } from '../data';
 import { ExerciseCard } from './ExerciseCard';
 
@@ -13,6 +13,7 @@ interface LibraryViewProps {
   favorites: string[];
   onToggleFavorite: (id: string) => void;
   onDeleteCustom: (id: string) => void;
+  onCreate: () => void;
 }
 
 export function LibraryView({ 
@@ -21,7 +22,8 @@ export function LibraryView({
   customExercises, 
   favorites, 
   onToggleFavorite, 
-  onDeleteCustom 
+  onDeleteCustom,
+  onCreate
 }: LibraryViewProps) {
   const favoriteExercises = exercises.filter((ex: Exercise) => favorites.includes(ex.id));
 
@@ -32,7 +34,15 @@ export function LibraryView({
       exit={{ opacity: 0, y: -10 }}
       className="w-full"
     >
-      <h1 className="text-3xl font-light tracking-tight text-white mb-10">My Library</h1>
+      <div className="flex justify-between items-center mb-10">
+        <h1 className="text-3xl font-light tracking-tight text-white">My Library</h1>
+        <button 
+          onClick={onCreate}
+          className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all"
+        >
+          <Plus size={24} />
+        </button>
+      </div>
 
       {customExercises.length === 0 && favoriteExercises.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">

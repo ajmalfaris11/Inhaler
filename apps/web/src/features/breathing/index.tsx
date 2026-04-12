@@ -6,7 +6,7 @@ import { AnimatePresence } from 'framer-motion';
 import { Exercise } from './data';
 import { useLibrary } from './hooks/useCustomExercises';
 import { CustomBuilder } from './components/CustomBuilder';
-import { BottomNav } from './components/BottomNav';
+import { BottomNav, TabType } from './components/BottomNav';
 import { ExploreView } from './components/ExploreView';
 import { LibraryView } from './components/LibraryView';
 import { ProfileView } from './components/ProfileView';
@@ -14,9 +14,9 @@ import { ExerciseView } from './components/ExerciseView';
 import { DetailsView } from './components/DetailsView';
 import { SessionSetup, SessionConfig } from './components/SessionSetup';
 import { SessionComplete } from './components/SessionComplete';
+import { JournalView } from './components/JournalView';
 
-type TabType = 'explore' | 'library' | 'create' | 'profile';
-type ViewType = 'home' | 'exercise' | 'details' | 'setup' | 'complete';
+type ViewType = 'home' | 'exercise' | 'details' | 'setup' | 'complete' | 'builder';
 
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
@@ -25,7 +25,7 @@ export function BreathingExercise() {
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
   const [sessionResults, setSessionResults] = useState<{ duration: number; cycles: number } | null>(null);
   
-  const { customExercises, favorites, stats, toggleFavorite, deleteExercise, addExercise, recordSession } = useLibrary();
+  const { customExercises, favorites, sessions, stats, toggleFavorite, deleteExercise, addExercise, recordSession } = useLibrary();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -108,19 +108,26 @@ export function BreathingExercise() {
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
                   onDeleteCustom={deleteExercise}
+                  onCreate={() => setView('builder')}
                 />
               )}
-              {activeTab === 'create' && (
-                <CustomBuilder 
-                  key="builder"
-                  onBack={() => setActiveTab('explore')} 
-                  onSave={addExercise} 
+              {activeTab === 'journal' && (
+                <JournalView 
+                  key="journal"
+                  sessions={sessions}
                 />
               )}
               {activeTab === 'profile' && (
                 <ProfileView key="profile" stats={stats} />
               )}
             </div>
+          )}
+          {view === 'builder' && (
+            <CustomBuilder 
+              key="builder"
+              onBack={() => setView('home')} 
+              onSave={(ex) => { addExercise(ex); setView('home'); setActiveTab('library'); }} 
+            />
           )}
           {view === 'setup' && selectedExercise && (
             <SessionSetup 

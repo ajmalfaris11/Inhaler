@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Compass, Library, Plus, User } from 'lucide-react';
+import { Compass, Library, BookText, User } from 'lucide-react';
 
-type TabType = 'explore' | 'library' | 'create' | 'profile';
+export type TabType = 'explore' | 'library' | 'journal' | 'profile';
 
 interface BottomNavProps {
   activeTab: TabType;
@@ -15,7 +15,7 @@ export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
   const tabs: { id: TabType, icon: any, label: string }[] = [
     { id: 'explore', icon: Compass, label: 'Explore' },
     { id: 'library', icon: Library, label: 'Library' },
-    { id: 'create', icon: Plus, label: 'Create' },
+    { id: 'journal', icon: BookText, label: 'Journal' },
     { id: 'profile', icon: User, label: 'Profile' },
   ];
 
