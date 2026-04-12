@@ -2,20 +2,26 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, BarChart3, Activity, Zap, History, PieChart } from 'lucide-react';
+import { Clock, BarChart3, Activity, Zap, History, PieChart, Trophy, Lock, CheckCircle2 } from 'lucide-react';
 import { exercises } from '../data';
+import { Badge } from '../hooks/useCustomExercises';
 
 interface JournalViewProps {
   sessions: { exerciseId: string; date: string; duration: number }[];
+  stats: {
+    totalMinutes: number;
+    sessionCount: number;
+    streak: number;
+    badges: Badge[];
+  };
 }
 
 type TimeRange = 'week' | 'month' | 'year';
 
-export function JournalView({ sessions }: JournalViewProps) {
+export function JournalView({ sessions, stats }: JournalViewProps) {
   const [range, setRange] = useState<TimeRange>('week');
 
-  const { totalMinutes, modelBreakdown } = useMemo(() => {
-    const totalSeconds = sessions.reduce((acc, s) => acc + s.duration, 0);
+  const { modelBreakdown } = useMemo(() => {
     const breakdown: Record<string, number> = {};
     sessions.forEach(s => {
       breakdown[s.exerciseId] = (breakdown[s.exerciseId] || 0) + s.duration;
@@ -27,7 +33,7 @@ export function JournalView({ sessions }: JournalViewProps) {
         duration
       }))
       .sort((a, b) => b.duration - a.duration);
-    return { totalMinutes: Math.floor(totalSeconds / 60), modelBreakdown: modelList };
+    return { modelBreakdown: modelList };
   }, [sessions]);
 
   const graphData = useMemo(() => {
@@ -80,10 +86,9 @@ export function JournalView({ sessions }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Graphical Representation Card - Premium Rounded Full Width */}
+      {/* Graphical Representation Card */}
       <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl relative overflow-hidden group">
         <div className="absolute inset-0 bg-indigo-500/[0.01] pointer-events-none" />
-        
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-12 px-1">
             <div className="flex gap-1.5 bg-white/[0.03] p-1 rounded-[20px] border border-white/5">
@@ -101,17 +106,14 @@ export function JournalView({ sessions }: JournalViewProps) {
             </div>
             <span className="text-[10px] text-gray-500 font-medium">Min / {range}</span>
           </div>
-          
           <div className="flex h-56 relative">
             <div className="flex flex-col justify-between pr-4 pb-12 text-[9px] font-black text-gray-700 uppercase tracking-widest h-full text-right w-10">
               {yAxisTicks.map((tick, i) => (<span key={i}>{tick}m</span>))}
             </div>
-
             <div className="flex-1 flex flex-col h-full">
               <div className="flex-1 flex items-end justify-between gap-1.5 relative">
                 <div className="absolute inset-x-0 top-0 h-px bg-white/[0.02]" />
                 <div className="absolute inset-x-0 top-1/2 h-px bg-white/[0.02]" />
-                
                 {graphData.map((day, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group/bar">
                     <div className="relative w-full flex flex-col items-center justify-end h-full">
@@ -142,57 +144,94 @@ export function JournalView({ sessions }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Model Breakdown Section - Premium Rounded Full Width */}
+      {/* Milestones & Badges - New Section */}
+      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-yellow-500/[0.01] pointer-events-none" />
+        <div className="flex justify-between items-center mb-8 px-1 relative z-10">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Achievements</span>
+          <Trophy size={14} className="text-gray-700" />
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 relative z-10">
+          {stats.badges.map((badge) => (
+            <motion.div 
+              key={badge.id}
+              whileHover={{ scale: 1.02 }}
+              className={`p-4 rounded-[32px] border transition-all duration-500 flex flex-col gap-3 ${
+                badge.unlocked 
+                  ? 'bg-white/[0.03] border-white/10' 
+                  : 'bg-white/[0.01] border-white/5 opacity-40 grayscale'
+              }`}
+            >
+              <div className="flex justify-between items-start">
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
+                  badge.unlocked ? 'bg-yellow-500/10 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]' : 'bg-white/5 text-gray-600'
+                }`}>
+                  {badge.unlocked ? <CheckCircle2 size={20} /> : <Lock size={18} />}
+                </div>
+                {badge.unlocked && (
+                  <motion.div 
+                    initial={{ scale: 0 }} 
+                    animate={{ scale: 1 }} 
+                    className="w-2 h-2 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.8)]" 
+                  />
+                )}
+              </div>
+              <div>
+                <h4 className={`text-xs font-bold uppercase tracking-widest ${badge.unlocked ? 'text-white/90' : 'text-gray-600'}`}>
+                  {badge.name}
+                </h4>
+                <p className="text-[10px] text-gray-500 leading-relaxed mt-1 font-light">
+                  {badge.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Model Breakdown Section */}
       <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-xl relative overflow-hidden group">
         <div className="absolute inset-0 bg-white/[0.01] pointer-events-none" />
         <div className="flex justify-between items-center mb-8 px-1 relative z-10">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Technique Breakdown</span>
           <PieChart size={14} className="text-gray-700" />
         </div>
-        
         <div className="space-y-8 relative z-10">
-          {modelBreakdown.length > 0 ? (
-            modelBreakdown.map((item) => (
-              <div key={item.exercise.id} className="space-y-3">
-                <div className="flex justify-between items-center px-1">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.exercise.gradient.start }} />
-                    <span className="text-base font-light text-white/90 tracking-tight">{item.exercise.name}</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-500 tracking-tighter">{item.minutes} min</span>
+          {modelBreakdown.map((item) => (
+            <div key={item.exercise.id} className="space-y-3">
+              <div className="flex justify-between items-center px-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.exercise.gradient.start }} />
+                  <span className="text-base font-light text-white/90 tracking-tight">{item.exercise.name}</span>
                 </div>
-                <div className="w-full h-2.5 bg-white/[0.04] rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(item.duration / (totalMinutes * 60)) * 100}%` }}
-                    className="h-full rounded-full"
-                    style={{ background: `linear-gradient(90deg, ${item.exercise.gradient.start}, ${item.exercise.gradient.end})` }}
-                  />
-                </div>
+                <span className="text-sm font-bold text-gray-500 tracking-tighter">{item.minutes} min</span>
               </div>
-            ))
-          ) : (
-             <p className="text-xs text-gray-600 font-light text-center py-4 italic">No data yet</p>
-          )}
+              <div className="w-full h-2.5 bg-white/[0.04] rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(item.duration / (stats.totalMinutes * 60 || 1)) * 100}%` }}
+                  className="h-full rounded-full"
+                  style={{ background: `linear-gradient(90deg, ${item.exercise.gradient.start}, ${item.exercise.gradient.end})` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Recent Sessions - Premium Rounded Full Width Cards */}
-      <div className="w-full space-y-6 pb-4">
+      {/* Session History */}
+      <div className="space-y-6 pb-4 w-full">
         <div className="flex justify-between items-center px-2">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Recent Sessions</span>
           <History size={16} className="text-gray-800" />
         </div>
-
         <div className="flex flex-col gap-4">
           {recentSessions.map((session, i) => {
             const ex = exercises.find(e => e.id === session.exerciseId) || exercises[0];
             const date = new Date(session.date);
             return (
-              <motion.div
-                key={i}
-                className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 flex items-center justify-between group shadow-xl hover:bg-white/[0.02] transition-all duration-500"
-              >
+              <motion.div key={i} className="bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 flex items-center justify-between group shadow-xl">
                 <div className="flex items-center gap-6">
                   <div className="w-14 h-14 rounded-[22px] flex items-center justify-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${ex.gradient.start}, ${ex.gradient.end})` }}>
                     <Zap size={24} className="text-white relative z-10" />
@@ -200,15 +239,11 @@ export function JournalView({ sessions }: JournalViewProps) {
                   </div>
                   <div>
                     <h4 className="text-lg font-light text-white tracking-tight leading-none mb-1">{ex.name}</h4>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                      {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </p>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xl font-light text-white tracking-tighter">
-                    {Math.floor(session.duration / 60)}:{(session.duration % 60).toString().padStart(2, '0')}
-                  </span>
+                  <span className="text-xl font-light text-white tracking-tighter">{Math.floor(session.duration / 60)}:{(session.duration % 60).toString().padStart(2, '0')}</span>
                   <p className="text-[9px] text-gray-700 uppercase tracking-[0.2em] font-black mt-1">Duration</p>
                 </div>
               </motion.div>
