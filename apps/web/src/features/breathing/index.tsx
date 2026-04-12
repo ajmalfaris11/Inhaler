@@ -25,7 +25,7 @@ export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [view, setView] = useState<'home' | 'exercise' | 'details'>('home');
   const [activeTab, setActiveTab] = useState<TabType>('explore');
-  const { customExercises, favorites, addExercise, deleteExercise, toggleFavorite } = useLibrary();
+  const { customExercises, favorites, stats, toggleFavorite, deleteExercise, addExercise, recordSession } = useLibrary();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -107,12 +107,12 @@ export function BreathingExercise() {
                 />
               )}
               {activeTab === 'profile' && (
-                <ProfileView key="profile" />
+                <ProfileView key="profile" stats={stats} />
               )}
             </div>
           )}
           {view === 'exercise' && selectedExercise && (
-            <ExerciseView key="exercise" exercise={selectedExercise} onBack={handleBack} />
+            <ExerciseView key="exercise" exercise={selectedExercise} onBack={handleBack} onRecordSession={recordSession} />
           )}
         </AnimatePresence>
 
@@ -305,11 +305,11 @@ function LibraryView({ onStart, onDetails, customExercises, favorites, onToggleF
   );
 }
 
-function ProfileView() {
-  const stats = [
-    { label: 'Total Minutes', value: '124', icon: Target },
-    { label: 'Deep Sessions', value: '42', icon: ZapIcon },
-    { label: 'Current Streak', value: '7', icon: Trophy },
+function ProfileView({ stats }: { stats: { totalMinutes: number; sessionCount: number; streak: number } }) {
+  const statItems = [
+    { label: 'Total Minutes', value: stats.totalMinutes.toString(), icon: Target },
+    { label: 'Deep Sessions', value: stats.sessionCount.toString(), icon: ZapIcon },
+    { label: 'Current Streak', value: stats.streak.toString(), icon: Trophy },
   ];
 
   return (
@@ -330,7 +330,7 @@ function ProfileView() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 mb-12">
-        {stats.map((stat) => (
+        {statItems.map((stat) => (
           <div key={stat.label} className="p-6 bg-white/[0.03] border border-white/5 rounded-[32px] flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-indigo-400">
@@ -518,11 +518,24 @@ function DetailsView({ exercise, onBack, onStart }: { exercise: Exercise; onBack
   );
 }
 
-function ExerciseView({ exercise, onBack }: { exercise: Exercise; onBack: () => void }) {
+function ExerciseView({ exercise, onBack, onRecordSession }: { 
+  exercise: Exercise; 
+  onBack: () => void;
+  onRecordSession: (id: string, duration: number) => void;
+}) {
   const timer = useBreathingTimer(exercise.pattern);
   const soundscape = useSoundscape(timer.isActive);
   const voice = useVoiceAssistant(timer.phase, timer.isActive);
   const binaural = useBinauralBeats(timer.isActive);
+
+  // Record session on leave if any time was spent
+  useEffect(() => {
+    return () => {
+      if (timer.totalTime > 10) { // Only record if spent more than 10 seconds
+        onRecordSession(exercise.id, timer.totalTime);
+      }
+    };
+  }, [timer.totalTime, exercise.id]);
 
   // Local settings state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
