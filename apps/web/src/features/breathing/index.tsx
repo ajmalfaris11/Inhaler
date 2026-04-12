@@ -139,8 +139,8 @@ function BottomNav({ activeTab, setActiveTab }: { activeTab: TabType, setActiveT
   ];
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[400px] px-4 z-[100]">
-      <div className="bg-black/40 backdrop-blur-2xl border border-white/10 rounded-[32px] p-2 flex items-center justify-between shadow-2xl">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[360px] px-6 z-[100]">
+      <div className="bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[40px] p-2 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
@@ -148,21 +148,18 @@ function BottomNav({ activeTab, setActiveTab }: { activeTab: TabType, setActiveT
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative flex flex-col items-center justify-center py-3 px-6 rounded-2xl transition-all duration-500 ${
+              className={`relative flex items-center justify-center w-14 h-14 rounded-3xl transition-all duration-500 ${
                 isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               {isActive && (
                 <motion.div 
                   layoutId="active-tab-bg"
-                  className="absolute inset-0 bg-white/5 rounded-2xl border border-white/5"
-                  transition={{ type: 'spring', duration: 0.6 }}
+                  className="absolute inset-0 bg-white/10 rounded-3xl border border-white/10 shadow-lg"
+                  transition={{ type: 'spring', duration: 0.6, bounce: 0.3 }}
                 />
               )}
-              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className={`text-[9px] mt-1.5 uppercase tracking-widest font-medium transition-all duration-500 ${isActive ? 'opacity-100' : 'opacity-0 scale-90'}`}>
-                {tab.label}
-              </span>
+              <Icon size={22} strokeWidth={isActive ? 2 : 1.5} className="relative z-10" />
             </button>
           );
         })}
