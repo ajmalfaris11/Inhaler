@@ -59,11 +59,11 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
   // Haptic Feedback for mobile
   useEffect(() => {
     if (typeof window !== 'undefined' && 'vibrate' in navigator && timer.isActive) {
-      if (timer.phase === 'inhale') {
+      if (timer.phase === 'Inhale') {
         navigator.vibrate(100);
-      } else if (timer.phase === 'exhale') {
+      } else if (timer.phase === 'Exhale') {
         navigator.vibrate(100);
-      } else if (timer.phase.includes('hold')) {
+      } else if (timer.phase.includes('Hold')) {
         navigator.vibrate(50);
       }
     }
