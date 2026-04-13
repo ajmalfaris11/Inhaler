@@ -65,7 +65,7 @@ export function BreathingExercise() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white/20">
-      <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto py-12 pb-32 font-sans">
+      <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto py-12 pb-32 font-sans relative z-10">
         <AnimatePresence mode="wait">
           {view === 'home' && (
             <div key="home-tabs" className="w-full">
