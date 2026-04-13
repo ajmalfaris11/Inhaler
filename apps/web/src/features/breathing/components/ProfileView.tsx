@@ -2,16 +2,14 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  User, 
-  Target, 
-  Zap as ZapIcon, 
-  Trophy, 
-  Settings, 
-  LogOut, 
-  ChevronRight, 
-  Edit2, 
-  Check, 
+import {
+  User,
+  Target,
+  Zap as ZapIcon,
+  Trophy,
+  ChevronRight,
+  Edit2,
+  Check,
   X,
   Bell,
   Shield,
@@ -66,18 +64,18 @@ export function ProfileView({ stats, userName, onUpdateName, onResetData }: Prof
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="w-full pb-10"
+      className="w-95 pb-10 space-y-10"
     >
-      {/* iOS Style Profile Header */}
-      <div className="flex flex-col items-center mb-10 pt-4">
-        <div className="relative group">
+      {/* Profile Header */}
+      <div className="flex flex-col items-center pt-4">
+        <div className="relative">
           <div className="w-28 h-28 rounded-full bg-gradient-to-br from-white/10 to-white/5 p-1 mb-6 shadow-2xl relative">
             <div className="w-full h-full rounded-full bg-[#0D0D0D] flex items-center justify-center border border-white/10">
               <User size={48} className="text-white/40" />
             </div>
             <div className="absolute inset-0 rounded-full bg-indigo-500/10 blur-2xl opacity-50" />
           </div>
-          <button 
+          <button
             className="absolute bottom-6 right-0 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all"
             onClick={() => setIsEditingName(true)}
           >
@@ -87,7 +85,7 @@ export function ProfileView({ stats, userName, onUpdateName, onResetData }: Prof
 
         <AnimatePresence mode="wait">
           {isEditingName ? (
-            <motion.div 
+            <motion.div
               key="edit"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -110,7 +108,7 @@ export function ProfileView({ stats, userName, onUpdateName, onResetData }: Prof
               </button>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               key="display"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -124,41 +122,46 @@ export function ProfileView({ stats, userName, onUpdateName, onResetData }: Prof
         </AnimatePresence>
       </div>
 
-      {/* iOS Style Stats Grid */}
-      <div className="grid grid-cols-3 gap-3 mb-10">
-        {[
-          { icon: Target, label: 'Minutes', value: stats.totalMinutes, color: 'text-orange-400' },
-          { icon: ZapIcon, label: 'Sessions', value: stats.sessionCount, color: 'text-emerald-400' },
-          { icon: Trophy, label: 'Streak', value: stats.streak, color: 'text-blue-400' },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-white/[0.03] border border-white/[0.05] p-5 rounded-[32px] flex flex-col items-center gap-2">
-            <stat.icon size={18} className={stat.color} />
-            <span className="text-xl font-light text-white">{stat.value}</span>
-            <span className="text-[9px] uppercase tracking-widest text-gray-500 font-bold">{stat.label}</span>
-          </div>
-        ))}
+      {/* Stats Section */}
+      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl">
+        <h3 className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600 mb-6 px-1">Mindfulness Journey</h3>
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { icon: Target, label: 'Minutes', value: stats.totalMinutes, color: 'text-orange-400' },
+            { icon: ZapIcon, label: 'Sessions', value: stats.sessionCount, color: 'text-emerald-400' },
+            { icon: Trophy, label: 'Streak', value: stats.streak, color: 'text-blue-400' },
+          ].map((stat) => (
+            <div key={stat.label} className="flex flex-col items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-white/[0.03] border border-white/5 flex items-center justify-center">
+                <stat.icon size={16} className={stat.color} />
+              </div>
+              <span className="text-xl font-light text-white">{stat.value}</span>
+              <span className="text-[8px] uppercase tracking-widest text-gray-600 font-bold">{stat.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* iOS Style Settings Groups */}
-      <div className="space-y-8">
+      {/* Menu Groups */}
+      <div className="space-y-6">
         {menuGroups.map((group) => (
-          <div key={group.title} className="space-y-2">
-            <h3 className="px-5 text-[10px] uppercase tracking-[0.2em] font-bold text-gray-600">{group.title}</h3>
-            <div className="bg-white/[0.03] border border-white/[0.05] rounded-[32px] overflow-hidden">
+          <div key={group.title} className="space-y-4">
+            <h3 className="px-1 text-[10px] uppercase tracking-[0.2em] font-bold text-gray-600">{group.title}</h3>
+            <div className="bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] overflow-hidden shadow-2xl">
               {group.items.map((item, idx) => (
-                <button 
+                <button
                   key={item.label}
-                  className={`w-full flex items-center justify-between px-6 py-5 hover:bg-white/[0.02] transition-colors ${idx !== group.items.length - 1 ? 'border-b border-white/[0.03]' : ''}`}
+                  className={`w-full flex items-center justify-between px-8 py-6 hover:bg-white/[0.03] transition-all group/item ${idx !== group.items.length - 1 ? 'border-b border-white/[0.03]' : ''}`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-lg ${item.color} flex items-center justify-center shadow-lg shadow-black/20`}>
-                      <item.icon size={16} className="text-white" />
+                    <div className={`w-10 h-10 rounded-2xl ${item.color} flex items-center justify-center shadow-lg shadow-black/20 group-hover/item:scale-110 transition-transform`}>
+                      <item.icon size={18} className="text-white" />
                     </div>
-                    <span className="text-sm font-light text-white/80">{item.label}</span>
+                    <span className="text-sm font-light text-white/80 group-hover/item:text-white transition-colors">{item.label}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {item.value && <span className="text-sm text-gray-500 font-light">{item.value}</span>}
-                    <ChevronRight size={14} className="text-gray-600" />
+                  <div className="flex items-center gap-3">
+                    {item.value && <span className="text-xs text-gray-500 font-medium group-hover/item:text-gray-400 transition-colors">{item.value}</span>}
+                    <ChevronRight size={14} className="text-gray-700 group-hover/item:text-gray-500 transition-colors" />
                   </div>
                 </button>
               ))}
@@ -167,20 +170,20 @@ export function ProfileView({ stats, userName, onUpdateName, onResetData }: Prof
         ))}
 
         {/* Danger Zone */}
-        <div className="space-y-2">
-          <h3 className="px-5 text-[10px] uppercase tracking-[0.2em] font-bold text-red-500/50">Danger Zone</h3>
-          <div className="bg-red-500/[0.02] border border-red-500/10 rounded-[32px] overflow-hidden">
-            <button 
+        <div className="space-y-4">
+          <h3 className="px-1 text-[10px] uppercase tracking-[0.2em] font-bold text-red-500/50">Danger Zone</h3>
+          <div className="bg-red-500/[0.02] border border-red-500/10 rounded-[42px] shadow-2xl">
+            <button
               onClick={() => setShowResetConfirm(true)}
-              className="w-full flex items-center justify-between px-6 py-5 hover:bg-red-500/[0.05] transition-colors text-red-400"
+              className="w-full flex items-center justify-between px-8 py-6 rounded-[42px] hover:bg-red-500/[0.05] transition-all text-red-400 group/item"
             >
               <div className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
-                  <Trash2 size={16} />
+                <div className="w-10 h-10 rounded-2xl bg-red-500/20 flex items-center justify-center group-hover/item:scale-110 transition-transform">
+                  <Trash2 size={18} />
                 </div>
                 <span className="text-sm font-light">Reset All Local Data</span>
               </div>
-              <ChevronRight size={14} className="opacity-30" />
+              <ChevronRight size={14} className="opacity-30 group-hover/item:opacity-100 transition-opacity" />
             </button>
           </div>
         </div>
@@ -189,34 +192,34 @@ export function ProfileView({ stats, userName, onUpdateName, onResetData }: Prof
       {/* Reset Confirmation Overlay */}
       <AnimatePresence>
         {showResetConfirm && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex items-center justify-center px-8"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="bg-[#111] border border-white/10 p-8 rounded-[40px] w-full max-w-sm text-center space-y-6"
+              className="bg-[#111] border border-white/10 p-8 rounded-[40px] w-full max-w-sm text-center space-y-6 shadow-2xl"
             >
               <div className="w-16 h-16 rounded-3xl bg-red-500/20 text-red-500 flex items-center justify-center mx-auto mb-2">
                 <Shield size={32} />
               </div>
               <div className="space-y-2">
                 <h3 className="text-xl font-light text-white">Reset Application?</h3>
-                <p className="text-sm text-gray-500 font-light">This will permanently delete all your custom exercises, favorites, and statistics. This cannot be undone.</p>
+                <p className="text-sm text-gray-500 font-light leading-relaxed">This will permanently delete all your custom exercises, favorites, and statistics. This cannot be undone.</p>
               </div>
               <div className="flex flex-col gap-3 pt-4">
-                <button 
+                <button
                   onClick={onResetData}
-                  className="w-full h-14 rounded-2xl bg-red-500 text-white font-bold text-sm uppercase tracking-widest shadow-lg shadow-red-500/20"
+                  className="w-full h-14 rounded-2xl bg-red-500 text-white font-bold text-sm uppercase tracking-widest shadow-lg shadow-red-500/20 active:scale-95 transition-all"
                 >
                   Confirm Delete
                 </button>
-                <button 
+                <button
                   onClick={() => setShowResetConfirm(false)}
-                  className="w-full h-14 rounded-2xl bg-white/5 text-gray-400 font-bold text-sm uppercase tracking-widest"
+                  className="w-full h-14 rounded-2xl bg-white/5 text-gray-400 font-bold text-sm uppercase tracking-widest active:scale-95 transition-all"
                 >
                   Cancel
                 </button>
