@@ -25,11 +25,11 @@ export function BreathingExercise() {
   const [activeTab, setActiveTab] = useState<TabType>('explore');
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
   const [sessionResults, setSessionResults] = useState<{ duration: number; cycles: number } | null>(null);
-  
-  const { 
+
+  const {
     customExercises, favorites, sessions, stats, customGoals,
     toggleFavorite, deleteExercise, addExercise, recordSession, addCustomGoal, deleteCustomGoal,
-    userName, updateUserName, clearAllData 
+    userName, updateUserName, clearAllData
   } = useLibrary();
 
   useEffect(() => {
@@ -71,10 +71,10 @@ export function BreathingExercise() {
           {view === 'home' && (
             <div key="home-tabs" className="w-full">
               {activeTab === 'explore' && (
-                <ExploreView 
-                  key="explore" 
-                  onStart={handleStart} 
-                  onDetails={handleDetails} 
+                <ExploreView
+                  key="explore"
+                  onStart={handleStart}
+                  onDetails={handleDetails}
                   customExercises={customExercises}
                   favorites={favorites}
                   onToggleFavorite={toggleFavorite}
@@ -82,7 +82,7 @@ export function BreathingExercise() {
                 />
               )}
               {activeTab === 'library' && (
-                <LibraryView 
+                <LibraryView
                   key="library"
                   onStart={handleStart}
                   onDetails={handleDetails}
@@ -94,7 +94,7 @@ export function BreathingExercise() {
                 />
               )}
               {activeTab === 'achievements' && (
-                <AchievementsView 
+                <AchievementsView
                   key="achievements"
                   stats={stats}
                   customGoals={customGoals}
@@ -104,16 +104,16 @@ export function BreathingExercise() {
                 />
               )}
               {activeTab === 'journal' && (
-                <JournalView 
+                <JournalView
                   key="journal"
                   sessions={sessions}
                   stats={stats}
                 />
               )}
               {activeTab === 'profile' && (
-                <ProfileView 
-                  key="profile" 
-                  stats={stats} 
+                <ProfileView
+                  key="profile"
+                  stats={stats}
                   userName={userName}
                   onUpdateName={updateUserName}
                   onResetData={clearAllData}
@@ -122,32 +122,32 @@ export function BreathingExercise() {
             </div>
           )}
           {view === 'builder' && (
-            <CustomBuilder 
+            <CustomBuilder
               key="builder"
-              onBack={() => setView('home')} 
-              onSave={(ex) => { addExercise(ex); setView('home'); setActiveTab('library'); }} 
+              onBack={() => setView('home')}
+              onSave={(ex) => { addExercise(ex); setView('home'); setActiveTab('library'); }}
             />
           )}
           {view === 'setup' && selectedExercise && (
-            <SessionSetup 
-              key="setup" 
-              exercise={selectedExercise} 
-              onBack={handleBack} 
-              onConfirm={handleConfirmSetup} 
+            <SessionSetup
+              key="setup"
+              exercise={selectedExercise}
+              onBack={handleBack}
+              onConfirm={handleConfirmSetup}
             />
           )}
           {view === 'exercise' && selectedExercise && sessionConfig && (
-            <ExerciseView 
-              key="exercise" 
-              exercise={selectedExercise} 
+            <ExerciseView
+              key="exercise"
+              exercise={selectedExercise}
               config={sessionConfig}
-              onBack={() => setView('setup')} 
+              onBack={() => setView('setup')}
               onComplete={handleComplete}
-              onRecordSession={recordSession} 
+              onRecordSession={recordSession}
             />
           )}
           {view === 'complete' && selectedExercise && sessionResults && (
-            <SessionComplete 
+            <SessionComplete
               key="complete"
               exercise={selectedExercise}
               duration={sessionResults.duration}
