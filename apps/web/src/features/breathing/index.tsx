@@ -28,7 +28,8 @@ export function BreathingExercise() {
   
   const { 
     customExercises, favorites, sessions, stats, customGoals,
-    toggleFavorite, deleteExercise, addExercise, recordSession, addCustomGoal, deleteCustomGoal 
+    toggleFavorite, deleteExercise, addExercise, recordSession, addCustomGoal, deleteCustomGoal,
+    userName, updateUserName, clearAllData 
   } = useLibrary();
 
   useEffect(() => {
@@ -110,7 +111,13 @@ export function BreathingExercise() {
                 />
               )}
               {activeTab === 'profile' && (
-                <ProfileView key="profile" stats={stats} />
+                <ProfileView 
+                  key="profile" 
+                  stats={stats} 
+                  userName={userName}
+                  onUpdateName={updateUserName}
+                  onResetData={clearAllData}
+                />
               )}
             </div>
           )}
