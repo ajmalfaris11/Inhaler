@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Compass, Library, BarChart3, User } from 'lucide-react';
+import { Compass, Library, BarChart3, UserRound } from 'lucide-react';
 
 export type TabType = 'explore' | 'library' | 'achievements' | 'journal' | 'profile';
 
@@ -39,7 +39,7 @@ export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
     { id: 'library', icon: Library, label: 'Library' },
     { id: 'achievements', icon: TargetArrow, label: 'Goals' },
     { id: 'journal', icon: BarChart3, label: 'Journal' },
-    { id: 'profile', icon: User, label: 'Profile' },
+    { id: 'profile', icon: UserRound, label: 'Profile' },
   ];
 
   return (

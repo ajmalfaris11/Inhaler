@@ -3,8 +3,8 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  User,
-  Target,
+  UserRound, 
+  Target, 
   Zap as ZapIcon,
   Trophy,
   ChevronRight,
@@ -153,7 +153,7 @@ export function ProfileView({
               {userAvatar ? (
                 <img src={userAvatar} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <User size={64} className="text-white/40" />
+                <UserRound size={80} strokeWidth={1} className="text-white/20" />
               )}
 
               {/* Tap Overlay */}
@@ -260,6 +260,15 @@ export function ProfileView({
               </div>
 
               <div className="grid grid-cols-3 gap-6 pt-2">
+                <div className="flex flex-col items-center gap-3">
+                  <button 
+                    onClick={() => { onUpdateAvatar(null); setIsSelectingAvatar(false); }}
+                    className={`w-full aspect-square rounded-[24px] border-2 flex items-center justify-center transition-all ${!userAvatar ? 'border-white bg-white/10' : 'border-white/5 bg-white/5 opacity-40 hover:opacity-100'}`}
+                  >
+                    <UserRound size={48} strokeWidth={1} className={!userAvatar ? 'text-white' : 'text-white/20'} />
+                  </button>
+                  <span className={`text-[8px] uppercase tracking-widest font-black ${!userAvatar ? 'text-white' : 'text-gray-600'}`}>Default</span>
+                </div>
                 {suggestedAvatars.map((avatar) => (
                   <div key={avatar.id} className="flex flex-col items-center gap-3">
                     <button
