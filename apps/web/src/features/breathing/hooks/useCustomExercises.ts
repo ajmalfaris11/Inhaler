@@ -29,6 +29,7 @@ export function useLibrary() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [sessions, setSessions] = useState<{ exerciseId: string; date: string; duration: number }[]>([]);
   const [customGoals, setCustomGoals] = useState<CustomGoal[]>([]);
+  const [userName, setUserName] = useState('Zen Practitioner');
 
   useEffect(() => {
     const savedCustom = localStorage.getItem(STORAGE_KEY);
@@ -50,6 +51,9 @@ export function useLibrary() {
     if (savedGoals) {
       try { setCustomGoals(JSON.parse(savedGoals)); } catch (e) {}
     }
+
+    const savedName = localStorage.getItem('inhale_user_name');
+    if (savedName) setUserName(savedName);
   }, []);
 
   const addExercise = (exercise: Exercise) => {
@@ -90,6 +94,16 @@ export function useLibrary() {
     const updated = customGoals.filter(g => g.id !== id);
     setCustomGoals(updated);
     localStorage.setItem('inhale_custom_goals', JSON.stringify(updated));
+  };
+
+  const updateUserName = (name: string) => {
+    setUserName(name);
+    localStorage.setItem('inhale_user_name', name);
+  };
+
+  const clearAllData = () => {
+    localStorage.clear();
+    window.location.reload();
   };
 
   const calculateStats = () => {
@@ -225,6 +239,9 @@ export function useLibrary() {
     toggleFavorite,
     recordSession,
     addCustomGoal,
-    deleteCustomGoal
+    deleteCustomGoal,
+    userName,
+    updateUserName,
+    clearAllData
   };
 }
