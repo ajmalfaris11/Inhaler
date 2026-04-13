@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Compass, Settings, Play, Sparkles, Trophy, Zap } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Sparkles, Zap, Sunrise, Moon, Brain, Wind } from 'lucide-react';
 import { Exercise, exercises } from '../data';
 import { ExerciseCard } from './ExerciseCard';
 
@@ -27,7 +27,102 @@ export function ExploreView({
   onToggleFavorite,
   stats
 }: ExploreViewProps) {
-  const featuredExercise = exercises[0]; // Box Breathing as featured
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const cycleTime = 5000;
+
+  const heroSlides = useMemo(() => {
+    const hour = new Date().getHours();
+    const slides = [];
+
+    if (hour >= 5 && hour < 12) {
+      slides.push({
+        id: 'time-morning',
+        exercise: exercises.find(e => e.id === 'box') || exercises[0],
+        title: "Morning Focus",
+        subtitle: "Kickstart your day with clarity.",
+        label: "Recommended for Morning",
+        icon: Sunrise,
+        color: "text-orange-400",
+        bg: "from-orange-500/20 to-transparent"
+      });
+    } else if (hour >= 12 && hour < 18) {
+      slides.push({
+        id: 'time-afternoon',
+        exercise: exercises.find(e => e.id === 'equal') || exercises[2],
+        title: "Afternoon Balance",
+        subtitle: "Maintain focus and reduce stress.",
+        label: "Recommended for Afternoon",
+        icon: Sparkles,
+        color: "text-emerald-400",
+        bg: "from-emerald-500/20 to-transparent"
+      });
+    } else {
+      slides.push({
+        id: 'time-evening',
+        exercise: exercises.find(e => e.id === '478') || exercises[1],
+        title: "Evening Calm",
+        subtitle: "Prepare your mind for deep rest.",
+        label: "Recommended for Evening",
+        icon: Moon,
+        color: "text-indigo-400",
+        bg: "from-indigo-500/20 to-transparent"
+      });
+    }
+
+    slides.push({
+      id: 'feat-brain',
+      exercise: exercises.find(e => e.id === 'box') || exercises[0],
+      title: "Mental Edge",
+      subtitle: "Optimize cognitive performance.",
+      label: "Scientific Choice",
+      icon: Brain,
+      color: "text-purple-400",
+      bg: "from-purple-500/20 to-transparent"
+    });
+
+    slides.push({
+      id: 'feat-deep',
+      exercise: exercises.find(e => e.id === '478') || exercises[1],
+      title: "Deep Presence",
+      subtitle: "Go beyond the surface level.",
+      label: "Mastery Class",
+      icon: Wind,
+      color: "text-blue-400",
+      bg: "from-blue-500/20 to-transparent"
+    });
+
+    return slides;
+  }, []);
+
+  useEffect(() => {
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const newProgress = (elapsed / cycleTime) * 100;
+      
+      if (newProgress >= 100) {
+        setProgress(0);
+        setHeroIndex((prev) => (prev + 1) % heroSlides.length);
+        clearInterval(interval);
+      } else {
+        setProgress(newProgress);
+      }
+    }, 16);
+
+    return () => clearInterval(interval);
+  }, [heroIndex, heroSlides.length]);
+
+  const handleManualNav = (dir: number) => {
+    setProgress(0);
+    if (dir > 0) {
+      setHeroIndex((prev) => (prev + 1) % heroSlides.length);
+    } else {
+      setHeroIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+    }
+  };
+
+  const activeSlide = heroSlides[heroIndex];
 
   return (
     <motion.div
@@ -53,41 +148,78 @@ export function ExploreView({
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="relative w-full rounded-[48px] overflow-hidden group">
-        <div 
-          className="absolute inset-0 opacity-20 blur-[80px] group-hover:opacity-30 transition-opacity duration-1000"
-          style={{ background: `linear-gradient(135deg, ${featuredExercise.gradient.start}, ${featuredExercise.gradient.end})` }}
-        />
-        
-        <div className="relative bg-white/[0.03] border border-white/[0.08] rounded-[48px] p-10 flex flex-col items-center text-center gap-6 overflow-hidden shadow-2xl">
-          <motion.div 
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            className="w-20 h-20 rounded-[28px] bg-white/[0.05] border border-white/10 flex items-center justify-center shadow-inner relative"
+      {/* Hero Section - Static Positioned Gestures (Pan-based navigation) */}
+      <section className="relative w-full h-[480px] rounded-[48px] overflow-hidden group bg-[#0D0D0D] touch-pan-y">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeSlide.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            onPanEnd={(_, info) => {
+              if (info.offset.x > 50) handleManualNav(-1);
+              else if (info.offset.x < -50) handleManualNav(1);
+            }}
+            className="absolute inset-0 bg-[#0D0D0D] border border-white/[0.08] rounded-[48px] p-12 flex flex-col items-center justify-center text-center gap-8 shadow-2xl overflow-hidden z-10"
           >
-            <Sparkles className="text-indigo-400" size={32} strokeWidth={1.5} />
-            <div className="absolute inset-0 blur-2xl bg-indigo-500/20 rounded-full" />
+            {/* Background Glow */}
+            <div 
+              className={`absolute inset-0 opacity-30 blur-[120px] transition-all duration-1000 bg-gradient-to-br ${activeSlide.bg}`}
+            />
+
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className={`w-28 h-28 rounded-[36px] bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-inner relative z-10 ${activeSlide.color}`}
+            >
+              <activeSlide.icon size={48} strokeWidth={1.5} />
+              <div className="absolute inset-0 blur-3xl opacity-30 bg-current rounded-full" />
+            </motion.div>
+
+            <div className="space-y-4 relative z-10 pointer-events-none">
+              <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${activeSlide.color}`}>
+                {activeSlide.label}
+              </span>
+              <h2 className="text-4xl font-light text-white tracking-tight leading-tight">
+                {activeSlide.title}
+              </h2>
+              <p className="text-gray-400 text-sm font-light max-w-[300px] leading-relaxed mx-auto">
+                {activeSlide.subtitle}
+              </p>
+            </div>
+
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onStart(activeSlide.exercise);
+              }}
+              className="group relative h-16 px-12 rounded-full bg-white text-black font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-[0_25px_50px_rgba(255,255,255,0.15)] hover:scale-105 active:scale-95 transition-all mt-4 z-20"
+            >
+              <Play size={18} fill="currentColor" />
+              <span>Begin Session</span>
+            </button>
           </motion.div>
+        </AnimatePresence>
 
-          <div className="space-y-3">
-            <h2 className="text-4xl font-light text-white tracking-tight leading-tight">Master Your Breath</h2>
-            <p className="text-gray-400 text-sm font-light max-w-[280px] leading-relaxed mx-auto">
-              Synchronize your mind and body with professional breathing techniques.
-            </p>
-          </div>
-
-          <button 
-            onClick={() => onStart(featuredExercise)}
-            className="h-16 px-10 rounded-full bg-white text-black font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(255,255,255,0.15)] hover:scale-105 active:scale-95 transition-all mt-4"
-          >
-            <Play size={18} fill="currentColor" />
-            Quick Start
-          </button>
-
-          {/* Decorative Elements */}
-          <div className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full bg-indigo-500/10 blur-3xl" />
-          <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-purple-500/10 blur-3xl" />
+        {/* Persistent Activation Signal Container */}
+        <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3 z-40 pointer-events-none">
+          {heroSlides.map((_, i) => (
+            <div 
+              key={i} 
+              className={`relative h-1.5 rounded-full bg-white/10 overflow-hidden transition-all duration-500 ${heroIndex === i ? 'w-20' : 'w-5'}`}
+            >
+              {heroIndex === i && (
+                <motion.div 
+                  className="absolute inset-y-0 left-0 bg-white"
+                  initial={false}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ ease: "linear", duration: 0.016 }}
+                />
+              )}
+            </div>
+          ))}
         </div>
       </section>
       
@@ -114,7 +246,7 @@ export function ExploreView({
         </div>
       )}
 
-      {/* Global Section */}
+      {/* Global Collection */}
       <div className="space-y-6">
         <div className="flex justify-between items-center px-1">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Global Collection</span>
