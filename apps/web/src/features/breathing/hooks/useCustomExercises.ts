@@ -30,6 +30,7 @@ export function useLibrary() {
   const [sessions, setSessions] = useState<{ exerciseId: string; date: string; duration: number }[]>([]);
   const [customGoals, setCustomGoals] = useState<CustomGoal[]>([]);
   const [userName, setUserName] = useState('Zen Practitioner');
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
   useEffect(() => {
     const savedCustom = localStorage.getItem(STORAGE_KEY);
@@ -54,6 +55,9 @@ export function useLibrary() {
 
     const savedName = localStorage.getItem('inhale_user_name');
     if (savedName) setUserName(savedName);
+
+    const savedAvatar = localStorage.getItem('inhale_user_avatar');
+    if (savedAvatar) setUserAvatar(savedAvatar);
   }, []);
 
   const addExercise = (exercise: Exercise) => {
@@ -99,6 +103,12 @@ export function useLibrary() {
   const updateUserName = (name: string) => {
     setUserName(name);
     localStorage.setItem('inhale_user_name', name);
+  };
+
+  const updateAvatar = (avatar: string | null) => {
+    setUserAvatar(avatar);
+    if (avatar) localStorage.setItem('inhale_user_avatar', avatar);
+    else localStorage.removeItem('inhale_user_avatar');
   };
 
   const clearAllData = () => {
@@ -241,7 +251,9 @@ export function useLibrary() {
     addCustomGoal,
     deleteCustomGoal,
     userName,
+    userAvatar,
     updateUserName,
+    updateAvatar,
     clearAllData
   };
 }
