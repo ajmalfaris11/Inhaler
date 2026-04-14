@@ -310,6 +310,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
     2: 'bg-indigo-700 border-indigo-400/20',
     3: 'bg-indigo-500 border-indigo-300/30',
     4: 'bg-indigo-400 border-indigo-200/40',
+    5: 'bg-indigo-400 border-indigo-100/50',
     '-1': 'bg-transparent border-white/[0.05] pointer-events-none'
   };
 
