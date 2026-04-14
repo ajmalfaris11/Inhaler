@@ -3,8 +3,8 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  UserRound, 
-  Target, 
+  UserRound,
+  Target,
   Zap as ZapIcon,
   Trophy,
   ChevronRight,
@@ -19,7 +19,10 @@ import {
   Camera,
   Sparkles,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Heart,
+  Smartphone,
+  ChevronLeft
 } from 'lucide-react';
 
 interface ProfileViewProps {
@@ -35,6 +38,8 @@ interface ProfileViewProps {
   onResetData: () => void;
 }
 
+type SettingsType = 'notifications' | 'privacy' | 'goal' | 'about' | 'none';
+
 export function ProfileView({
   stats,
   userName,
@@ -47,6 +52,8 @@ export function ProfileView({
   const [isSelectingAvatar, setIsSelectingAvatar] = useState(false);
   const [tempName, setTempName] = useState(userName);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [activeSettings, setActiveSettings] = useState<SettingsType>('none');
+  const [dailyGoal, setDailyGoal] = useState(15);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveName = () => {
@@ -91,7 +98,6 @@ export function ProfileView({
           base64 = canvas.toDataURL('image/jpeg', quality);
         }
 
-        // This will update the local storage and state via the hook
         onUpdateAvatar(base64);
         setIsSelectingAvatar(false);
       };
@@ -112,19 +118,120 @@ export function ProfileView({
     {
       title: 'Preferences',
       items: [
-        { icon: Bell, label: 'Notifications', value: 'Morning Mindful', color: 'bg-blue-500' },
-        { icon: Shield, label: 'Privacy & Health', value: 'Connected', color: 'bg-emerald-500' },
-        { icon: Target, label: 'Daily Goal', value: '15 Minutes', color: 'bg-orange-500' },
+        { id: 'notifications' as SettingsType, icon: Bell, label: 'Notifications', value: 'Morning Mindful', color: 'bg-blue-500' },
+        { id: 'privacy' as SettingsType, icon: Shield, label: 'Privacy & Health', value: 'Connected', color: 'bg-emerald-500' },
+        { id: 'goal' as SettingsType, icon: Target, label: 'Daily Goal', value: `${dailyGoal} Minutes`, color: 'bg-orange-500' },
       ]
     },
     {
       title: 'Support',
       items: [
-        { icon: Info, label: 'About Inhale', value: 'v1.4.2', color: 'bg-purple-500' },
-        { icon: ExternalLink, label: 'Resource Center', color: 'bg-gray-500' },
+        { id: 'about' as SettingsType, icon: Info, label: 'About Inhale', value: 'v1.4.2', color: 'bg-purple-500' },
+        { id: 'none' as SettingsType, icon: ExternalLink, label: 'Resource Center', color: 'bg-gray-500', isExternal: true },
       ]
     }
   ];
+
+  const renderSettingsContent = () => {
+    switch (activeSettings) {
+      case 'notifications':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-light text-white">Daily Reminder</span>
+                <div className="w-12 h-6 bg-indigo-500 rounded-full flex items-center px-1">
+                  <div className="w-4 h-4 bg-white rounded-full ml-auto" />
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Scheduled for 08:30 AM</p>
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-[10px] uppercase tracking-widest font-bold text-gray-600 px-2">Recent Alerts</h4>
+              <p className="text-sm text-gray-500 px-2 italic font-light">No new notifications</p>
+            </div>
+          </div>
+        );
+      case 'privacy':
+        return (
+          <div className="space-y-6">
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-3xl p-6 flex items-center gap-4">
+              <Shield className="text-emerald-400" size={24} />
+              <div>
+                <h4 className="text-sm font-medium text-white">Local-First Storage</h4>
+                <p className="text-xs text-emerald-400/70">Your data never leaves this device.</p>
+              </div>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-light text-white">Biometric Lock</span>
+                <div className="w-12 h-6 bg-white/10 rounded-full flex items-center px-1">
+                  <div className="w-4 h-4 bg-gray-500 rounded-full" />
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-500 leading-relaxed uppercase tracking-widest font-bold">Secure your session history with FaceID or TouchID</p>
+            </div>
+          </div>
+        );
+      case 'goal':
+        return (
+          <div className="space-y-8 py-4">
+            <div className="text-center space-y-2">
+              <span className="text-5xl font-light text-white tracking-tighter">{dailyGoal}</span>
+              <p className="text-sm text-indigo-400 font-medium uppercase tracking-widest">Minutes Per Day</p>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="60"
+              step="5"
+              value={dailyGoal}
+              onChange={(e) => setDailyGoal(parseInt(e.target.value))}
+              className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-indigo-500"
+            />
+            <div className="flex justify-between text-[10px] font-black text-gray-600 uppercase tracking-widest px-1">
+              <span>5m</span>
+              <span>30m</span>
+              <span>60m</span>
+            </div>
+            <button
+              onClick={() => setActiveSettings('none')}
+              className="w-full h-14 rounded-2xl bg-white text-black font-bold text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all mt-4"
+            >
+              Update Goal
+            </button>
+          </div>
+        );
+      case 'about':
+        return (
+          <div className="space-y-8">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-20 h-20 rounded-[28px] bg-gradient-to-br from-indigo-500 to-emerald-500 p-0.5 shadow-2xl">
+                <div className="w-full h-full rounded-[26px] bg-[#0D0D0D] flex items-center justify-center overflow-hidden">
+                  <ZapIcon size={32} className="text-white" />
+                </div>
+              </div>
+              <div className="text-center">
+                <h4 className="text-xl font-light text-white tracking-tight">Inhale Premium</h4>
+                <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] font-bold mt-1">Version 1.4.2</p>
+              </div>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-[32px] p-6 space-y-4">
+              <div className="flex items-center gap-4">
+                <Heart size={18} className="text-red-400" />
+                <span className="text-sm font-light text-white/80">Made with love in California</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <Smartphone size={18} className="text-blue-400" />
+                <span className="text-sm font-light text-white/80">Built for iOS & Android PWA</span>
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <motion.div
@@ -146,7 +253,7 @@ export function ProfileView({
         <div className="relative group">
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="w-50 h-50 rounded-full bg-gradient-to-br from-white/10 to-white/5 p-1 mb-6 shadow-2xl relative overflow-hidden cursor-pointer"
+            className="w-40 h-40 rounded-full bg-gradient-to-br from-white/10 to-white/5 p-1 mb-6 shadow-2xl relative overflow-hidden cursor-pointer"
             onClick={() => setIsSelectingAvatar(true)}
           >
             <div className="w-full h-full rounded-full bg-[#0D0D0D] flex items-center justify-center border border-white/10 overflow-hidden relative">
@@ -156,7 +263,6 @@ export function ProfileView({
                 <UserRound size={80} strokeWidth={1} className="text-white/20" />
               )}
 
-              {/* Tap Overlay */}
               <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Camera size={32} className="text-white mb-1" />
                 <span className="text-[10px] uppercase tracking-widest font-black text-white">Update Image</span>
@@ -166,7 +272,7 @@ export function ProfileView({
           </motion.div>
 
           <button
-            className="absolute bottom-10 right-1 w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all z-20 border-4 border-[#0D0D0D]"
+            className="absolute bottom-8 right-1 w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all z-20 border-4 border-[#0D0D0D]"
             onClick={() => setIsEditingName(true)}
           >
             <Edit2 size={16} />
@@ -260,15 +366,6 @@ export function ProfileView({
               </div>
 
               <div className="grid grid-cols-3 gap-6 pt-2">
-                <div className="flex flex-col items-center gap-3">
-                  <button 
-                    onClick={() => { onUpdateAvatar(null); setIsSelectingAvatar(false); }}
-                    className={`w-full aspect-square rounded-[24px] border-2 flex items-center justify-center transition-all ${!userAvatar ? 'border-white bg-white/10' : 'border-white/5 bg-white/5 opacity-40 hover:opacity-100'}`}
-                  >
-                    <UserRound size={48} strokeWidth={1} className={!userAvatar ? 'text-white' : 'text-white/20'} />
-                  </button>
-                  <span className={`text-[8px] uppercase tracking-widest font-black ${!userAvatar ? 'text-white' : 'text-gray-600'}`}>Default</span>
-                </div>
                 {suggestedAvatars.map((avatar) => (
                   <div key={avatar.id} className="flex flex-col items-center gap-3">
                     <button
@@ -290,6 +387,55 @@ export function ProfileView({
               <div className="pt-4 border-t border-white/5">
                 <p className="text-[9px] text-gray-500 font-medium text-center uppercase tracking-[0.2em] leading-relaxed">
                   Your identity is stored locally on your device for maximum privacy.
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Settings Modal (Universal) */}
+      <AnimatePresence>
+        {activeSettings !== 'none' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex items-center justify-center px-8"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-[#0D0D0D] border border-white/10 p-10 rounded-[48px] w-full max-w-md space-y-8 shadow-2xl"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setActiveSettings('none')}
+                    className="w-10 h-10 rounded-full bg-white/5 text-gray-500 flex items-center justify-center hover:text-white transition-colors"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <div className="space-y-1">
+                    <h3 className="text-2xl font-light text-white tracking-tight capitalize">{activeSettings}</h3>
+                    <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-600">Configuration</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setActiveSettings('none')}
+                  className="w-10 h-10 rounded-full bg-white/5 text-gray-500 flex items-center justify-center hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="min-h-[200px]">
+                {renderSettingsContent()}
+              </div>
+
+              <div className="pt-4 border-t border-white/5">
+                <p className="text-[9px] text-gray-500 font-medium text-center uppercase tracking-[0.2em] leading-relaxed">
+                  Preferences are applied instantly and saved to your device.
                 </p>
               </div>
             </motion.div>
@@ -326,6 +472,7 @@ export function ProfileView({
               {group.items.map((item, idx) => (
                 <button
                   key={item.label}
+                  onClick={() => item.id !== 'none' && setActiveSettings(item.id)}
                   className={`w-full flex items-center justify-between px-8 py-6 hover:bg-white/[0.03] transition-all group/item ${idx !== group.items.length - 1 ? 'border-b border-white/[0.03]' : ''}`}
                 >
                   <div className="flex items-center gap-4">
