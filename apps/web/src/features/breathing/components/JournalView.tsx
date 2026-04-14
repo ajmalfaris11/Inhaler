@@ -136,7 +136,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
       </div>
 
       {/* Contribution Heatmap Card */}
-      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl relative overflow-hidden group">
+      <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-5 shadow-2xl relative overflow-hidden group">
         <div className="flex justify-between items-center mb-8 px-1">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Yearly Activity</span>
           <div className="flex items-center gap-2">
