@@ -175,30 +175,61 @@ export function ProfileView({
         );
       case 'goal':
         return (
-          <div className="space-y-8 py-4">
-            <div className="text-center space-y-2">
-              <span className="text-5xl font-light text-white tracking-tighter">{dailyGoal}</span>
-              <p className="text-sm text-indigo-400 font-medium uppercase tracking-widest">Minutes Per Day</p>
+          <div className="space-y-12 py-6">
+            <div className="text-center space-y-3">
+              <motion.div 
+                key={dailyGoal}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="inline-block"
+              >
+                <span className="text-7xl font-light text-white tracking-tighter tabular-nums">{dailyGoal}</span>
+              </motion.div>
+              <p className="text-[10px] text-indigo-400 font-black uppercase tracking-[0.3em]">Minutes Per Day</p>
             </div>
-            <input
-              type="range"
-              min="5"
-              max="60"
-              step="5"
-              value={dailyGoal}
-              onChange={(e) => setDailyGoal(parseInt(e.target.value))}
-              className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-indigo-500"
-            />
-            <div className="flex justify-between text-[10px] font-black text-gray-600 uppercase tracking-widest px-1">
-              <span>5m</span>
-              <span>30m</span>
-              <span>60m</span>
+
+            <div className="relative px-2">
+              {/* Custom Track Background */}
+              <div className="absolute top-1/2 -translate-y-1/2 left-2 right-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-gradient-to-r from-indigo-500 to-indigo-300"
+                  animate={{ width: `${((dailyGoal - 5) / (60 - 5)) * 100}%` }}
+                />
+              </div>
+              
+              {/* Actual Range Input (Hidden Thumb, transparent track) */}
+              <input
+                type="range"
+                min="5"
+                max="60"
+                step="5"
+                value={dailyGoal}
+                onChange={(e) => setDailyGoal(parseInt(e.target.value))}
+                className="relative w-full h-10 appearance-none bg-transparent cursor-pointer z-10
+                  [&::-webkit-slider-thumb]:appearance-none
+                  [&::-webkit-slider-thumb]:w-8
+                  [&::-webkit-slider-thumb]:h-8
+                  [&::-webkit-slider-thumb]:rounded-full
+                  [&::-webkit-slider-thumb]:bg-white
+                  [&::-webkit-slider-thumb]:shadow-[0_0_20px_rgba(255,255,255,0.4)]
+                  [&::-webkit-slider-thumb]:border-4
+                  [&::-webkit-slider-thumb]:border-indigo-600
+                  [&::-webkit-slider-thumb]:transition-all
+                  [&::-webkit-slider-thumb]:active:scale-125"
+              />
+
+              <div className="flex justify-between text-[8px] font-black text-gray-700 uppercase tracking-[0.2em] mt-4 px-1">
+                <span>5m</span>
+                <span className="text-gray-500">30m</span>
+                <span>60m</span>
+              </div>
             </div>
+
             <button
               onClick={() => setActiveSettings('none')}
-              className="w-full h-14 rounded-2xl bg-white text-black font-bold text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all mt-4"
+              className="w-full h-16 rounded-[28px] bg-white text-black font-black text-[10px] uppercase tracking-[0.3em] shadow-[0_20px_40px_rgba(255,255,255,0.05)] active:scale-95 transition-all mt-4"
             >
-              Update Goal
+              Set New Goal
             </button>
           </div>
         );

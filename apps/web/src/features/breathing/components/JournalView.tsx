@@ -391,9 +391,13 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: (wi * 7 + di) * 0.0005 }}
-                        className={`w-3.5 h-3.5 rounded-[4px] border transition-all hover:scale-125 hover:z-10 ${levelColors[day.level]}`}
+                        className={`w-3.5 h-3.5 rounded-[5px] border-[0.5px] transition-all hover:scale-150 hover:z-50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] ${levelColors[day.level]} relative overflow-hidden`}
                         title={day.date ? `${day.date}: ${Math.floor(day.duration / 60)} min` : undefined}
-                      />
+                      >
+                        {day.level > 0 && (
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
+                        )}
+                      </motion.div>
                     ))}
                   </div>
                 ))}
