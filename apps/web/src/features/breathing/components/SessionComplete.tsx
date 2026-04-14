@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { Trophy, Clock, Zap, Target, Home, RotateCcw } from 'lucide-react';
+import { Trophy, Clock, Zap, Home, RotateCcw, TrendingUp } from 'lucide-react';
 import { Exercise } from '../data';
 
 interface SessionCompleteProps {
@@ -13,6 +13,71 @@ interface SessionCompleteProps {
   onHome: () => void;
   onRestart: () => void;
 }
+
+const HealthSparkline = () => {
+  // Mock trend data for visualization
+  const data = [20, 35, 25, 45, 40, 65, 55, 80];
+  const points = data.map((d, i) => `${(i / (data.length - 1)) * 100},${100 - d}`).join(' ');
+
+  return (
+    <div className="w-full bg-white/[0.03] border border-white/5 rounded-[32px] p-6 space-y-4">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+            <TrendingUp size={16} className="text-emerald-400" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase tracking-widest font-black text-gray-500">Health Index</span>
+            <span className="text-sm font-light text-white">+12% Improvement</span>
+          </div>
+        </div>
+        <div className="text-right">
+          <span className="text-lg font-light text-white tracking-tight">84.2</span>
+        </div>
+      </div>
+      
+      <div className="h-16 w-full relative group">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
+          <defs>
+            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
+              <stop offset="50%" stopColor="#10b981" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="1" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <motion.polyline
+            fill="none"
+            stroke="url(#lineGradient)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            points={points}
+            filter="url(#glow)"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 2, ease: "easeInOut" }}
+          />
+          {/* Subtle area fill */}
+          <motion.path
+            d={`M 0 100 L ${points} L 100 100 Z`}
+            fill="url(#lineGradient)"
+            className="opacity-[0.05]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.05 }}
+            transition={{ delay: 1 }}
+          />
+        </svg>
+      </div>
+    </div>
+  );
+};
 
 export function SessionComplete({ exercise, duration, cycles, onHome, onRestart }: SessionCompleteProps) {
   const stats = [
@@ -28,86 +93,75 @@ export function SessionComplete({ exercise, duration, cycles, onHome, onRestart 
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black z-[300] flex flex-col items-center justify-center p-6 overflow-y-auto scrollbar-hide"
     >
-      <div className="max-w-[480px] w-full space-y-10 py-10">
+      <div className="max-w-[480px] w-full space-y-8 py-10">
         {/* Lottie Celebration */}
         <div className="relative h-64 flex items-center justify-center">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent pointer-events-none" />
           <DotLottieReact
-            src="https://lottie.host/801a615e-49b8-4c28-9840-7e47268d0d6d/m0a6wMvA8A.json"
-            loop
+            src="https://lottie.host/8e6c46a6-f286-4f40-8b65-63567840139b/1O4FfO6lG1.lottie"
+            loop={false}
             autoplay
-            style={{ width: '300px', height: '300px' }}
+            className="w-full h-full scale-125"
           />
-        </div>
-
-        {/* Success Message */}
-        <div className="text-center space-y-3">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h2 className="text-4xl font-light text-white tracking-tight">Well Done!</h2>
-            <p className="text-gray-500 text-sm uppercase tracking-[0.3em] mt-2 font-bold">Session Completed</p>
-          </motion.div>
+          <div className="absolute bottom-4 flex flex-col items-center space-y-1">
+            <div className="w-12 h-12 rounded-full bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-2">
+              <Trophy className="text-white" size={24} />
+            </div>
+            <h2 className="text-2xl font-light text-white tracking-tight">Session Complete</h2>
+            <p className="text-[10px] text-gray-500 uppercase tracking-[0.4em] font-bold">{exercise.name} Mastery</p>
+          </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5 + (i * 0.1) }}
-              className="bg-white/[0.03] border border-white/[0.05] rounded-[32px] p-6 flex items-center justify-between shadow-xl"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 + 0.5 }}
+              className="bg-white/[0.03] border border-white/5 rounded-[28px] p-4 flex flex-col items-center text-center space-y-2"
             >
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center ${stat.color}`}>
-                  <stat.icon size={22} />
-                </div>
-                <span className="text-gray-400 font-light text-sm">{stat.label}</span>
+              <stat.icon className={stat.color} size={16} />
+              <div className="space-y-0.5">
+                <p className="text-lg font-light text-white">{stat.value}</p>
+                <p className="text-[8px] text-gray-500 uppercase tracking-widest font-bold leading-none">{stat.label}</p>
               </div>
-              <span className="text-2xl font-light text-white">{stat.value}</span>
             </motion.div>
           ))}
         </div>
 
-        {/* Achievements / Level Up Concept */}
+        {/* Health Improvement Line Graph */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-[40px] p-8 flex flex-col items-center text-center gap-4"
         >
-          <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-            <Trophy size={24} />
-          </div>
-          <div className="space-y-1">
-            <h4 className="text-white font-medium">Daily Streak Maintained</h4>
-            <p className="text-xs text-indigo-300/60 leading-relaxed font-light">
-              You've completed your practice today. Keep going to reach your weekly mindfulness goal.
-            </p>
-          </div>
+          <HealthSparkline />
         </motion.div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-4 pt-4">
-          <button 
-            onClick={onHome}
-            className="w-full h-18 rounded-[30px] bg-white text-black font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 shadow-2xl"
-          >
-            <Home size={20} />
-            Back to Home
-          </button>
-          
-          <button 
+        {/* Actions */}
+        <div className="flex flex-col gap-3 pt-4">
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
             onClick={onRestart}
-            className="w-full h-18 rounded-[30px] bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-widest hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-4"
+            className="w-full h-16 rounded-[28px] bg-white text-black font-bold text-sm uppercase tracking-widest shadow-xl shadow-white/5 active:scale-95 transition-all flex items-center justify-center gap-3"
           >
             <RotateCcw size={18} />
-            Practice Again
-          </button>
+            Restart Session
+          </motion.button>
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+            onClick={onHome}
+            className="w-full h-16 rounded-[28px] bg-white/5 text-white/60 font-bold text-sm uppercase tracking-widest hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-3"
+          >
+            <Home size={18} />
+            Return Home
+          </motion.button>
         </div>
       </div>
     </motion.div>
