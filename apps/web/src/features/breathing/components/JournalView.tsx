@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, History, PieChart, Zap } from 'lucide-react';
+import { History, PieChart, Zap, Calendar } from 'lucide-react';
 import { exercises } from '../data';
 import { Badge } from '../hooks/useCustomExercises';
 
@@ -16,64 +16,113 @@ interface JournalViewProps {
   };
 }
 
-type TimeRange = 'week' | 'month' | 'year';
-
 export function JournalView({ sessions, stats }: JournalViewProps) {
-  const [range, setRange] = useState<TimeRange>('week');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to end on mount
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
+    }
+  }, []);
+
+  // Activity Map Helper
+  const activityMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    sessions.forEach(s => {
+      const dateKey = s.date.split('T')[0];
+      map[dateKey] = (map[dateKey] || 0) + s.duration;
+    });
+    return map;
+  }, [sessions]);
+
+  // Generate 52 weeks of data for the heatmap
+  const { weeks, monthLabels } = useMemo(() => {
+    const weeksList = [];
+    const months = [];
+    const now = new Date();
+
+    // Start from 51 weeks ago (most recent Sunday)
+    const startDate = new Date(now);
+    startDate.setDate(now.getDate() - now.getDay());
+    startDate.setDate(startDate.getDate() - (51 * 7));
+
+    let lastMonth = -1;
+
+    for (let w = 0; w < 52; w++) {
+      const weekDays = [];
+      const firstDayOfWeek = new Date(startDate);
+      firstDayOfWeek.setDate(startDate.getDate() + (w * 7));
+
+      // Check if this week starts a new month
+      const monthIndex = firstDayOfWeek.getMonth();
+      if (monthIndex !== lastMonth) {
+        months.push({
+          label: firstDayOfWeek.toLocaleDateString('en-US', { month: 'short' }),
+          index: w
+        });
+        lastMonth = monthIndex;
+      }
+
+      for (let d = 0; d < 7; d++) {
+        const targetDate = new Date(firstDayOfWeek);
+        targetDate.setDate(firstDayOfWeek.getDate() + d);
+
+        // Don't show future days (no border, no opacity)
+        if (targetDate > now) {
+          weekDays.push({ date: '', level: -1, duration: 0 });
+          continue;
+        }
+
+        const dateKey = targetDate.toISOString().split('T')[0];
+        const duration = activityMap[dateKey] || 0;
+
+        let level = 0;
+        if (duration > 0 && duration < 300) level = 1;
+        else if (duration >= 300 && duration < 900) level = 2;
+        else if (duration >= 900 && duration < 1800) level = 3;
+        else if (duration >= 1800) level = 4;
+
+        weekDays.push({ date: dateKey, level, duration });
+      }
+      weeksList.push(weekDays);
+    }
+    return { weeks: weeksList, monthLabels: months };
+  }, [activityMap]);
 
   const { modelBreakdown } = useMemo(() => {
     const breakdown: Record<string, number> = {};
     sessions.forEach(s => {
       breakdown[s.exerciseId] = (breakdown[s.exerciseId] || 0) + s.duration;
     });
-    const modelList = Object.entries(breakdown)
-      .map(([id, duration]) => ({
-        exercise: exercises.find(e => e.id === id) || exercises[0],
-        minutes: Math.floor(duration / 60),
-        duration
-      }))
-      .sort((a, b) => b.duration - a.duration);
-    return { modelBreakdown: modelList };
+    return {
+      modelBreakdown: Object.entries(breakdown)
+        .map(([id, duration]) => ({
+          exercise: exercises.find(e => e.id === id) || exercises[0],
+          minutes: Math.floor(duration / 60),
+          duration
+        }))
+        .sort((a, b) => b.duration - a.duration)
+    };
   }, [sessions]);
 
-  const graphData = useMemo(() => {
-    const data = [];
-    const now = new Date();
-    if (range === 'week') {
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
-        data.push({ label: days[d.getDay()], value: Math.floor(sessions.filter(s => s.date.startsWith(dateStr)).reduce((acc, s) => acc + s.duration, 0) / 60) });
-      }
-    } else if (range === 'month') {
-      for (let i = 3; i >= 0; i--) {
-        const start = new Date(now); start.setDate(start.getDate() - (i + 1) * 7);
-        const end = new Date(now); end.setDate(end.getDate() - i * 7);
-        data.push({ label: `W${4-i}`, value: Math.floor(sessions.filter(s => { const d = new Date(s.date); return d >= start && d < end; }).reduce((acc, s) => acc + s.duration, 0) / 60) });
-      }
-    } else {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(now); d.setMonth(d.getMonth() - i);
-        const m = d.getMonth();
-        data.push({ label: months[m], value: Math.floor(sessions.filter(s => { const sd = new Date(s.date); return sd.getMonth() === m && sd.getFullYear() === d.getFullYear(); }).reduce((acc, s) => acc + s.duration, 0) / 60) });
-      }
-    }
-    return data;
-  }, [range, sessions]);
-
-  const maxVal = Math.max(...graphData.map(d => d.value), 1);
-  const yAxisTicks = [Math.floor(maxVal), Math.floor(maxVal / 2), 0];
   const recentSessions = [...sessions].reverse().slice(0, 5);
+
+  const levelColors: Record<number, string> = {
+    0: 'bg-white/[0.03] border-transparent', // No border for inactive past days
+    1: 'bg-indigo-900 border-indigo-500/10',
+    2: 'bg-indigo-700 border-indigo-400/20',
+    3: 'bg-indigo-500 border-indigo-300/30',
+    4: 'bg-indigo-400 border-indigo-200/40',
+    '-1': 'bg-transparent border-white/[0.05] pointer-events-none' // Future days: completely invisible and no border
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="w-full space-y-6"
+      className="w-95 space-y-6"
     >
       {/* Header */}
       <div className="w-full flex justify-between items-start mb-2 px-1">
@@ -82,64 +131,84 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
           <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-bold">Progress Analytics</p>
         </div>
         <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
-          <BarChart3 size={20} />
+          <Calendar size={20} />
         </div>
       </div>
 
-      {/* Graphical Representation Card */}
+      {/* Contribution Heatmap Card */}
       <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl relative overflow-hidden group">
-        <div className="absolute inset-0 bg-indigo-500/[0.01] pointer-events-none" />
-        <div className="relative z-10">
-          <div className="flex justify-between items-center mb-12 px-1">
-            <div className="flex gap-1.5 bg-white/[0.03] p-1 rounded-[20px] border border-white/5">
-              {(['week', 'month', 'year'] as TimeRange[]).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setRange(r)}
-                  className={`px-5 py-2 rounded-[14px] text-[10px] font-black uppercase tracking-widest transition-all ${
-                    range === r ? 'bg-white text-black shadow-xl scale-105' : 'text-gray-500 hover:text-gray-300'
-                  }`}
-                >
-                  {r}
-                </button>
+        <div className="flex justify-between items-center mb-8 px-1">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Yearly Activity</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[8px] uppercase tracking-widest text-gray-700 font-bold">Less</span>
+            <div className="flex gap-1">
+              {[0, 1, 2, 3, 4].map(l => (
+                <div key={l} className={`w-2.5 h-2.5 rounded-sm ${levelColors[l]}`} />
               ))}
             </div>
-            <span className="text-[10px] text-gray-500 font-medium">Min / {range}</span>
+            <span className="text-[8px] uppercase tracking-widest text-gray-700 font-bold">More</span>
           </div>
-          <div className="flex h-56 relative">
-            <div className="flex flex-col justify-between pr-4 pb-12 text-[9px] font-black text-gray-700 uppercase tracking-widest h-full text-right w-10">
-              {yAxisTicks.map((tick, i) => (<span key={i}>{tick}m</span>))}
-            </div>
-            <div className="flex-1 flex flex-col h-full">
-              <div className="flex-1 flex items-end justify-between gap-1.5 relative">
-                <div className="absolute inset-x-0 top-0 h-px bg-white/[0.02]" />
-                <div className="absolute inset-x-0 top-1/2 h-px bg-white/[0.02]" />
-                {graphData.map((day, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group/bar">
-                    <div className="relative w-full flex flex-col items-center justify-end h-full">
-                      <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all bg-white text-black text-[10px] font-black px-3 py-2 rounded-2xl z-20 pointer-events-none whitespace-nowrap shadow-2xl scale-110">
-                        {day.value}m
-                      </div>
-                      <motion.div 
-                        initial={{ height: 0 }}
-                        animate={{ height: `${(day.value / maxVal) * 100}%` }}
-                        transition={{ type: 'spring', damping: 15 }}
-                        className={`w-full rounded-[14px] min-h-[6px] relative transition-all duration-700 ${day.value > 0 ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_15px_40px_rgba(99,102,241,0.4)]' : 'bg-white/[0.04]'}`}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between gap-1.5 pt-4">
-                {graphData.map((day, i) => (
-                  <div key={i} className="flex-1 text-center">
-                    <span className={`text-[10px] font-black uppercase tracking-[0.1em] ${day.value > 0 ? 'text-white/90' : 'text-gray-800'}`}>
-                      {day.label[0]}
+        </div>
+
+        <div className="relative">
+          <div
+            ref={scrollContainerRef}
+            className="overflow-x-auto pb-4 scrollbar-hide flex gap-4 mask-fade-edges"
+          >
+            {/* Day Labels (Side) */}
+            <div className="grid grid-rows-7 gap-1.5 pt-6 pr-1 sticky left-0 bg-[#0D0D0D] z-20">
+              {[0, 1, 2, 3, 4, 5, 6].map(d => (
+                <div key={d} className="h-3.5 flex items-center justify-end">
+                  {[1, 3, 5].includes(d) && (
+                    <span className="text-[8px] font-black uppercase tracking-tighter text-gray-700 mr-1">
+                      {['Mon', 'Wed', 'Fri'][Math.floor(d / 2)]}
                     </span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Heatmap Grid with Month Labels (Top) */}
+            <div className="flex flex-col gap-2">
+              <div className="h-4 relative">
+                {monthLabels.map((m, i) => (
+                  <span
+                    key={i}
+                    className="absolute text-[8px] font-black uppercase tracking-widest text-gray-600 whitespace-nowrap"
+                    style={{ left: `${m.index * 20}px` }}
+                  >
+                    {m.label}
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-1.5">
+                {weeks.map((week, wi) => (
+                  <div key={wi} className="grid grid-rows-7 gap-1.5">
+                    {week.map((day, di) => (
+                      <motion.div
+                        key={di}
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: (wi * 7 + di) * 0.0005 }}
+                        className={`w-3.5 h-3.5 rounded-[4px] border transition-all hover:scale-125 hover:z-10 ${levelColors[day.level]}`}
+                        title={day.date ? `${day.date}: ${Math.floor(day.duration / 60)} min` : undefined}
+                      />
+                    ))}
                   </div>
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-between px-1 border-t border-white/5 pt-6">
+          <div className="flex flex-col">
+            <span className="text-xl font-light text-white">{stats.sessionCount}</span>
+            <span className="text-[8px] uppercase tracking-widest text-gray-600 font-bold">Total Sessions</span>
+          </div>
+          <div className="flex flex-col text-right">
+            <span className="text-xl font-light text-white">{stats.streak} Days</span>
+            <span className="text-[8px] uppercase tracking-widest text-gray-600 font-bold">Current Streak</span>
           </div>
         </div>
       </div>
@@ -161,8 +230,8 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
                 </div>
                 <span className="text-sm font-bold text-gray-500 tracking-tighter">{item.minutes} min</span>
               </div>
-              <div className="w-full h-2.5 bg-white/[0.04] rounded-full overflow-hidden">
-                <motion.div 
+              <div className="w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${(item.duration / (stats.totalMinutes * 60 || 1)) * 100}%` }}
                   className="h-full rounded-full"
@@ -178,7 +247,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
       <div className="space-y-6 pb-4 w-full">
         <div className="flex justify-between items-center px-2">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600">Recent Sessions</span>
-          <History size={16} className="text-gray-800" />
+          <Zap size={16} className="text-gray-800" />
         </div>
         <div className="flex flex-col gap-4">
           {recentSessions.map((session, i) => {
