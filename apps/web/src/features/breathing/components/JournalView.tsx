@@ -26,16 +26,16 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
     const lung = [];
     const focus = [];
     const apnea = [];
-
+    
     for (let i = 11; i >= 0; i--) {
       const weekStart = new Date(now);
       weekStart.setDate(now.getDate() - now.getDay() - (i * 7));
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
-
+      
       const weekStartStr = weekStart.toISOString().split('T')[0];
       const weekEndStr = weekEnd.toISOString().split('T')[0];
-
+      
       const weeklySessions = sessions.filter(s => {
         const sessionDate = s.date.split('T')[0];
         return sessionDate >= weekStartStr && sessionDate <= weekEndStr;
@@ -46,7 +46,6 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
       const sessionCount = weeklySessions.length;
       const uniqueExercises = new Set(weeklySessions.map(s => s.exerciseId)).size;
 
-      // Check for exercises with holds (like Box or Deep Hold)
       const holdSessions = weeklySessions.filter(s => {
         const ex = exercises.find(e => e.id === s.exerciseId);
         return ex && (ex.pattern.hold1 > 0 || ex.pattern.hold2 > 0);
@@ -57,7 +56,7 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
       }, 0);
 
       const baseline = 22;
-
+      
       vagal.push(Math.max(baseline, Math.min(100, (sessionCount / 5) * 50 + (totalMinutes / 100) * 50)));
       cardiac.push(Math.max(baseline + 5, Math.min(100, (totalCycles / 150) * 40 + (totalMinutes / 120) * 60)));
       lung.push(Math.max(baseline - 5, Math.min(100, (totalCycles / 200) * 85 + (sessionCount / 7) * 15)));
@@ -87,7 +86,7 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
       {/* Dynamic Headline */}
       <div className="flex justify-between items-start mb-10 px-1 relative z-10">
         <div className="flex items-center gap-5">
-          <motion.div
+          <motion.div 
             key={currentMetric.id}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -97,7 +96,7 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
           </motion.div>
           <div className="space-y-1">
             <AnimatePresence mode="wait">
-              <motion.h3
+              <motion.h3 
                 key={currentMetric.label}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -111,7 +110,7 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
         </div>
         <div className="text-right">
           <div className="flex items-center justify-end gap-2">
-            <motion.span
+            <motion.span 
               key={currentScore}
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
@@ -126,7 +125,7 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
           </p>
         </div>
       </div>
-
+      
       {/* Refined Thin-Line Multi-Graph */}
       <div className="h-44 w-full relative group z-10 px-2 mb-10">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
@@ -149,7 +148,7 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
               />
             );
           })}
-
+          
           <motion.polyline
             key={`${activeMetric}-glow`}
             fill="none"
@@ -171,8 +170,8 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
           {metrics.map((m) => {
             const isActive = activeMetric === m.id;
             return (
-              <button
-                key={m.id}
+              <button 
+                key={m.id} 
                 onClick={() => setActiveMetric(m.id)}
                 className={`flex items-center gap-3 p-3.5 rounded-[28px] border transition-all duration-500 text-left ${isActive ? 'bg-white/[0.05] border-white/20 shadow-xl' : 'bg-transparent border-transparent opacity-40 hover:opacity-100'}`}
               >
@@ -193,7 +192,7 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
 
         {/* Dynamic Insight Box */}
         <AnimatePresence mode="wait">
-          <motion.div
+          <motion.div 
             key={activeMetric}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -244,14 +243,14 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
     const startDate = new Date(now);
     startDate.setDate(now.getDate() - now.getDay());
     startDate.setDate(startDate.getDate() - (51 * 7));
-
+    
     let lastMonth = -1;
 
     for (let w = 0; w < 52; w++) {
       const weekDays = [];
       const firstDayOfWeek = new Date(startDate);
       firstDayOfWeek.setDate(startDate.getDate() + (w * 7));
-
+      
       const monthIndex = firstDayOfWeek.getMonth();
       if (monthIndex !== lastMonth) {
         months.push({
@@ -264,7 +263,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
       for (let d = 0; d < 7; d++) {
         const targetDate = new Date(firstDayOfWeek);
         targetDate.setDate(firstDayOfWeek.getDate() + d);
-
+        
         if (targetDate > now) {
           weekDays.push({ date: '', level: -1, duration: 0 });
           continue;
@@ -272,13 +271,20 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
 
         const dateKey = targetDate.toISOString().split('T')[0];
         const duration = activityMap[dateKey] || 0;
-
+        
+        // UPDATED LEVEL LOGIC:
+        // Level 1: > 0 (Started)
+        // Level 2: >= 5 min (300s)
+        // Level 3: >= 10 min (600s)
+        // Level 4: >= 15 min (900s)
+        // Level 5: >= 20 min (1200s)
         let level = 0;
         if (duration > 0 && duration < 300) level = 1;
-        else if (duration >= 300 && duration < 900) level = 2;
-        else if (duration >= 900 && duration < 1800) level = 3;
-        else if (duration >= 1800) level = 4;
-
+        else if (duration >= 300 && duration < 600) level = 2;
+        else if (duration >= 600 && duration < 900) level = 3;
+        else if (duration >= 900 && duration < 1200) level = 4;
+        else if (duration >= 1200) level = 5;
+        
         weekDays.push({ date: dateKey, level, duration });
       }
       weeksList.push(weekDays);
@@ -310,7 +316,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
     2: 'bg-indigo-700 border-indigo-400/20',
     3: 'bg-indigo-500 border-indigo-300/30',
     4: 'bg-indigo-400 border-indigo-200/40',
-    5: 'bg-indigo-400 border-indigo-100/50',
+    5: 'bg-indigo-300 border-indigo-100/50',
     '-1': 'bg-transparent border-white/[0.05] pointer-events-none'
   };
 
@@ -339,7 +345,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
           <div className="flex items-center gap-2">
             <span className="text-[8px] uppercase tracking-widest text-gray-700 font-bold">Less</span>
             <div className="flex gap-1">
-              {[0, 1, 2, 3, 4].map(l => (
+              {[0, 1, 2, 3, 4, 5].map(l => (
                 <div key={l} className={`w-2.5 h-2.5 rounded-sm ${levelColors[l]}`} />
               ))}
             </div>
@@ -348,7 +354,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
         </div>
 
         <div className="relative">
-          <div
+          <div 
             ref={scrollContainerRef}
             className="overflow-x-auto pb-4 scrollbar-hide flex gap-4 mask-fade-edges"
           >
@@ -367,8 +373,8 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
             <div className="flex flex-col gap-2">
               <div className="h-4 relative">
                 {monthLabels.map((m, i) => (
-                  <span
-                    key={i}
+                  <span 
+                    key={i} 
                     className="absolute text-[8px] font-black uppercase tracking-widest text-gray-600 whitespace-nowrap"
                     style={{ left: `${m.index * 20}px` }}
                   >
@@ -408,7 +414,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
         </div>
       </div>
 
-      {/* Health Trend Graph - ADDED CO2 TOLERANCE ANALYTIC */}
+      {/* Health Trend Graph */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
