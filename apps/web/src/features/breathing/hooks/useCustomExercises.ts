@@ -14,6 +14,9 @@ export interface Badge {
   requirement: number;
   unlocked: boolean;
   progress?: number;
+  frequency?: 'once' | 'daily'; // Added to track daily personal goals
+  exerciseId?: string; // Added for navigation
+  iconId?: string; // Added for custom goal icons
 }
 
 export interface CustomGoal {
@@ -22,6 +25,8 @@ export interface CustomGoal {
   exerciseId: string;
   targetMinutes: number;
   currentMinutes: number;
+  frequency: 'once' | 'daily';
+  iconId?: string; // Support for custom icons
 }
 
 export function useLibrary() {
@@ -153,58 +158,11 @@ export function useLibrary() {
 
     // Badge calculation
     const badges: Badge[] = [
-      // DAILY
-      {
-        id: 'daily_first',
-        name: 'First Breath',
-        description: 'Complete one session today.',
-        category: 'daily',
-        type: 'sessions',
-        requirement: 1,
-        unlocked: todaySessions.length >= 1
-      },
-      {
-        id: 'daily_10',
-        name: 'Daily Focus',
-        description: 'Practice for 10 minutes today.',
-        category: 'daily',
-        type: 'duration',
-        requirement: 10,
-        unlocked: todayMinutes >= 10,
-        progress: Math.min(100, (todayMinutes / 10) * 100)
-      },
-      // WEEKLY
-      {
-        id: 'weekly_king',
-        name: 'Consistency King',
-        description: '7-day practice streak.',
-        category: 'weekly',
-        type: 'streak',
-        requirement: 7,
-        unlocked: streak >= 7,
-        progress: Math.min(100, (streak / 7) * 100)
-      },
-      {
-        id: 'weekly_60',
-        name: 'Weekly Zen',
-        description: '60 minutes of mindfulness this week.',
-        category: 'weekly',
-        type: 'duration',
-        requirement: 60,
-        unlocked: weekMinutes >= 60,
-        progress: Math.min(100, (weekMinutes / 60) * 100)
-      },
-      // MILESTONES
-      {
-        id: 'milestone_master',
-        name: 'Mindful Master',
-        description: '100 total minutes practiced.',
-        category: 'milestone',
-        type: 'duration',
-        requirement: 100,
-        unlocked: totalMinutes >= 100,
-        progress: Math.min(100, (totalMinutes / 100) * 100)
-      },
+      { id: 'daily_first', name: 'First Light', description: 'Complete your first session today.', category: 'daily', type: 'sessions', requirement: 1, unlocked: todaySessions.length >= 1, progress: todaySessions.length >= 1 ? 100 : 0, iconId: 'sun' },
+      { id: 'daily_deep', name: 'Deep Diver', description: 'Complete 20 minutes of practice today.', category: 'daily', type: 'duration', requirement: 20, unlocked: todayMinutes >= 20, progress: Math.min(100, (todayMinutes / 20) * 100), iconId: 'activity' },
+      { id: 'weekly_consistent', name: 'Weekly Warrior', description: 'Practice for 3 days this week.', category: 'weekly', type: 'streak', requirement: 3, unlocked: new Set(weekSessions.map(s => s.date.split('T')[0])).size >= 3, progress: Math.min(100, (new Set(weekSessions.map(s => s.date.split('T')[0])).size / 3) * 100), iconId: 'calendar' },
+      { id: 'milestone_100', name: 'Centurion', description: 'Reach 100 total minutes of practice.', category: 'milestone', type: 'duration', requirement: 100, unlocked: totalMinutes >= 100, progress: Math.min(100, (totalMinutes / 100) * 100), iconId: 'trophy' },
+      { id: 'milestone_1000', name: 'Zen Master', description: 'Reach 1000 total minutes of practice.', category: 'milestone', type: 'duration', requirement: 1000, unlocked: totalMinutes >= 1000, progress: Math.min(100, (totalMinutes / 1000) * 100), iconId: 'shield' },
       {
         id: 'milestone_explorer',
         name: 'Explorer',
@@ -216,19 +174,33 @@ export function useLibrary() {
       }
     ];
 
-    // Map custom goals to badges with exercise-specific tracking
+    // Map custom goals to badges with frequency-specific tracking
     const customGoalBadges: Badge[] = customGoals.map(goal => {
-      // Calculate current progress for this specific exercise
-      const exerciseMinutes = Math.floor(sessions
-        .filter(s => s.exerciseId === goal.exerciseId || goal.exerciseId === 'all')
-        .reduce((acc, s) => acc + s.duration, 0) / 60);
+      let exerciseMinutes = 0;
+      
+      if (goal.frequency === 'daily') {
+        // Track minutes for TODAY only
+        exerciseMinutes = Math.floor(sessions
+          .filter(s => s.date.startsWith(todayStr) && (s.exerciseId === goal.exerciseId || goal.exerciseId === 'all'))
+          .reduce((acc, s) => acc + s.duration, 0) / 60);
+      } else {
+        // Track LIFETIME minutes
+        exerciseMinutes = Math.floor(sessions
+          .filter(s => s.exerciseId === goal.exerciseId || goal.exerciseId === 'all')
+          .reduce((acc, s) => acc + s.duration, 0) / 60);
+      }
 
       return {
         id: goal.id,
         name: goal.name,
-        description: `Target: ${goal.targetMinutes}m of ${goal.exerciseId === 'all' ? 'any practice' : goal.exerciseId}.`,
+        description: goal.frequency === 'daily' 
+          ? `Daily Target: ${goal.targetMinutes}m of ${goal.exerciseId === 'all' ? 'any practice' : goal.exerciseId}.`
+          : `Milestone: Reach ${goal.targetMinutes}m total of ${goal.exerciseId === 'all' ? 'any practice' : goal.exerciseId}.`,
         category: 'custom',
         type: 'manual',
+        frequency: goal.frequency, // Pass frequency to badge
+        exerciseId: goal.exerciseId, // Ensure exerciseId is passed for navigation
+        iconId: goal.iconId, // Pass custom icon ID to badge
         requirement: goal.targetMinutes,
         unlocked: exerciseMinutes >= goal.targetMinutes,
         progress: Math.min(100, (exerciseMinutes / goal.targetMinutes) * 100)
