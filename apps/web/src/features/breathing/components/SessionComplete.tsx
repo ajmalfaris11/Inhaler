@@ -62,7 +62,7 @@ const HealthSparkline = () => {
             filter="url(#glow)"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           />
           {/* Subtle area fill */}
           <motion.path
