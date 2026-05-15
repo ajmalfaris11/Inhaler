@@ -22,7 +22,9 @@ import {
   Image as ImageIcon,
   Heart,
   Smartphone,
-  ChevronLeft
+  ChevronLeft,
+  Crown,
+  Mail
 } from 'lucide-react';
 
 interface ProfileViewProps {
@@ -36,6 +38,8 @@ interface ProfileViewProps {
   onUpdateName: (name: string) => void;
   onUpdateAvatar: (avatar: string | null) => void;
   onResetData: () => void;
+  onUpgrade: () => void;
+  onLogin: () => void;
 }
 
 type SettingsType = 'notifications' | 'privacy' | 'goal' | 'about' | 'none';
@@ -46,7 +50,9 @@ export function ProfileView({
   userAvatar,
   onUpdateName,
   onUpdateAvatar,
-  onResetData
+  onResetData,
+  onUpgrade,
+  onLogin
 }: ProfileViewProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isSelectingAvatar, setIsSelectingAvatar] = useState(false);
@@ -473,6 +479,51 @@ export function ProfileView({
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Account Section */}
+      <div className="space-y-4 mt-12">
+        <h3 className="px-1 text-[10px] uppercase tracking-[0.2em] font-bold text-gray-500/50">Account</h3>
+        <div className="bg-white/[0.02] border border-white/10 rounded-[42px] overflow-hidden shadow-2xl">
+          <button 
+            onClick={onLogin}
+            className="w-full flex items-center justify-between px-8 py-6 hover:bg-white/5 transition-all group/item"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center group-hover/item:scale-110 transition-transform">
+                <Mail size={18} className="text-gray-400" />
+              </div>
+              <div className="text-left">
+                <span className="block text-sm font-light text-white">Sign In or Create Account</span>
+                <span className="block text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-0.5">Access cloud sync</span>
+              </div>
+            </div>
+            <ChevronRight size={14} className="text-gray-600 group-hover/item:translate-x-1 transition-transform" />
+          </button>
+        </div>
+      </div>
+
+      {/* Premium Upgrade Card */}
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onUpgrade}
+        className="w-full mt-8 relative overflow-hidden rounded-[36px] p-6 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20 group"
+      >
+        <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
+          <Crown size={40} className="text-emerald-400" />
+        </div>
+        <div className="relative z-10 flex flex-col items-start text-left space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-black text-[8px] font-black uppercase tracking-tighter">Premium</span>
+            <h4 className="text-lg font-light text-white tracking-tight">Unlock Everything</h4>
+          </div>
+          <p className="text-xs text-gray-400 font-light max-w-[200px]">Get all premium routines, custom builders, and cloud sync.</p>
+          <div className="pt-2 flex items-center gap-2 text-emerald-400">
+            <span className="text-[10px] font-black uppercase tracking-widest">Upgrade Now</span>
+            <ChevronRight size={14} />
+          </div>
+        </div>
+      </motion.button>
 
       {/* Stats Section */}
       <div className="w-full bg-[#0D0D0D] border border-white/[0.06] rounded-[42px] p-8 shadow-2xl">
