@@ -144,7 +144,7 @@ const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
                 className={`transition-all duration-700 ${isActive ? 'opacity-100' : 'opacity-30'}`}
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
-                transition={{ duration: 2, ease: "easeInOut" }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               />
             );
           })}
@@ -390,7 +390,7 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
                         key={di}
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: (wi * 7 + di) * 0.0005 }}
+                        transition={{ duration: 0.3 }}
                         className={`w-3.5 h-3.5 rounded-[5px] border-[0.5px] transition-all hover:scale-150 hover:z-50 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] ${levelColors[day.level]} relative overflow-hidden`}
                         title={day.date ? `${day.date}: ${Math.floor(day.duration / 60)} min` : undefined}
                       >
@@ -436,25 +436,35 @@ export function JournalView({ sessions, stats }: JournalViewProps) {
           <PieChart size={14} className="text-gray-700" />
         </div>
         <div className="space-y-8 relative z-10">
-          {modelBreakdown.map((item) => (
-            <div key={item.exercise.id} className="space-y-3">
-              <div className="flex justify-between items-center px-1">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.exercise.gradient.start }} />
-                  <span className="text-base font-light text-white/90 tracking-tight">{item.exercise.name}</span>
+          {(() => {
+            const totalDuration = sessions.reduce((acc, s) => acc + s.duration, 0) || 1;
+            return modelBreakdown.map((item) => {
+              const percentage = Math.round((item.duration / totalDuration) * 100);
+              return (
+                <div key={item.exercise.id} className="space-y-3">
+                  <div className="flex justify-between items-center px-1">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.exercise.gradient.start }} />
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-base font-light text-white/90 tracking-tight">{item.exercise.name}</span>
+                        <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{percentage}%</span>
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-gray-500 tracking-tighter">{item.minutes} min</span>
+                  </div>
+                  <div className="w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${percentage}%` }}
+                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      className="h-full rounded-full"
+                      style={{ background: `linear-gradient(90deg, ${item.exercise.gradient.start}, ${item.exercise.gradient.end})` }}
+                    />
+                  </div>
                 </div>
-                <span className="text-sm font-bold text-gray-500 tracking-tighter">{item.minutes} min</span>
-              </div>
-              <div className="w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(item.duration / (stats.totalMinutes * 60 || 1)) * 100}%` }}
-                  className="h-full rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${item.exercise.gradient.start}, ${item.exercise.gradient.end})` }}
-                />
-              </div>
-            </div>
-          ))}
+              );
+            });
+          })()}
         </div>
       </div>
 
