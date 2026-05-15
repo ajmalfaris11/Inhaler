@@ -1,0 +1,15 @@
+1. Cloud & Infrastructure
+- Cloud Synchronization: Secure user accounts and cross-device data persistence (Clerk/Auth.js).
+- Global Asset Delivery: Low-latency CDN for high-quality audio soundscapes.
+
+2. SaaS & Monetization
+- Subscription & Payments: Stripe integration for Pro/Enterprise tiers with regional pricing.
+- SaaS Analytics Engine: Backend tracking for user retention, trends, and milestones.
+
+3. Real-time & Community
+- Group Meditation (WebSockets): Real-time synchronization for collective breathing sessions.
+
+4. Architecture & Security
+- Timezone Agnostic Logic: Server-side date calculations to ensure streak consistency.
+- Encrypted Journal Backups: End-to-end encryption for private user journal entries.
+- External Developer API: Public API for third-party integrations (wearables, wellness platforms).
