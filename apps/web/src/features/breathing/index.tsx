@@ -16,8 +16,10 @@ import { SessionSetup, SessionConfig } from './components/SessionSetup';
 import { SessionComplete } from './components/SessionComplete';
 import { JournalView } from './components/JournalView';
 import { AchievementsView } from './components/AchievementsView';
+import { SubscriptionView } from './components/SubscriptionView';
+import { AuthView } from './components/AuthView';
 
-type ViewType = 'home' | 'exercise' | 'details' | 'setup' | 'complete' | 'builder';
+type ViewType = 'home' | 'exercise' | 'details' | 'setup' | 'complete' | 'builder' | 'subscription' | 'auth';
 
 export function BreathingExercise() {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
@@ -71,7 +73,7 @@ export function BreathingExercise() {
         <div className="flex flex-col items-center w-full px-4 sm:px-0 max-w-[480px] mx-auto font-sans relative z-10">
           <AnimatePresence mode="wait">
             {view === 'home' && (
-              <motion.div 
+              <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -120,17 +122,32 @@ export function BreathingExercise() {
                   />
                 )}
                 {activeTab === 'profile' && (
-                  <ProfileView 
-                    key="profile" 
-                    stats={stats} 
+                  <ProfileView
+                    key="profile"
+                    stats={stats}
                     userName={userName}
                     userAvatar={userAvatar}
                     onUpdateName={updateUserName}
                     onUpdateAvatar={updateAvatar}
                     onResetData={clearAllData}
+                    onUpgrade={() => setView('subscription')}
+                    onLogin={() => setView('auth')}
                   />
                 )}
               </motion.div>
+            )}
+            {view === 'subscription' && (
+              <SubscriptionView
+                key="subscription"
+                onBack={() => setView('home')}
+              />
+            )}
+            {view === 'auth' && (
+              <AuthView
+                key="auth"
+                onBack={() => setView('home')}
+                onSuccess={() => setView('home')}
+              />
             )}
             {view === 'builder' && (
               <CustomBuilder
