@@ -347,7 +347,8 @@ export function AchievementsView({ stats, customGoals, customExercises, onAddGoa
                                 <motion.div 
                                   initial={{ width: 0 }}
                                   animate={{ width: `${badge.progress}%` }}
-                                  className={`h-full rounded-full transition-all duration-1000 ${isCustom ? 'bg-gradient-to-r from-rose-500 to-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.3)]' : 'bg-white/30'}`}
+                                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                                  className={`h-full rounded-full ${isCustom ? 'bg-gradient-to-r from-rose-500 to-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.3)]' : 'bg-white/30'}`}
                                 />
                               </div>
                             )}
