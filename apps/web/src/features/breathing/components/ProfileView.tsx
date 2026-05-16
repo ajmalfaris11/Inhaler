@@ -530,7 +530,7 @@ export function ProfileView({
         <h3 className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-600 mb-6 px-1">Mindfulness Journey</h3>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { icon: Target, label: 'Minutes', value: stats.totalMinutes, color: 'text-orange-400' },
+            { icon: Target, label: 'Minutes', value: Math.floor(stats.totalMinutes), color: 'text-orange-400' },
             { icon: ZapIcon, label: 'Sessions', value: stats.sessionCount, color: 'text-emerald-400' },
             { icon: Trophy, label: 'Streak', value: stats.streak, color: 'text-blue-400' },
           ].map((stat) => (
