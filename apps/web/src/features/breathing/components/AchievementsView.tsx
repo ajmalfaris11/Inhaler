@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Trophy, Plus, Trash2, Lock, Clock, Calendar, Sparkles, ChevronDown, 
   CheckCircle2, Play, ChevronLeft, Target, Wind, Repeat, Zap, 
-  Heart, Brain, Activity, Sun, Moon, Cloud, Shield
+  Heart, Brain, Activity, Sun, Moon, Cloud, Shield, LucideIcon
 } from 'lucide-react';
 import { Badge, CustomGoal } from '../hooks/useCustomExercises';
 import { Exercise, exercises as defaultExercises } from '../data';
@@ -27,7 +27,7 @@ interface AchievementsViewProps {
 }
 
 // Icon mapping helper
-const GOAL_ICONS: Record<string, any> = {
+const GOAL_ICONS: Record<string, LucideIcon> = {
   wind: Wind,
   heart: Heart,
   zap: Zap,
@@ -82,7 +82,7 @@ export function AchievementsView({ stats, customGoals, customExercises, onAddGoa
   const handleAddGoal = () => {
     if (!newGoalName) return;
     onAddGoal({
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       name: newGoalName,
       targetMinutes: parseInt(newGoalTarget) || 2,
       exerciseId: selectedExerciseId,
