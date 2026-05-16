@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, ArrowRight, Github, Globe, Apple, ChevronLeft, User } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Globe, ChevronLeft, User } from 'lucide-react';
 
 interface AuthViewProps {
   onBack: () => void;
