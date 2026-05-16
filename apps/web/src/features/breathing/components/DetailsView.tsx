@@ -12,7 +12,7 @@ interface DetailsViewProps {
 }
 
 export function DetailsView({ exercise, onBack, onStart }: DetailsViewProps) {
-  const Icon = (IconMap as any)[exercise.icon] || Activity;
+  const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
   
   return (
     <motion.div
@@ -55,7 +55,7 @@ export function DetailsView({ exercise, onBack, onStart }: DetailsViewProps) {
           {/* Main Description (iOS Card) */}
           <section className="bg-white/[0.03] border border-white/[0.05] rounded-[40px] p-8">
             <p className="text-gray-300 text-lg leading-relaxed font-light italic text-center">
-              "{exercise.description}"
+              &quot;{exercise.description}&quot;
             </p>
           </section>
 
