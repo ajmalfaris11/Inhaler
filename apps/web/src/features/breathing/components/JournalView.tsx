@@ -16,7 +16,14 @@ interface JournalViewProps {
   };
 }
 
-const HealthTrendGraph = ({ sessions }: { sessions: any[] }) => {
+interface Session {
+  exerciseId: string;
+  date: string;
+  duration: number;
+  cycles?: number;
+}
+
+const HealthTrendGraph = ({ sessions }: { sessions: Session[] }) => {
   const [activeMetric, setActiveMetric] = useState<'vagal' | 'cardiac' | 'lung' | 'focus' | 'apnea'>('vagal');
 
   const multiTrendData = useMemo(() => {
