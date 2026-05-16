@@ -123,7 +123,7 @@ export function useLibrary() {
   };
 
   const stats = useMemo(() => {
-    const totalMinutes = Math.floor(sessions.reduce((acc, s) => acc + s.duration, 0) / 60);
+    const totalMinutes = sessions.reduce((acc, s) => acc + s.duration, 0) / 60;
     const sessionCount = sessions.length;
     
     // Dates & Streaks
@@ -152,11 +152,11 @@ export function useLibrary() {
 
     // Daily Stats
     const todaySessions = sessions.filter(s => s.date.startsWith(todayStr));
-    const todayMinutes = Math.floor(todaySessions.reduce((acc, s) => acc + s.duration, 0) / 60);
+    const todayMinutes = todaySessions.reduce((acc, s) => acc + s.duration, 0) / 60;
 
     // Weekly Stats
     const weekSessions = sessions.filter(s => new Date(s.date) >= weekAgo);
-    const weekMinutes = Math.floor(weekSessions.reduce((acc, s) => acc + s.duration, 0) / 60);
+    const weekMinutes = weekSessions.reduce((acc, s) => acc + s.duration, 0) / 60;
 
     // Badge calculation
     const badges: Badge[] = [
@@ -182,14 +182,14 @@ export function useLibrary() {
       
       if (goal.frequency === 'daily') {
         // Track minutes for TODAY only
-        exerciseMinutes = Math.floor(sessions
+        exerciseMinutes = sessions
           .filter(s => s.date.startsWith(todayStr) && (s.exerciseId === goal.exerciseId || goal.exerciseId === 'all'))
-          .reduce((acc, s) => acc + s.duration, 0) / 60);
+          .reduce((acc, s) => acc + s.duration, 0) / 60;
       } else {
         // Track LIFETIME minutes
-        exerciseMinutes = Math.floor(sessions
+        exerciseMinutes = sessions
           .filter(s => s.exerciseId === goal.exerciseId || goal.exerciseId === 'all')
-          .reduce((acc, s) => acc + s.duration, 0) / 60);
+          .reduce((acc, s) => acc + s.duration, 0) / 60;
       }
 
       return {
