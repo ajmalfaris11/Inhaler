@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export type BinauralType = 'none' | 'alpha' | 'theta' | 'delta';
 
@@ -46,26 +46,27 @@ export function useBinauralBeats(isPlaying: boolean = false) {
   const rightPannerRef = useRef<StereoPannerNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
 
-  const stop = () => {
+  const stop = useCallback(() => {
     if (leftOscRef.current) {
-      leftOscRef.current.stop();
+      try { leftOscRef.current.stop(); } catch (e) {}
       leftOscRef.current.disconnect();
       leftOscRef.current = null;
     }
     if (rightOscRef.current) {
-      rightOscRef.current.stop();
+      try { rightOscRef.current.stop(); } catch (e) {}
       rightOscRef.current.disconnect();
       rightOscRef.current = null;
     }
-  };
+  }, []);
 
-  const start = (config: BinauralConfig) => {
+  const start = useCallback((config: BinauralConfig) => {
     if (typeof window === 'undefined') return;
     
     stop();
 
     if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      audioCtxRef.current = new AudioContextClass();
     }
 
     const ctx = audioCtxRef.current;
@@ -101,7 +102,7 @@ export function useBinauralBeats(isPlaying: boolean = false) {
 
     leftOscRef.current.start();
     rightOscRef.current.start();
-  };
+  }, [stop, volume]);
 
   useEffect(() => {
     if (activeBinaural === 'none' || !isPlaying) {
@@ -112,7 +113,7 @@ export function useBinauralBeats(isPlaying: boolean = false) {
     }
 
     return () => stop();
-  }, [activeBinaural, isPlaying]);
+  }, [activeBinaural, isPlaying, start]);
 
   useEffect(() => {
     if (gainNodeRef.current) {
