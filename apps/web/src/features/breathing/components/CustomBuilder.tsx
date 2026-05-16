@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Plus, Minus, Info, Moon, Zap, Activity, ShieldAlert, Wind, Flame, Compass, Heart, Sun, Cloud, Infinity, Timer, Dna, Leaf, Sparkle, Brain } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Minus, Info } from 'lucide-react';
 import { Exercise, IconMap } from '../data';
 
 interface CustomBuilderProps {
