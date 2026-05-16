@@ -24,7 +24,7 @@ export function ExerciseCard({
   isFavorite, 
   onToggleFavorite 
 }: ExerciseCardProps) {
-  const Icon = (IconMap as any)[exercise.icon] || Activity;
+  const Icon = IconMap[exercise.icon as keyof typeof IconMap] || Activity;
   const level = exercise.isAdvanced ? 'Advanced' : 'Beginner';
 
   return (
