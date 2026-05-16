@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { History, PieChart, Zap, Calendar, Heart, Activity, Wind, Brain, ShieldCheck, ChevronRight, Info, Timer } from 'lucide-react';
+import { PieChart, Zap, Calendar, Activity, Wind, Brain, ShieldCheck, ChevronRight, Info, Timer } from 'lucide-react';
 import { exercises } from '../data';
 import { Badge } from '../hooks/useCustomExercises';
 
