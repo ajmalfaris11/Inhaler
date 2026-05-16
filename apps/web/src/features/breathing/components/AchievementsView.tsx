@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-  Trophy, Plus, Trash2, Lock, Clock, Calendar, Sparkles, ChevronDown, 
+  Trophy, Plus, Trash2, Lock, Clock, Calendar, Sparkles, 
   CheckCircle2, Play, ChevronLeft, Target, Wind, Repeat, Zap, 
   Heart, Brain, Activity, Sun, Moon, Cloud, Shield, LucideIcon
 } from 'lucide-react';
@@ -62,7 +62,7 @@ const TargetArrow = ({ size = 20, strokeWidth = 2, className = "" }) => (
   </svg>
 );
 
-export function AchievementsView({ stats, customGoals, customExercises, onAddGoal, onDeleteGoal, onStart }: AchievementsViewProps) {
+export function AchievementsView({ stats, customExercises, onAddGoal, onDeleteGoal, onStart }: AchievementsViewProps) {
   const [isAddingGoal, setIsAddingGoal] = useState(false);
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalTarget, setNewGoalTarget] = useState('2');
