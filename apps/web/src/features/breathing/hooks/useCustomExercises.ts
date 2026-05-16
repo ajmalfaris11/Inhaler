@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Exercise } from '../data';
 
 const STORAGE_KEY = 'inhale_custom_exercises';
@@ -40,22 +40,23 @@ export function useLibrary() {
   useEffect(() => {
     const savedCustom = localStorage.getItem(STORAGE_KEY);
     if (savedCustom) {
-      try { setCustomExercises(JSON.parse(savedCustom)); } catch (e) {}
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      try { setCustomExercises(JSON.parse(savedCustom)); } catch { /* ignore */ }
     }
 
     const savedFavs = localStorage.getItem('inhale_favorites');
     if (savedFavs) {
-      try { setFavorites(JSON.parse(savedFavs)); } catch (e) {}
+      try { setFavorites(JSON.parse(savedFavs)); } catch { /* ignore */ }
     }
 
     const savedSessions = localStorage.getItem('inhale_sessions');
     if (savedSessions) {
-      try { setSessions(JSON.parse(savedSessions)); } catch (e) {}
+      try { setSessions(JSON.parse(savedSessions)); } catch { /* ignore */ }
     }
 
     const savedGoals = localStorage.getItem('inhale_custom_goals');
     if (savedGoals) {
-      try { setCustomGoals(JSON.parse(savedGoals)); } catch (e) {}
+      try { setCustomGoals(JSON.parse(savedGoals)); } catch { /* ignore */ }
     }
 
     const savedName = localStorage.getItem('inhale_user_name');
@@ -121,7 +122,7 @@ export function useLibrary() {
     window.location.reload();
   };
 
-  const calculateStats = () => {
+  const stats = useMemo(() => {
     const totalMinutes = Math.floor(sessions.reduce((acc, s) => acc + s.duration, 0) / 60);
     const sessionCount = sessions.length;
     
@@ -135,7 +136,8 @@ export function useLibrary() {
     
     let streak = 0;
     if (uniqueDates.length > 0) {
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const yesterdayDate = new Date(now.getTime() - 86400000);
+      const yesterday = yesterdayDate.toISOString().split('T')[0];
       if (uniqueDates[0] === todayStr || uniqueDates[0] === yesterday) {
         streak = 1;
         for (let i = 0; i < uniqueDates.length - 1; i++) {
@@ -208,14 +210,14 @@ export function useLibrary() {
     });
 
     return { totalMinutes, sessionCount, streak, badges: [...badges, ...customGoalBadges], todayMinutes, weekMinutes };
-  };
+  }, [sessions, customGoals]);
 
   return {
     customExercises,
     favorites,
     sessions,
     customGoals,
-    stats: calculateStats(),
+    stats,
     addExercise,
     deleteExercise,
     toggleFavorite,
