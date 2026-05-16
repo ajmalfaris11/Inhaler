@@ -50,7 +50,7 @@ export function useSoundscape(isPlaying: boolean = false) {
     return () => {
       audio.pause();
     };
-  }, [activeSoundscape, isPlaying]);
+  }, [activeSoundscape, isPlaying, volume]);
 
   useEffect(() => {
     if (audioRef.current) {
