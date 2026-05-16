@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Compass, Library, BarChart3, UserRound } from 'lucide-react';
+import { Compass, Library, BarChart3, UserRound, LucideIcon } from 'lucide-react';
 
 export type TabType = 'explore' | 'library' | 'achievements' | 'journal' | 'profile';
 
@@ -34,7 +34,7 @@ const TargetArrow = ({ size = 20, strokeWidth = 2, className = "" }) => (
 );
 
 export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
-  const tabs: { id: TabType, icon: any, label: string }[] = [
+  const tabs: { id: TabType, icon: LucideIcon | React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>, label: string }[] = [
     { id: 'explore', icon: Compass, label: 'Explore' },
     { id: 'library', icon: Library, label: 'Library' },
     { id: 'achievements', icon: TargetArrow, label: 'Goals' },
