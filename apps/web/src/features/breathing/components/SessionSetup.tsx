@@ -80,7 +80,7 @@ export function SessionSetup({ exercise, onBack, onConfirm }: SessionSetupProps)
               <button
                 key={item.id}
                 onClick={() => {
-                  setMode(item.id as any);
+                  setMode(item.id as typeof mode);
                   if (item.id === 'duration') setValue(5);
                   if (item.id === 'cycles') setValue(20);
                 }}
