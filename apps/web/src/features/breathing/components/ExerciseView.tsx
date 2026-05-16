@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, RotateCcw, Pause, Play, Music, Settings as SettingsIcon } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Pause, Play, Music } from 'lucide-react';
 import { Exercise } from '../data';
 import { useBreathingTimer } from '../hooks/useBreathingTimer';
 import { useSoundscape } from '../hooks/useSoundscape';
@@ -38,7 +38,7 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
 
   // Audio hooks now play if session is active OR if settings are open (for testing)
   const soundscape = useSoundscape(timer.isActive || isSettingsOpen);
-  const voice = useVoiceAssistant(timer.phase, timer.isActive);
+  useVoiceAssistant(timer.phase, timer.isActive);
   const binaural = useBinauralBeats(timer.isActive || isSettingsOpen);
 
   // Check for completion
