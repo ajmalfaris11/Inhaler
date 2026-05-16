@@ -48,10 +48,12 @@ export function ExerciseView({ exercise, config, onBack, onComplete, onRecordSes
     if (config.mode === 'duration' && timer.totalTime >= config.value * 60) {
       hasCompletedRef.current = true;
       if (timer.isActive) timer.toggle();
+      onRecordSession(exercise.id, timer.totalTime);
       onComplete(timer.totalTime, timer.cycles);
     } else if (config.mode === 'cycles' && timer.cycles >= config.value) {
       hasCompletedRef.current = true;
       if (timer.isActive) timer.toggle();
+      onRecordSession(exercise.id, timer.totalTime);
       onComplete(timer.totalTime, timer.cycles);
     }
   }, [timer.totalTime, timer.cycles, config, onComplete, timer.isActive]);
